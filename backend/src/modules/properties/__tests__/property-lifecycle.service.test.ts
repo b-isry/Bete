@@ -147,7 +147,10 @@ describe('property-lifecycle.service', () => {
       expect(prismaMock.property.update).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { id: 'prop-1' },
-          data: { expires_at: expect.any(Date) },
+          data: {
+            expires_at: expect.any(Date),
+            reminder_sent_at: null,
+          },
         }),
       );
     });

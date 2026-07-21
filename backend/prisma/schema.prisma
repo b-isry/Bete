@@ -136,6 +136,7 @@ model User {
   assignedThreads    Thread[]            @relation("ThreadAdmin")
   boosts             Boost[]
   adminActions       AdminActionLog[]
+  notifications      Notification[]
 
   @@index([role, verification_status])
 }
@@ -191,6 +192,7 @@ model Property {
   contact_count  Int            @default(0)
   is_featured    Boolean        @default(false)
   featured_until DateTime?
+  reminder_sent_at DateTime?
   deleted_at     DateTime?
   created_at     DateTime       @default(now())
   updated_at     DateTime       @updatedAt
@@ -391,4 +393,18 @@ model AdminActionLog {
   admin User @relation(fields: [admin_id], references: [id])
 
   @@index([target_type, target_id])
+}
+
+model Notification {
+  id         String    @id @default(uuid()) @db.Uuid
+  user_id    String    @db.Uuid
+  type       String
+  title      String
+  body       String    @db.Text
+  read_at    DateTime?
+  created_at DateTime  @default(now())
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id, created_at])
 }

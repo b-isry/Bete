@@ -139,3 +139,24 @@ export function formatSearchSummary(options: {
 
   return fill(pick(SEARCH_SUMMARY_NO_CITY, options.locale), { count });
 }
+
+const SELLER_STAT_LINE: MessageTable = {
+  en: '{score} pts · {views} views · {contacts} contacts',
+  am: '{score} ነጥብ · {views} እይታዎች · {contacts} ግንኙነቶች',
+  om: '{score} qabxii · {views} ilaalcha · {contacts} quunnamtii',
+  ti: '{score} ነጥቢ · {views} ምርኣያት · {contacts} ርክባት',
+  so: '{score} dhibco · {views} daawasho · {contacts} xiriir',
+};
+
+export function formatSellerStatLine(options: {
+  locale: Locale;
+  score: number;
+  views: number;
+  contacts: number;
+}): string {
+  return fill(pick(SELLER_STAT_LINE, options.locale), {
+    score: options.score.toFixed(0),
+    views: String(options.views),
+    contacts: String(options.contacts),
+  });
+}

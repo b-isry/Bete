@@ -116,6 +116,7 @@ export async function renewListing(userId: string, propertyId: string) {
     where: { id: propertyId },
     data: {
       expires_at: expiresAt,
+      reminder_sent_at: null,
     },
     include: {
       images: { orderBy: { sort_order: 'asc' } },

@@ -2,9 +2,12 @@ import { createApp } from './app';
 import { env } from './config/env';
 import { logger } from './config/logger';
 import { prisma } from './config/prisma';
+import { startNightlyScheduler } from './jobs/scheduler';
 
 async function main(): Promise<void> {
   const app = createApp();
+
+  startNightlyScheduler();
 
   const server = app.listen(env.PORT, () => {
     logger.info(`Bete API listening on port ${env.PORT} (${env.NODE_ENV})`);
