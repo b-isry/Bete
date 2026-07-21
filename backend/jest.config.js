@@ -8,6 +8,7 @@ module.exports = {
   clearMocks: true,
   collectCoverageFrom: [
     'src/modules/auth/**/*.ts',
-    '!src/modules/auth/**/__tests__/**',
+    'src/modules/properties/**/*.ts',
+    '!src/modules/**/__tests__/**',
   ],
 };
