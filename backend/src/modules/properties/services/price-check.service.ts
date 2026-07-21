@@ -103,3 +103,35 @@ export async function getAreaPriceComparison(
     sampleSize: peers.length,
   };
 }
+
+/**
+ * Average price of all LIVE listings in a city + property type (no ±25% band).
+ * Used by AI pre-screening for outlier detection.
+ */
+export async function getAreaAveragePrice(
+  cityId: number,
+  propertyType: PropertyType,
+  excludePropertyId?: string,
+): Promise<Decimal | null> {
+  const peers = await prisma.property.findMany({
+    where: {
+      status: 'LIVE',
+      deleted_at: null,
+      city_id: cityId,
+      property_type: propertyType,
+      ...(excludePropertyId ? { id: { not: excludePropertyId } } : {}),
+    },
+    select: { price: true },
+  });
+
+  if (peers.length === 0) {
+    return null;
+  }
+
+  let priceSum = new Decimal(0);
+  for (const peer of peers) {
+    priceSum = priceSum.plus(toDecimal(peer.price));
+  }
+
+  return priceSum.div(peers.length);
+}

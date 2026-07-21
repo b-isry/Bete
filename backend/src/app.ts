@@ -7,6 +7,7 @@ import { errorMiddleware } from './middlewares/error.middleware';
 import { httpLogger, requestLogger } from './middlewares/logging.middleware';
 import { authRateLimiter, globalRateLimiter } from './middlewares/rate-limiter';
 import { authRouter } from './modules/auth/routes/auth.routes';
+import { propertyRouter } from './modules/properties/routes/property.routes';
 import { propertySearchRouter } from './modules/properties/routes/property-search.routes';
 import { sendSuccess } from './utils/response';
 
@@ -33,7 +34,9 @@ export function createApp(): Application {
   });
 
   app.use('/api/v1/auth', authRateLimiter, authRouter);
+  // Search routes first so `/search` and `/:id/price-compare` win over `/:id`
   app.use('/api/v1/properties', propertySearchRouter);
+  app.use('/api/v1/properties', propertyRouter);
 
   app.use((_req: Request, _res: Response, next: NextFunction) => {
     next(new NotFoundError('Route not found'));
