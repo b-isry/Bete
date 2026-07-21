@@ -1,0 +1,43 @@
+{
+  "name": "bete-backend",
+  "version": "1.0.0",
+  "description": "Bete Ethiopian Real Estate Marketplace API",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --inspect=0.0.0.0:9229 --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "docker:up": "docker compose -f ../docker-compose.yml --project-directory .. up --build",
+    "docker:down": "docker compose -f ../docker-compose.yml --project-directory .. down",
+    "docker:migrate": "docker compose -f ../docker-compose.yml --project-directory .. exec backend npx prisma migrate dev",
+    "docker:studio": "docker compose -f ../docker-compose.yml --project-directory .. exec backend npx prisma studio",
+    "docker:logs": "docker compose -f ../docker-compose.yml --project-directory .. logs -f backend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.10.0",
+    "winston": "^3.17.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.13.10",
+    "prisma": "^6.5.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.2"
+  }
+}

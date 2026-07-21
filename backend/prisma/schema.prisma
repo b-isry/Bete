@@ -1,0 +1,394 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  USER
+  SELLER
+  ADMIN
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum DealType {
+  SALE
+  RENT
+}
+
+enum PropertyType {
+  HOUSE
+  APARTMENT
+  LAND
+  COMMERCIAL
+}
+
+enum PropertyStatus {
+  PENDING
+  LIVE
+  REJECTED
+  EXPIRED
+  REMOVED
+  AUTO_HIDDEN
+}
+
+enum EventType {
+  VIEW
+  CALL
+  WHATSAPP
+  TELEGRAM
+  MESSAGE
+}
+
+enum ThreadType {
+  LISTING
+  SUPPORT
+}
+
+enum MessageType {
+  TEXT
+  VOICE
+  IMAGE
+  VIDEO
+}
+
+enum ReportReason {
+  FAKE
+  ALREADY_SOLD
+  WRONG_PRICE
+  SCAM
+  OFFENSIVE
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
+}
+
+enum BoostStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+}
+
+enum FlagType {
+  DUPLICATE_PHOTO_MATCH
+  PRICE_OUTLIER_DETECTED
+  SCAM_KEYWORD_DETECTED
+  IMAGE_QUALITY_ISSUE
+}
+
+enum Locale {
+  en
+  am
+  om
+  ti
+  so
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model User {
+  id                  String             @id @default(uuid()) @db.Uuid
+  name                String
+  username            String?            @unique
+  phone               String             @unique
+  whatsapp_number     String?
+  telegram_username   String?
+  facebook_url        String?
+  email               String?            @unique
+  password_hash       String
+  role                UserRole           @default(USER)
+  verification_status VerificationStatus @default(UNVERIFIED)
+  id_document_url       String?
+  business_license_url  String?
+  verified_at           DateTime?
+  last_login_at         DateTime?
+  deleted_at            DateTime?
+  created_at            DateTime           @default(now())
+  updated_at            DateTime           @updatedAt
+
+  properties         Property[]
+  threadParticipants ThreadParticipant[]
+  sentMessages       Message[]           @relation("MessageSender")
+  reports            Report[]            @relation("ReportReporter")
+  savedSearches      SavedSearch[]
+  favorites          Favorite[]
+  sellerStats        SellerStats?
+  sellerStatsHistory SellerStatsHistory[]
+  assignedThreads    Thread[]            @relation("ThreadAdmin")
+  boosts             Boost[]
+  adminActions       AdminActionLog[]
+
+  @@index([role, verification_status])
+}
+
+model City {
+  id     Int    @id @default(autoincrement())
+  region String
+  slug   String @unique
+
+  // Display name resolved via Translation (entity_type = 'CITY', entity_id = id)
+  properties    Property[]
+  savedSearches SavedSearch[]
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  slug String @unique
+
+  // Display name resolved via Translation (entity_type = 'CATEGORY', entity_id = id)
+  properties Property[]
+}
+
+model Translation {
+  id          String @id @default(uuid()) @db.Uuid
+  entity_type String // 'CITY' | 'CATEGORY' | 'UI_STRING'
+  entity_id   String
+  locale      Locale
+  field       String // e.g. 'name'
+  value       String @db.Text
+
+  @@unique([entity_type, entity_id, locale, field])
+  @@index([entity_type, entity_id])
+}
+
+model Property {
+  id             String         @id @default(uuid()) @db.Uuid
+  seller_id      String         @db.Uuid
+  city_id        Int
+  category_id    Int
+  title          String
+  description    String         @db.Text
+  deal_type      DealType
+  property_type  PropertyType
+  price          Decimal        @db.Decimal(12, 2)
+  area_sqm       Decimal?       @db.Decimal(10, 2)
+  bedrooms       Int?
+  bathrooms      Int?
+  location_text  String
+  lat            Float?
+  lng            Float?
+  status         PropertyStatus @default(PENDING)
+  view_count     Int            @default(0)
+  contact_count  Int            @default(0)
+  is_featured    Boolean        @default(false)
+  featured_until DateTime?
+  deleted_at     DateTime?
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+  expires_at     DateTime
+
+  seller    User           @relation(fields: [seller_id], references: [id])
+  city      City           @relation(fields: [city_id], references: [id])
+  category  Category       @relation(fields: [category_id], references: [id])
+  flags     PropertyFlag[]
+  images    PropertyImage[]
+  events    ListingEvent[]
+  threads   Thread[]
+  favorites Favorite[]
+  reports   Report[]
+  boosts    Boost[]
+
+  @@index([status])
+  @@index([city_id])
+  @@index([property_type])
+  @@index([created_at])
+  @@index([price])
+  @@index([status, city_id, property_type, price])
+}
+
+model PropertyFlag {
+  id          String   @id @default(uuid()) @db.Uuid
+  property_id String   @db.Uuid
+  flag_type   FlagType
+  detail      Json?
+  resolved    Boolean  @default(false)
+  created_at  DateTime @default(now())
+
+  property Property @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  @@index([property_id, resolved])
+}
+
+model PropertyImage {
+  id          String @id @default(uuid()) @db.Uuid
+  property_id String @db.Uuid
+  image_url   String
+  image_hash  String
+  sort_order  Int    @default(0)
+
+  property Property @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  @@index([image_hash])
+}
+
+model ListingEvent {
+  id          String    @id @default(uuid()) @db.Uuid
+  property_id String    @db.Uuid
+  event_type  EventType
+  visitor_key String
+  created_at  DateTime  @default(now())
+
+  property Property @relation(fields: [property_id], references: [id], onDelete: Cascade)
+
+  @@index([property_id, visitor_key, event_type, created_at])
+}
+
+model SellerStats {
+  id             String   @id @default(uuid()) @db.Uuid
+  seller_id      String   @unique @db.Uuid
+  total_views    Int      @default(0)
+  total_contacts Int      @default(0)
+  response_rate  Float    @default(0)
+  score          Float    @default(0)
+  rank           Int?
+  computed_at    DateTime @default(now())
+
+  seller User @relation(fields: [seller_id], references: [id])
+}
+
+model SellerStatsHistory {
+  id             String   @id @default(uuid()) @db.Uuid
+  seller_id      String   @db.Uuid
+  period_date    DateTime @db.Date
+  total_views    Int
+  total_contacts Int
+  response_rate  Float
+  score          Float
+  rank           Int?
+
+  seller User @relation(fields: [seller_id], references: [id])
+
+  @@unique([seller_id, period_date])
+}
+
+model Thread {
+  id                String     @id @default(uuid()) @db.Uuid
+  thread_type       ThreadType
+  property_id       String?    @db.Uuid
+  assigned_admin_id String?    @db.Uuid
+  created_at        DateTime   @default(now())
+  updated_at        DateTime   @updatedAt
+
+  property     Property?           @relation(fields: [property_id], references: [id], onDelete: SetNull)
+  assignedAdmin User?              @relation("ThreadAdmin", fields: [assigned_admin_id], references: [id])
+  participants ThreadParticipant[]
+  messages     Message[]
+}
+
+model ThreadParticipant {
+  id           String    @id @default(uuid()) @db.Uuid
+  thread_id    String    @db.Uuid
+  user_id      String    @db.Uuid
+  last_read_at DateTime?
+
+  thread Thread @relation(fields: [thread_id], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [user_id], references: [id])
+
+  @@unique([thread_id, user_id])
+}
+
+model Message {
+  id           String      @id @default(uuid()) @db.Uuid
+  thread_id    String      @db.Uuid
+  sender_id    String      @db.Uuid
+  message_type MessageType @default(TEXT)
+  message_text String?     @db.Text
+  media_url    String?
+  created_at   DateTime    @default(now())
+
+  thread Thread @relation(fields: [thread_id], references: [id], onDelete: Cascade)
+  sender User   @relation("MessageSender", fields: [sender_id], references: [id])
+
+  @@index([thread_id, created_at])
+}
+
+model Favorite {
+  id          String   @id @default(uuid()) @db.Uuid
+  user_id     String   @db.Uuid
+  property_id String   @db.Uuid
+  created_at  DateTime @default(now())
+
+  user     User     @relation(fields: [user_id], references: [id])
+  property Property @relation(fields: [property_id], references: [id])
+
+  @@unique([user_id, property_id])
+  @@index([user_id])
+}
+
+model SavedSearch {
+  id             String        @id @default(uuid()) @db.Uuid
+  user_id        String        @db.Uuid
+  min_price      Decimal?      @db.Decimal(12, 2)
+  max_price      Decimal?      @db.Decimal(12, 2)
+  city_id        Int?
+  property_type  PropertyType?
+  filters_json   Json?
+  alerts_enabled Boolean       @default(true)
+  created_at     DateTime      @default(now())
+
+  user User  @relation(fields: [user_id], references: [id])
+  city City? @relation(fields: [city_id], references: [id])
+}
+
+model Report {
+  id          String       @id @default(uuid()) @db.Uuid
+  property_id String       @db.Uuid
+  reported_by String       @db.Uuid
+  reason      ReportReason
+  note        String?      @db.Text
+  status      ReportStatus @default(PENDING)
+  created_at  DateTime     @default(now())
+
+  property Property @relation(fields: [property_id], references: [id])
+  reporter User     @relation("ReportReporter", fields: [reported_by], references: [id])
+
+  @@index([property_id, status])
+}
+
+model Boost {
+  id            String      @id @default(uuid()) @db.Uuid
+  property_id   String      @db.Uuid
+  seller_id     String      @db.Uuid
+  duration_days Int
+  amount        Decimal     @db.Decimal(12, 2)
+  payment_ref   String      @unique
+  status        BoostStatus @default(PENDING)
+  starts_at     DateTime?
+  ends_at       DateTime?
+
+  property Property @relation(fields: [property_id], references: [id])
+  seller   User     @relation(fields: [seller_id], references: [id])
+}
+
+model AdminActionLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  admin_id    String   @db.Uuid
+  action      String
+  target_type String
+  target_id   String
+  note        String?  @db.Text
+  created_at  DateTime @default(now())
+
+  admin User @relation(fields: [admin_id], references: [id])
+
+  @@index([target_type, target_id])
+}

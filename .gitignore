@@ -1,0 +1,20 @@
+# Environment (never commit secrets — use .env.example only)
+.env
+backend/.env
+
+# Dependencies & build
+node_modules/
+backend/node_modules/
+backend/dist/
+.next/
+
+# Logs
+*.log
+npm-debug.log
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.cursorrules

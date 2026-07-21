@@ -1,0 +1,175 @@
+import { User, UserRole } from '@prisma/client';
+import bcrypt from 'bcrypt';
+import jwt, { type SignOptions } from 'jsonwebtoken';
+import { env } from '../../../config/env';
+import { prisma } from '../../../config/prisma';
+import {
+  ConflictError,
+  ForbiddenError,
+  UnauthorizedError,
+} from '../../../errors/app-error';
+import {
+  LoginInput,
+  RegisterInput,
+  SubmitVerificationInput,
+} from '../schemas/auth.schema';
+
+const BCRYPT_ROUNDS = 10;
+
+const userProfileSelect = {
+  id: true,
+  name: true,
+  username: true,
+  phone: true,
+  email: true,
+  whatsapp_number: true,
+  telegram_username: true,
+  facebook_url: true,
+  role: true,
+  verification_status: true,
+  id_document_url: true,
+  business_license_url: true,
+  verified_at: true,
+  last_login_at: true,
+  created_at: true,
+  updated_at: true,
+} as const;
+
+export type UserProfile = Pick<
+  User,
+  keyof typeof userProfileSelect
+>;
+
+function signAccessToken(user: {
+  id: string;
+  role: UserRole;
+  verification_status: User['verification_status'];
+}): string {
+  const payload = {
+    id: user.id,
+    role: user.role,
+    verification_status: user.verification_status,
+  };
+
+  const options: SignOptions = {
+    expiresIn: env.JWT_EXPIRES_IN as SignOptions['expiresIn'],
+  };
+
+  return jwt.sign(payload, env.JWT_SECRET, options);
+}
+
+export async function register(data: RegisterInput): Promise<{
+  token: string;
+  user: UserProfile;
+}> {
+  const existing = await prisma.user.findFirst({
+    where: {
+      deleted_at: null,
+      OR: [
+        { phone: data.phone },
+        ...(data.email ? [{ email: data.email }] : []),
+      ],
+    },
+    select: { id: true, phone: true, email: true },
+  });
+
+  if (existing) {
+    if (existing.phone === data.phone) {
+      throw new ConflictError('A user with this phone number already exists');
+    }
+    throw new ConflictError('A user with this email already exists');
+  }
+
+  const password_hash = await bcrypt.hash(data.password, BCRYPT_ROUNDS);
+
+  const user = await prisma.user.create({
+    data: {
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      password_hash,
+      role: data.role === 'SELLER' ? UserRole.SELLER : UserRole.USER,
+    },
+    select: userProfileSelect,
+  });
+
+  const token = signAccessToken(user);
+
+  return { token, user };
+}
+
+export async function login(data: LoginInput): Promise<{
+  token: string;
+  user: UserProfile;
+}> {
+  const user = await prisma.user.findFirst({
+    where: {
+      deleted_at: null,
+      OR: [
+        ...(data.phone ? [{ phone: data.phone }] : []),
+        ...(data.email ? [{ email: data.email }] : []),
+      ],
+    },
+  });
+
+  if (!user) {
+    throw new UnauthorizedError('Invalid credentials');
+  }
+
+  const passwordMatches = await bcrypt.compare(data.password, user.password_hash);
+  if (!passwordMatches) {
+    throw new UnauthorizedError('Invalid credentials');
+  }
+
+  const updated = await prisma.user.update({
+    where: { id: user.id },
+    data: { last_login_at: new Date() },
+    select: userProfileSelect,
+  });
+
+  const token = signAccessToken(updated);
+
+  return { token, user: updated };
+}
+
+export async function submitVerification(
+  userId: string,
+  data: SubmitVerificationInput,
+): Promise<UserProfile> {
+  const user = await prisma.user.findFirst({
+    where: { id: userId, deleted_at: null },
+  });
+
+  if (!user) {
+    throw new UnauthorizedError('User not found');
+  }
+
+  if (user.role !== UserRole.SELLER) {
+    throw new ForbiddenError('Verification is only available for sellers');
+  }
+
+  return prisma.user.update({
+    where: { id: userId },
+    data: {
+      verification_status: 'PENDING',
+      id_document_url: data.id_document_url,
+      ...(data.business_license_url !== undefined
+        ? { business_license_url: data.business_license_url }
+        : {}),
+    },
+    select: userProfileSelect,
+  });
+}
+
+export async function getProfile(userId: string): Promise<UserProfile> {
+  const user = await prisma.user.findFirst({
+    where: { id: userId, deleted_at: null },
+    select: userProfileSelect,
+  });
+
+  if (!user) {
+    throw new UnauthorizedError('User not found');
+  }
+
+  return user;
+}
