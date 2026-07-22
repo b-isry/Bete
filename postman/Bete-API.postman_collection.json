@@ -1,0 +1,684 @@
+{
+  "info": {
+    "_postman_id": "bete-api-collection",
+    "name": "Bete API",
+    "description": "Bete Ethiopian Real Estate Marketplace API.\n\n## Setup\n1. Import this collection + `Bete-Local` environment.\n2. Select **Bete Local** in the environment dropdown.\n3. Ensure Docker stack is running (`npm run docker:up` from `backend/`).\n4. Seed at least one `City` and `Category` in Adminer (http://localhost:8080), then set `cityId` / `categoryId`.\n5. Run Auth requests in order. Login scripts auto-save tokens.\n\n## Auth notes\n- Register only allows `USER` or `SELLER`.\n- For admin routes: register a user, then in Adminer run:\n  `UPDATE \"User\" SET role = 'ADMIN' WHERE phone = '0913234567';`\n  then login as that user and copy token into `adminToken` (or use Login Admin).\n\n## Response shape\n```json\n{ \"success\": true, \"data\": { ... } }\n```",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000" }
+  ],
+  "item": [
+    {
+      "name": "0. Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health",
+            "description": "Smoke test. Expect `{ success: true, data: { status: \"ok\" } }`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Register Seller",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.environment.set('sellerToken', body.data.token);",
+                  "  pm.environment.set('token', body.data.token);",
+                  "  pm.environment.set('sellerId', body.data.user.id);",
+                  "  pm.environment.set('userId', body.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Seller\",\n  \"phone\": \"{{sellerPhone}}\",\n  \"email\": \"seller@bete.test\",\n  \"password\": \"{{password}}\",\n  \"role\": \"SELLER\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/register",
+            "description": "Creates a SELLER. Phone must match Ethiopian mobile format. Password: 8+ chars, 1 uppercase, 1 number."
+          }
+        },
+        {
+          "name": "Register Buyer (USER)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.environment.set('buyerToken', body.data.token);",
+                  "  pm.environment.set('buyerId', body.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Buyer\",\n  \"phone\": \"{{buyerPhone}}\",\n  \"password\": \"{{password}}\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/register"
+          }
+        },
+        {
+          "name": "Register Admin candidate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.environment.set('adminId', body.data.user.id);",
+                  "  console.log('Promote this user to ADMIN in Adminer, then run Login Admin.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Admin\",\n  \"phone\": \"{{adminPhone}}\",\n  \"password\": \"{{password}}\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/register",
+            "description": "Register as USER, then promote in DB:\n`UPDATE \"User\" SET role = 'ADMIN' WHERE phone = '<adminPhone>';`"
+          }
+        },
+        {
+          "name": "Login Seller",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  pm.environment.set('sellerToken', body.data.token);",
+                  "  pm.environment.set('token', body.data.token);",
+                  "  pm.environment.set('sellerId', body.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{sellerPhone}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "Login Buyer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  pm.environment.set('buyerToken', body.data.token);",
+                  "  pm.environment.set('buyerId', body.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{buyerPhone}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  pm.environment.set('adminToken', body.data.token);",
+                  "  pm.environment.set('adminId', body.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{adminPhone}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "description": "Only works after promoting the user to ADMIN in the database."
+          }
+        },
+        {
+          "name": "Login with email",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"seller@bete.test\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/auth/me"
+          }
+        },
+        {
+          "name": "Submit seller verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{sellerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_document_url\": \"https://example.com/docs/id-card.jpg\",\n  \"business_license_url\": \"https://example.com/docs/license.pdf\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/verify-request",
+            "description": "SELLER only. Sets verification_status to PENDING."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Properties",
+      "item": [
+        {
+          "name": "Create listing",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.environment.set('propertyId', body.data.property.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{sellerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Spacious 2BR apartment in Bole\",\n  \"description\": \"Bright apartment near Bole airport road with parking and elevator.\",\n  \"deal_type\": \"RENT\",\n  \"property_type\": \"APARTMENT\",\n  \"price\": \"25000.00\",\n  \"area_sqm\": \"95.50\",\n  \"bedrooms\": 2,\n  \"bathrooms\": 1,\n  \"location_text\": \"Bole, Addis Ababa\",\n  \"lat\": 8.9806,\n  \"lng\": 38.7578,\n  \"city_id\": {{cityId}},\n  \"category_id\": {{categoryId}},\n  \"images\": [\n    {\n      \"image_url\": \"https://example.com/images/bole-apt-1.jpg\",\n      \"image_hash\": \"abc123hash001\"\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/properties",
+            "description": "SELLER only. Listing starts as PENDING.\n\ndeal_type: SALE | RENT\nproperty_type: HOUSE | APARTMENT | LAND | COMMERCIAL\nprice/area_sqm: decimal strings\n\nRequires real city_id and category_id rows."
+          }
+        },
+        {
+          "name": "Search listings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/properties/search?deal_type=RENT&property_type=APARTMENT&city_id={{cityId}}&min_price=10000&max_price=50000&bedrooms=2&sort_by=newest&page=1&limit=20&locale=en",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "properties", "search"],
+              "query": [
+                { "key": "deal_type", "value": "RENT" },
+                { "key": "property_type", "value": "APARTMENT" },
+                { "key": "city_id", "value": "{{cityId}}" },
+                { "key": "min_price", "value": "10000" },
+                { "key": "max_price", "value": "50000" },
+                { "key": "bedrooms", "value": "2" },
+                { "key": "bathrooms", "value": "", "disabled": true },
+                { "key": "keyword", "value": "Bole", "disabled": true },
+                { "key": "sort_by", "value": "newest", "description": "newest | price_asc | price_desc" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "locale", "value": "en", "description": "en | am | om | ti | so" }
+              ]
+            },
+            "description": "Public search. LIVE listings only."
+          }
+        },
+        {
+          "name": "Get listing by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/properties/{{propertyId}}",
+            "description": "Public detail. Also records a deduplicated VIEW."
+          }
+        },
+        {
+          "name": "Price compare",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/properties/{{propertyId}}/price-compare?locale=en",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "properties", "{{propertyId}}", "price-compare"],
+              "query": [
+                { "key": "locale", "value": "en" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Renew listing",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{sellerToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/v1/properties/{{propertyId}}/renew",
+            "description": "SELLER owner only. Extends expiry / renews listing."
+          }
+        },
+        {
+          "name": "Track contact event",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"channel\": \"WHATSAPP\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/properties/{{propertyId}}/event",
+            "description": "channel: CALL | WHATSAPP | TELEGRAM | MESSAGE"
+          }
+        },
+        {
+          "name": "Report listing",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  if (body.data && body.data.report && body.data.report.id) {",
+                  "    pm.environment.set('reportId', body.data.report.id);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{buyerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"WRONG_PRICE\",\n  \"note\": \"Listed price looks unrealistic for this area.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/properties/{{propertyId}}/reports",
+            "description": "Authenticated. reason: FAKE | ALREADY_SOLD | WRONG_PRICE | SCAM | OFFENSIVE | OTHER.\n3+ PENDING reports auto-hide the listing."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Analytics",
+      "item": [
+        {
+          "name": "Top sellers leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sellers/top?locale=en",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sellers", "top"],
+              "query": [
+                { "key": "locale", "value": "en" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Messaging",
+      "item": [
+        {
+          "name": "Start listing thread / send message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  const threadId = body.data.thread_id || (body.data.thread && body.data.thread.id);",
+                  "  if (threadId) pm.environment.set('threadId', threadId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{buyerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property_id\": \"{{propertyId}}\",\n  \"recipient_id\": \"{{sellerId}}\",\n  \"message_type\": \"TEXT\",\n  \"message_text\": \"Hi, is this still available?\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/messages",
+            "description": "Start a LISTING thread with property_id + recipient_id, or pass thread_id to reply."
+          }
+        },
+        {
+          "name": "Reply in thread",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{sellerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"thread_id\": \"{{threadId}}\",\n  \"message_type\": \"TEXT\",\n  \"message_text\": \"Yes, it is still available. When can you visit?\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/messages"
+          }
+        },
+        {
+          "name": "Start support thread",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  const threadId = body.data.thread_id || (body.data.thread && body.data.thread.id);",
+                  "  if (threadId) pm.environment.set('threadId', threadId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{buyerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"thread_type\": \"SUPPORT\",\n  \"message_type\": \"TEXT\",\n  \"message_text\": \"I need help with my account verification.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/messages"
+          }
+        },
+        {
+          "name": "Send media message",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{buyerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"thread_id\": \"{{threadId}}\",\n  \"message_type\": \"IMAGE\",\n  \"media_url\": \"https://example.com/uploads/photo.jpg\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/messages",
+            "description": "message_type: TEXT | VOICE | IMAGE | VIDEO. Non-TEXT requires media_url."
+          }
+        },
+        {
+          "name": "List my threads",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{buyerToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/v1/messages/threads"
+          }
+        },
+        {
+          "name": "Get thread messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{buyerToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/messages/thread/{{threadId}}?page=1&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "messages", "thread", "{{threadId}}"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "50" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Admin",
+      "item": [
+        {
+          "name": "Pending listings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/pending-listings?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "pending-listings"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "ADMIN only."
+          }
+        },
+        {
+          "name": "Approve listing",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"APPROVE\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/admin/listings/{{propertyId}}/moderate"
+          }
+        },
+        {
+          "name": "Reject listing",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"REJECT\",\n  \"rejection_reason\": \"Photos do not match the property description.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/admin/listings/{{propertyId}}/moderate"
+          }
+        },
+        {
+          "name": "List reports",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/reports?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "reports"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resolve report",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"RESOLVED\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/admin/reports/{{reportId}}/resolve",
+            "description": "status: RESOLVED | DISMISSED"
+          }
+        },
+        {
+          "name": "Verify seller (approve)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"APPROVE\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/admin/users/{{sellerId}}/verify"
+          }
+        },
+        {
+          "name": "Verify seller (reject)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"REJECT\",\n  \"rejection_reason\": \"ID document is unreadable.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/admin/users/{{sellerId}}/verify"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Internal Jobs",
+      "item": [
+        {
+          "name": "Run nightly jobs",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-cron-secret",
+                "value": "{{cronSecret}}",
+                "description": "Required only if CRON_SECRET is set in env"
+              }
+            ],
+            "url": "{{baseUrl}}/internal/jobs/nightly",
+            "description": "Expires listings and sends renewal reminders. In development, secret is optional unless CRON_SECRET is configured."
+          }
+        }
+      ]
+    }
+  ]
+}
