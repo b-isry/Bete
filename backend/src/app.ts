@@ -8,10 +8,15 @@ import { errorMiddleware } from './middlewares/error.middleware';
 import { httpLogger, requestLogger } from './middlewares/logging.middleware';
 import { authRateLimiter, globalRateLimiter } from './middlewares/rate-limiter';
 import {
+  adminRouter,
+  reportRouter,
+} from './modules/admin/routes/admin.routes';
+import {
   propertyEventRouter,
   sellersRouter,
 } from './modules/analytics/routes/analytics.routes';
 import { authRouter } from './modules/auth/routes/auth.routes';
+import { messagingRouter } from './modules/messaging/routes/messaging.routes';
 import { propertyRouter } from './modules/properties/routes/property.routes';
 import { propertySearchRouter } from './modules/properties/routes/property-search.routes';
 import { sendSuccess } from './utils/response';
@@ -40,9 +45,12 @@ export function createApp(): Application {
 
   app.use('/api/v1/auth', authRateLimiter, authRouter);
   app.use('/api/v1/sellers', sellersRouter);
-  // Search + event routes before generic `/:id`
+  app.use('/api/v1/admin', adminRouter);
+  app.use('/api/v1/messages', messagingRouter);
+  // Search + event + report routes before generic `/:id`
   app.use('/api/v1/properties', propertySearchRouter);
   app.use('/api/v1/properties', propertyEventRouter);
+  app.use('/api/v1/properties', reportRouter);
   app.use('/api/v1/properties', propertyRouter);
   app.use('/internal/jobs', internalJobsRouter);
 
