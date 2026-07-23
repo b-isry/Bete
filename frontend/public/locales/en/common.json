@@ -1,0 +1,472 @@
+{
+  "nav": {
+    "signIn": "Sign In",
+    "postListing": "Post Listing",
+    "home": "Home",
+    "search": "Search",
+    "dashboard": "Dashboard",
+    "support": "Support"
+  },
+  "brand": {
+    "name": "Bete"
+  },
+  "language": {
+    "label": "Language"
+  },
+  "status": {
+    "property": {
+      "PENDING": "Pending",
+      "LIVE": "Live",
+      "REJECTED": "Rejected",
+      "EXPIRED": "Expired",
+      "REMOVED": "Removed",
+      "AUTO_HIDDEN": "Auto-hidden"
+    },
+    "verification": {
+      "UNVERIFIED": "Unverified",
+      "PENDING": "Pending",
+      "VERIFIED": "Verified",
+      "REJECTED": "Rejected"
+    }
+  },
+  "filters": {
+    "minEtb": "Min ETB",
+    "maxEtb": "Max ETB",
+    "any": "Any",
+    "city": "City",
+    "type": "Type",
+    "allCities": "All cities",
+    "allTypes": "All types",
+    "presets": {
+      "under1m": "< 1M ETB",
+      "1to3m": "1M - 3M ETB",
+      "over10m": "10M+ ETB"
+    }
+  },
+  "aiFinder": {
+    "label": "AI property finder",
+    "placeholder": "3-bedroom house in Bahir Dar under 2 million birr",
+    "submit": "Search",
+    "hint": "Describe your ideal living space in your own words.",
+    "engine": "AI Intelligence Engine"
+  },
+  "listing": {
+    "pricePerSqm": "Calculated ETB / m²"
+  },
+  "home": {
+    "heroTitle": "Find Your Place in Ethiopia.",
+    "advancedSearch": "Advanced",
+    "aiHeadline": "Find your home through conversation.",
+    "featuredEyebrow": "Market Leaders",
+    "featuredTitle": "Featured Listings",
+    "topAgencies": "Top Performing Agencies",
+    "assetClasses": "Asset Classes",
+    "recentTitle": "Recently Listed Properties",
+    "viewAll": "View all"
+  },
+  "search": {
+    "emptyTitle": "No listings match these filters",
+    "emptyDescription": "Try widening the price range.",
+    "loadError": "Could not load listings from the API.",
+    "usingFallback": "Showing sample listings until the backend responds.",
+    "searching": "Searching properties…",
+    "locationPlaceholder": "Addis Ababa, Bole…",
+    "findProperty": "Find Property",
+    "transaction": "Transaction",
+    "buy": "Buy",
+    "rent": "Rent",
+    "beds": "Beds",
+    "baths": "Baths"
+  },
+  "property": {
+    "backToSearch": "Back to search",
+    "verifiedSeller": "Verified Seller",
+    "priceCompare": "How this price compares",
+    "priceCompareFallback": "Price comparison for this area will appear here once enough nearby sales are available.",
+    "description": "Description",
+    "contactMap": "Contact & map",
+    "location": "Location",
+    "investmentPrice": "Investment Price",
+    "seller": "Seller",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "views": "Views",
+    "contacts": "Contacts",
+    "notFoundTitle": "Property not found",
+    "notFoundDescription": "This listing may be offline or the id is invalid.",
+    "loading": "Loading property…"
+  },
+  "cities": {
+    "addisAbaba": "Addis Ababa",
+    "bahirDar": "Bahir Dar",
+    "harar": "Harar"
+  },
+  "propertyTypes": {
+    "APARTMENT": "Apartment",
+    "HOUSE": "House",
+    "LAND": "Land",
+    "COMMERCIAL": "Commercial"
+  },
+  "dashboard": {
+    "workspace": "Workspace",
+    "nav": {
+      "overview": "Overview",
+      "listings": "Listings",
+      "favorites": "Favorites",
+      "messages": "Messages",
+      "support": "Support"
+    },
+    "seller": {
+      "welcome": "Welcome back, {name}",
+      "eyebrow": "Seller performance",
+      "export": "Export",
+      "newListing": "New listing",
+      "performance": "Performance score",
+      "excellent": "Excellent",
+      "performanceBlurb": "Your listings are outperforming the Addis average this week.",
+      "totalViews": "Total views",
+      "inquiries": "Inquiries",
+      "active": "Active listings",
+      "manageListings": "Manage listings",
+      "portfolio": "Your portfolio"
+    },
+    "listings": {
+      "title": "Listing workspace",
+      "subtitle": "Manage renewals and visibility for {name}'s inventory.",
+      "searchPlaceholder": "Search your listings…",
+      "empty": "No listings yet",
+      "emptyHint": "Post your first property to appear in search.",
+      "renew": "Renew",
+      "boost": "Boost",
+      "renewSuccess": "Listing renewed for 30 days.",
+      "renewFallback": "Renew queued locally — sign in when the API is available.",
+      "boostPending": "Boost will be available once promotion billing ships."
+    },
+    "buyer": {
+      "member": "Member",
+      "memberSince": "Member since",
+      "bio": "Exploring homes across Addis Ababa and secondary cities.",
+      "editProfile": "Edit profile",
+      "shareProfile": "Share profile",
+      "saved": "Saved",
+      "viewed": "Viewed",
+      "inquiries": "Inquiries",
+      "reviews": "Reviews",
+      "recentlySaved": "Recently saved",
+      "savedSearches": "Saved searches"
+    },
+    "favorites": {
+      "title": "Saved collections",
+      "subtitle": "Properties you have bookmarked for later.",
+      "browse": "Browse listings",
+      "all": "All",
+      "villas": "Villas",
+      "apartments": "Apartments",
+      "land": "Land",
+      "empty": "No saved properties",
+      "emptyHint": "Tap the heart on a listing to collect it here."
+    },
+    "messages": {
+      "title": "Messages",
+      "subtitle": "Conversations with sellers and agencies.",
+      "empty": "No conversations yet",
+      "emptyHint": "Contact a seller from a listing page to start a thread.",
+      "placeholder": "Write a message…",
+      "send": "Send",
+      "thread": "Conversation"
+    }
+  },
+  "sellers": {
+    "unverified": "Unverified",
+    "listings": "Listings",
+    "score": "Score",
+    "contact": "Message",
+    "share": "Share",
+    "liveListings": "Live listings",
+    "noListings": "This seller has no live listings right now."
+  },
+  "support": {
+    "eyebrow": "Help center",
+    "title": "Support",
+    "subtitle": "Answers for listing, verification, and account questions — or open a support thread.",
+    "faqTitle": "Common questions",
+    "ticketsTitle": "Your support threads",
+    "ticket": "Support ticket",
+    "empty": "No support threads",
+    "emptyHint": "Start a conversation and our team will reply here.",
+    "placeholder": "Describe your issue…",
+    "send": "Send",
+    "faq": {
+      "listing": {
+        "q": "How long until my listing goes live?",
+        "a": "New and edited listings start as PENDING. An admin reviews AI flags and publishes LIVE listings, usually within one business day."
+      },
+      "verification": {
+        "q": "How do I become a verified seller?",
+        "a": "Apply as a seller and submit verification documents. Verified means role SELLER and verification_status VERIFIED — they are separate statuses."
+      },
+      "payment": {
+        "q": "What currencies does Bete use?",
+        "a": "All listing prices are shown in Ethiopian Birr (ETB). Boost and renewals will bill in ETB when those products launch."
+      }
+    }
+  },
+  "admin": {
+    "brand": "EstateAdmin",
+    "tagline": "Marketplace Management",
+    "user": "Admin User",
+    "role": "Super Admin",
+    "workspace": "Workspace",
+    "searchPlaceholder": "Search platform data…",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "forbidden": "Admin access required",
+    "forbiddenHint": "Sign in with an ADMIN account to open the management console.",
+    "backHome": "Back to home",
+    "nav": {
+      "dashboard": "Dashboard",
+      "moderation": "Moderation",
+      "verification": "Verification",
+      "users": "Users",
+      "categories": "Categories",
+      "reports": "Reports",
+      "analytics": "Analytics"
+    },
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "edit": "Edit"
+    },
+    "table": {
+      "property": "Property",
+      "seller": "Seller",
+      "flags": "AI Flags",
+      "actions": "Actions"
+    },
+    "moderate": {
+      "approved": "Listing approved and set LIVE.",
+      "rejected": "Listing rejected.",
+      "fallback": "Moderation applied locally — sign in as ADMIN when the API is available."
+    },
+    "verify": {
+      "title": "Seller verification",
+      "pending": "Pending requests",
+      "awaiting": "Awaiting",
+      "docs": "Docs",
+      "empty": "No pending verifications",
+      "emptyHint": "Seller applications with verification_status PENDING will appear here.",
+      "location": "Location",
+      "accountType": "Account type",
+      "applied": "Applied on",
+      "trust": "Trust score",
+      "documents": "Documents",
+      "docBusiness": "Business license.pdf",
+      "docId": "Trade registration.pdf",
+      "docTax": "TIN certificate.pdf",
+      "uploaded": "Uploaded",
+      "actionHint": "Approve sets verification_status to VERIFIED. Reject returns REJECTED without changing role.",
+      "approved": "Seller verified.",
+      "rejected": "Seller verification rejected.",
+      "fallback": "Verification applied locally — sign in as ADMIN when the API is available."
+    },
+    "overview": {
+      "title": "Platform Overview",
+      "blurb": "Good morning, Administrator. There are {pending} listings awaiting your review and {verifications} seller verifications pending. Platform health is currently stable.",
+      "pendingListings": "Pending Listings",
+      "verifications": "Seller Verifications",
+      "reports": "Active Reports",
+      "revenue": "Monthly Revenue",
+      "volume": "Listing Volume",
+      "last30": "Last 30 days",
+      "totalNew": "Total New Listings",
+      "avgDaily": "Avg. Daily Submissions",
+      "conversion": "Conversion Rate",
+      "queue": "Moderation Queue",
+      "viewAll": "View All Listings"
+    },
+    "moderation": {
+      "title": "Moderation Queue",
+      "search": "Search listing ID or seller…",
+      "pending": "Pending",
+      "flagged": "AI Flagged",
+      "reported": "Reported",
+      "empty": "Queue is clear",
+      "emptyHint": "No PENDING listings match this filter.",
+      "cleanPass": "Clean AI Pass",
+      "cleanHint": "No anomalies detected. Images and metadata look consistent.",
+      "submitted": "Submitted"
+    },
+    "analytics": {
+      "title": "Analytics & Revenue",
+      "subtitle": "Marketplace vitality, boost revenue, and agency performance for the current quarter.",
+      "export": "Export PDF",
+      "report": "Quarterly Report",
+      "totalRevenue": "Total revenue",
+      "boostRevenue": "Boost revenue",
+      "conversion": "Conversion efficiency",
+      "trajectory": "Fiscal trajectory",
+      "revenueGrowth": "Revenue growth over time",
+      "vsQuarter": "vs last quarter",
+      "segments": "User segments",
+      "tiers": "Tier distribution",
+      "velocity": "Marketplace velocity",
+      "newListings": "New listings this month",
+      "closed": "Closed transactions",
+      "byAgency": "Revenue by institutional agency",
+      "audit": "View complete audit",
+      "institution": "Institution",
+      "volume": "Volume",
+      "growth": "Growth",
+      "revenueCol": "Revenue",
+      "units": "units"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "Accounts across buyers, sellers, and admins.",
+      "empty": "No users found",
+      "emptyHint": "User directory will appear when GET /admin/users is available.",
+      "cols": {
+        "name": "Name",
+        "contact": "Contact",
+        "role": "Role",
+        "verification": "Verification",
+        "joined": "Joined"
+      }
+    },
+    "categories": {
+      "title": "Categories",
+      "subtitle": "Listing categories resolved through the Translation table.",
+      "empty": "No categories",
+      "emptyHint": "Categories will appear when GET /admin/categories is available.",
+      "cols": {
+        "id": "ID",
+        "name": "Name",
+        "slug": "Slug",
+        "listings": "Listings"
+      }
+    },
+    "reports": {
+      "title": "Reports",
+      "subtitle": "Listings with pending community reports — resolve or dismiss each flag.",
+      "empty": "No report queue items",
+      "emptyHint": "AUTO_HIDDEN listings and 3+ pending report groups show here.",
+      "pendingCount": "pending reports",
+      "resolve": "Resolve",
+      "dismiss": "Dismiss",
+      "resolved": "Report resolved.",
+      "dismissed": "Report dismissed.",
+      "fallback": "Report updated locally — sign in as ADMIN when the API is available.",
+      "cols": {
+        "reason": "Reason",
+        "reporter": "Reporter",
+        "status": "Status"
+      }
+    }
+  },
+  "auth": {
+    "eyebrow": "Account",
+    "fields": {
+      "phoneOrEmail": "Phone or email",
+      "phone": "Phone",
+      "emailOptional": "Email",
+      "password": "Password",
+      "passwordHint": "At least 8 characters, one uppercase letter, one number.",
+      "name": "Full name",
+      "role": "I am a"
+    },
+    "roles": {
+      "buyer": "Buyer",
+      "seller": "Seller"
+    },
+    "signIn": {
+      "title": "Sign in",
+      "subtitle": "Use your Ethiopian mobile number or email.",
+      "submit": "Sign in",
+      "success": "Welcome back.",
+      "error": "Could not sign in.",
+      "noAccount": "New to Bete?",
+      "link": "Sign in"
+    },
+    "register": {
+      "title": "Create account",
+      "subtitle": "Register as a buyer or seller. Admin accounts are provisioned separately.",
+      "submit": "Create account",
+      "success": "Account created.",
+      "error": "Could not register.",
+      "hasAccount": "Already registered?",
+      "link": "Create account"
+    }
+  },
+  "listings": {
+    "new": {
+      "eyebrow": "Sell or rent",
+      "title": "Post a listing",
+      "subtitle": "New listings start as PENDING until an admin reviews them.",
+      "writeForMe": "Write it for me",
+      "aiDone": "Description drafted.",
+      "aiFallback": "Used a local draft while the AI writer is unavailable.",
+      "needImages": "Add at least one photo.",
+      "success": "Listing submitted for review.",
+      "error": "Could not create listing.",
+      "submit": "Submit for review",
+      "pendingNote": "Status will be PENDING until moderated.",
+      "photosHint": "Up to 10 images. JPEG or PNG.",
+      "fields": {
+        "title": "Title",
+        "description": "Description",
+        "dealType": "Deal type",
+        "propertyType": "Property type",
+        "price": "Price (ETB)",
+        "area": "Area (sqm)",
+        "bedrooms": "Bedrooms",
+        "bathrooms": "Bathrooms",
+        "location": "Location text",
+        "category": "Category",
+        "lat": "Latitude",
+        "lng": "Longitude",
+        "photos": "Photos"
+      }
+    }
+  },
+  "content": {
+    "eyebrow": "Bete",
+    "about": {
+      "title": "About Bete",
+      "p1": "Bete is an Ethiopian real estate marketplace built for buyers and sellers who want clear pricing in ETB, verified sellers, and listings that stay accountable.",
+      "p2": "Every new or edited listing starts as PENDING. Admins review AI pre-screening flags before a property goes LIVE — AI never auto-approves or auto-rejects.",
+      "p3": "We support Amharic, Afaan Oromo, Tigrinya, Somali, and English across the interface and city or category names."
+    },
+    "help": {
+      "title": "Help",
+      "p1": "Start here for common tasks on Bete.",
+      "p2": "For account-specific issues, open a SUPPORT thread from the Support center.",
+      "support": "Contact Support",
+      "safety": "Safety tips",
+      "post": "Post a listing"
+    },
+    "safety": {
+      "title": "Safety",
+      "intro": "Treat every transaction with the same care you would offline. These practices keep buyers and sellers safer on Bete.",
+      "rule1": "Do not pay before viewing the property in person.",
+      "rule2": "Meet in daylight in a public place, or bring someone with you.",
+      "rule3": "Ask to see ownership documents before paying.",
+      "rule4": "Prefer in-app messaging over sharing financial details outside Bete.",
+      "outro": "If something feels wrong, leave the meeting and report the listing from the property page."
+    },
+    "terms": {
+      "title": "Terms of use",
+      "p1": "By using Bete you agree to post accurate listing information and to keep contact channels reachable while a listing is LIVE.",
+      "p2": "Listings may be REJECTED, REMOVED, or AUTO_HIDDEN when they violate marketplace rules or accumulate unresolved reports.",
+      "p3": "Seller verification is separate from role: only SELLER accounts with verification_status VERIFIED are shown as Verified Sellers.",
+      "p4": "Bete does not escrow funds. Payments between parties remain their responsibility."
+    },
+    "contact": {
+      "title": "Contact",
+      "intro": "Write to the Bete team. For active listing disputes, prefer Support threads so we keep a record.",
+      "message": "Message",
+      "submit": "Send message",
+      "sent": "Message noted — we will follow up when the contact inbox is live."
+    }
+  }
+}

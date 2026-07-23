@@ -1,0 +1,39 @@
+import type { HTMLAttributes } from "react";
+import { cn } from "./cn";
+
+export type ChipTone = "forest" | "gold" | "neutral" | "error";
+
+export type ChipProps = HTMLAttributes<HTMLSpanElement> & {
+  tone?: ChipTone;
+  selected?: boolean;
+};
+
+const toneClasses: Record<ChipTone, string> = {
+  forest: "bg-primary/10 text-primary",
+  gold: "bg-secondary-container text-on-secondary-container",
+  neutral: "bg-surface-container-highest text-on-surface-variant",
+  error: "bg-error-container text-on-error-container",
+};
+
+export function Chip({
+  tone = "forest",
+  selected = false,
+  className,
+  children,
+  ...props
+}: ChipProps) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-none px-2 py-1",
+        "font-sans text-label-sm uppercase tracking-widest",
+        toneClasses[tone],
+        selected && "ring-1 ring-inset ring-current",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </span>
+  );
+}
