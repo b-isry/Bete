@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Libre_Caslon_Text, Source_Serif_4, Work_Sans } from "next/font/google";
+import { Header } from "@/components/layout/Header";
+import { ToastProvider } from "@/components/ui";
+import { LanguageProvider } from "@/i18n/LanguageContext";
 import "./globals.css";
 
 const libreCaslon = Libre_Caslon_Text({
@@ -30,10 +33,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
+        />
+      </head>
       <body
-        className={`${libreCaslon.variable} ${sourceSerif.variable} ${workSans.variable} bg-[#fbf9f5] text-[#1b1c1a] antialiased`}
+        className={`${libreCaslon.variable} ${sourceSerif.variable} ${workSans.variable} bg-background text-on-surface antialiased`}
       >
-        {children}
+        <LanguageProvider>
+          <ToastProvider>
+            <Header />
+            <main>{children}</main>
+          </ToastProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -51,6 +51,9 @@ services:
       - /app/.next
     environment:
       - WATCHPACK_POLLING=true
+      # NEXT_PUBLIC_* is read in the browser, so use the published host port — not the
+      # Docker DNS name `backend` (that only resolves inside the compose network).
+      - NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
     depends_on:
       - backend
 
