@@ -18,6 +18,12 @@ import { renewListing } from "@/lib/api";
 import { useAuthMe, useMyListings } from "@/lib/hooks";
 import { PLACEHOLDER_IMAGE, type SellerListing } from "@/lib/mocks";
 
+/**
+ * P6 — Seller listing workspace (`bete_seller_workspace_dashboard`)
+ * Wired: GET /properties?seller_id=me (placeholder until shipped — mock fallback),
+ *        POST /properties/:id/renew. Boost: toast only (Prisma Boost, no HTTP yet).
+ * Radius: all surfaces use sharp tokens (0px) — stitch CDN rounded configs ignored.
+ */
 export default function SellerListingsPage() {
   const { t } = useLanguage();
   const { push } = useToast();
@@ -61,16 +67,12 @@ export default function SellerListingsPage() {
       role="SELLER"
       title={t("dashboard.listings.title")}
       actions={
-        <Button
-          variant="primary"
-          className="gap-2"
-          onClick={() => {
-            window.location.href = "/listings/new";
-          }}
-        >
-          <Icon name="add" />
-          {t("dashboard.seller.newListing")}
-        </Button>
+        <Link href="/listings/new">
+          <Button variant="primary" className="gap-2">
+            <Icon name="add" />
+            {t("dashboard.seller.newListing")}
+          </Button>
+        </Link>
       }
     >
       <p className="mb-6 font-body text-body-md text-on-surface-variant">

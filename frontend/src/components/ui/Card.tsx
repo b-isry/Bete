@@ -13,7 +13,7 @@ const variantClasses: Record<CardVariant, string> = {
     "border border-outline-variant/50 bg-surface-container-lowest",
   muted: "border border-outline-variant/30 bg-surface-container-low",
   elevated:
-    "border border-outline-variant/30 bg-surface-container-lowest shadow-[0px_4px_20px_rgba(27,67,50,0.05)]",
+    "border border-outline-variant/30 bg-surface-container-lowest shadow-editorial",
 };
 
 export function Card({

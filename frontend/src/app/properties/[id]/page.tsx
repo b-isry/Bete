@@ -5,6 +5,7 @@ import Link from "next/link";
 import useSWR from "swr";
 import {
   Avatar,
+  Button,
   Card,
   EmptyState,
   Icon,
@@ -106,23 +107,29 @@ type PageProps = {
   params: { id: string };
 };
 
+/**
+ * P4 — Property Detail (`bete_property_detail_brand_synchronized`)
+ * Wired: GET /properties/:id, GET /properties/:id/price-compare,
+ *        MapEmbed (react-leaflet), POST /properties/:id/event on contact.
+ */
 export default function PropertyDetailsPage({ params }: PageProps) {
   const { t } = useLanguage();
+  const isMockId = params.id.startsWith("mock");
 
   const { data, error, isLoading } = useSWR<PropertyDetailResponse>(
     params.id ? `/properties/${params.id}` : null,
     apiFetcher,
     {
-      fallbackData:
-        params.id.startsWith("mock")
-          ? { property: { ...MOCK_PROPERTY, id: params.id } }
-          : undefined,
       shouldRetryOnError: false,
+      // Seed mock ids never hit the API — keep mock as the primary payload.
+      fallbackData: isMockId
+        ? { property: { ...MOCK_PROPERTY, id: params.id } }
+        : undefined,
     },
   );
 
   const { data: compare } = useSWR<PriceCompareResponse>(
-    params.id && !params.id.startsWith("mock")
+    params.id && !isMockId
       ? `/properties/${params.id}/price-compare`
       : null,
     apiFetcher,
@@ -130,27 +137,32 @@ export default function PropertyDetailsPage({ params }: PageProps) {
   );
 
   async function onContact(channel: ContactChannel) {
-    if (params.id.startsWith("mock")) return;
+    if (isMockId) return;
     try {
+      // POST /properties/:id/event — must not block tel:/wa.me/t.me navigation
       await trackPropertyEvent(params.id, channel);
     } catch {
       // Tracking must not block the contact action.
     }
   }
 
-  if (isLoading && !data) {
+  if (isLoading && !data && !error) {
     return (
       <div className="mx-auto max-w-7xl space-y-6 px-6 py-24 sm:px-10 lg:px-16">
         <Skeleton className="h-4 w-32" />
         <Skeleton className="h-12 w-3/4" />
+        <Skeleton className="aspect-[16/10] w-full" />
         <SkeletonText lines={4} />
       </div>
     );
   }
 
+  // Real API property, or mock fallback when the request fails / mock id.
   const property =
     data?.property ??
-    (error ? { ...MOCK_PROPERTY, id: params.id } : undefined);
+    (error || isMockId
+      ? { ...MOCK_PROPERTY, id: params.id }
+      : undefined);
 
   if (!property) {
     return (
@@ -206,7 +218,7 @@ export default function PropertyDetailsPage({ params }: PageProps) {
                 <StatusPill kind="verification" status="VERIFIED" />
               ) : null}
             </div>
-            <h1 className="font-serif text-4xl leading-tight text-primary md:text-5xl">
+            <h1 className="font-serif text-headline-md leading-tight text-primary md:text-display-lg-mobile">
               {property.title}
             </h1>
           </header>
@@ -246,7 +258,7 @@ export default function PropertyDetailsPage({ params }: PageProps) {
             <p className="mb-2 font-sans text-label-sm uppercase tracking-widest text-on-surface-variant">
               {t("property.priceCompare")}
             </p>
-            <p className="font-serif text-lg leading-relaxed text-on-surface">
+            <p className="font-body text-body-lg text-on-surface">
               {priceComparison}
             </p>
           </Card>
@@ -285,7 +297,7 @@ export default function PropertyDetailsPage({ params }: PageProps) {
               <p className="font-sans text-label-sm font-bold uppercase tracking-widest text-on-surface-variant">
                 {t("property.investmentPrice")}
               </p>
-              <p className="font-serif text-4xl text-primary">
+              <p className="font-serif text-display-lg-mobile text-primary">
                 {formatEtb(Number.isFinite(priceEtb) ? priceEtb : 0)}
               </p>
               {perSqm !== null ? (
@@ -319,7 +331,7 @@ export default function PropertyDetailsPage({ params }: PageProps) {
                   <p className="font-sans text-label-sm font-bold uppercase tracking-widest text-on-surface-variant">
                     {t("property.views")}
                   </p>
-                  <p className="font-serif text-lg text-primary">
+                  <p className="font-serif text-headline-sm text-primary">
                     {formatCount(property.view_count)}
                   </p>
                 </div>
@@ -327,7 +339,7 @@ export default function PropertyDetailsPage({ params }: PageProps) {
                   <p className="font-sans text-label-sm font-bold uppercase tracking-widest text-on-surface-variant">
                     {t("property.contacts")}
                   </p>
-                  <p className="font-serif text-lg text-primary">
+                  <p className="font-serif text-headline-sm text-primary">
                     {formatCount(property.contact_count)}
                   </p>
                 </div>
@@ -335,57 +347,61 @@ export default function PropertyDetailsPage({ params }: PageProps) {
 
               <div className="space-y-3">
                 {phone ? (
-                  <a
+                  <Button
                     href={`tel:${phone}`}
+                    variant="primary"
+                    className="w-full py-4"
                     onClick={() => {
                       void onContact("CALL");
                     }}
-                    className="flex w-full items-center justify-center gap-3 bg-primary py-4 font-sans text-label-sm font-bold uppercase tracking-widest text-on-primary transition-opacity hover:opacity-95"
                   >
                     <Icon name="call" className="text-lg" />
                     {t("property.call")}
-                  </a>
+                  </Button>
                 ) : null}
                 <div className="grid grid-cols-3 gap-3">
                   {phone ? (
-                    <a
+                    <Button
                       href={`tel:${phone}`}
+                      variant="icon"
+                      className="w-full"
+                      aria-label={t("property.call")}
                       onClick={() => {
                         void onContact("CALL");
                       }}
-                      className="flex justify-center border border-outline-variant/40 py-3 text-primary transition-colors hover:bg-surface-container"
-                      aria-label={t("property.call")}
                     >
                       <Icon name="call" />
-                    </a>
+                    </Button>
                   ) : null}
                   {whatsapp ? (
-                    <a
+                    <Button
                       href={`https://wa.me/${whatsapp}`}
                       target="_blank"
                       rel="noopener noreferrer"
+                      variant="icon"
+                      className="w-full"
+                      aria-label={t("property.whatsapp")}
                       onClick={() => {
                         void onContact("WHATSAPP");
                       }}
-                      className="flex justify-center border border-outline-variant/40 py-3 text-primary transition-colors hover:bg-surface-container"
-                      aria-label={t("property.whatsapp")}
                     >
                       <Icon name="chat" />
-                    </a>
+                    </Button>
                   ) : null}
                   {telegram ? (
-                    <a
+                    <Button
                       href={`https://t.me/${telegram}`}
                       target="_blank"
                       rel="noopener noreferrer"
+                      variant="icon"
+                      className="w-full"
+                      aria-label={t("property.telegram")}
                       onClick={() => {
                         void onContact("TELEGRAM");
                       }}
-                      className="flex justify-center border border-outline-variant/40 py-3 text-primary transition-colors hover:bg-surface-container"
-                      aria-label={t("property.telegram")}
                     >
                       <Icon name="send" />
-                    </a>
+                    </Button>
                   ) : null}
                 </div>
               </div>

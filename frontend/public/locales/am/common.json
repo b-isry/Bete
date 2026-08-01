@@ -1,215 +1,292 @@
-﻿{
-    "nav":  {
-                "signIn":  "áŒá‰£",
-                "postListing":  "áˆ›áˆµá‰³á‹ˆá‰‚á‹« áˆˆáŒ¥á",
-                "home":  "áˆ˜áŠáˆ»",
-                "search":  "áˆáˆáŒ",
-                "dashboard":  "Dashboard",
-                "support":  "Support"
-            },
-    "brand":  {
-                  "name":  "á‰¤á‰°"
-              },
-    "language":  {
-                     "label":  "á‰‹áŠ•á‰‹"
-                 },
-    "status":  {
-                   "property":  {
-                                    "PENDING":  "Pending",
-                                    "LIVE":  "Live",
-                                    "REJECTED":  "Rejected",
-                                    "EXPIRED":  "Expired",
-                                    "REMOVED":  "Removed",
-                                    "AUTO_HIDDEN":  "Auto-hidden"
-                                },
-                   "verification":  {
-                                        "UNVERIFIED":  "Unverified",
-                                        "PENDING":  "Pending",
-                                        "VERIFIED":  "Verified",
-                                        "REJECTED":  "Rejected"
-                                    }
-               },
-    "filters":  {
-                    "minEtb":  "Min ETB",
-                    "maxEtb":  "Max ETB",
-                    "any":  "Any",
-                    "city":  "City",
-                    "type":  "Type",
-                    "allCities":  "All cities",
-                    "allTypes":  "All types",
-                    "presets":  {
-                                    "under1m":  "\u003c 1M ETB",
-                                    "1to3m":  "1M - 3M ETB",
-                                    "over10m":  "10M+ ETB"
-                                }
-                },
-    "aiFinder":  {
-                     "label":  "AI property finder",
-                     "placeholder":  "3-bedroom house in Bahir Dar under 2 million birr",
-                     "submit":  "Search",
-                     "hint":  "Describe your ideal living space in your own words.",
-                     "engine":  "AI Intelligence Engine"
-                 },
-    "listing":  {
-                    "pricePerSqm":  "Calculated ETB / mÂ²"
-                },
-    "home":  {
-                 "heroTitle":  "Find Your Place in Ethiopia.",
-                 "advancedSearch":  "Advanced",
-                 "aiHeadline":  "Find your home through conversation.",
-                 "featuredEyebrow":  "Market Leaders",
-                 "featuredTitle":  "Featured Listings",
-                 "topAgencies":  "Top Performing Agencies",
-                 "assetClasses":  "Asset Classes",
-                 "recentTitle":  "Recently Listed Properties",
-                 "viewAll":  "View all"
-             },
-    "search":  {
-                   "emptyTitle":  "No listings match these filters",
-                   "emptyDescription":  "Try widening the price range.",
-                   "loadError":  "Could not load listings from the API.",
-                   "usingFallback":  "Showing sample listings until the backend responds.",
-                   "searching":  "Searching propertiesâ€¦",
-                   "locationPlaceholder":  "Addis Ababa, Boleâ€¦",
-                   "findProperty":  "Find Property",
-                   "transaction":  "Transaction",
-                   "buy":  "Buy",
-                   "rent":  "Rent",
-                   "beds":  "Beds",
-                   "baths":  "Baths"
-               },
-    "property":  {
-                     "backToSearch":  "Back to search",
-                     "verifiedSeller":  "Verified Seller",
-                     "priceCompare":  "How this price compares",
-                     "priceCompareFallback":  "Price comparison for this area will appear here once enough nearby sales are available.",
-                     "description":  "Description",
-                     "contactMap":  "Contact \u0026 map",
-                     "location":  "Location",
-                     "investmentPrice":  "Investment Price",
-                     "seller":  "Seller",
-                     "call":  "Call",
-                     "whatsapp":  "WhatsApp",
-                     "telegram":  "Telegram",
-                     "views":  "Views",
-                     "contacts":  "Contacts",
-                     "notFoundTitle":  "Property not found",
-                     "notFoundDescription":  "This listing may be offline or the id is invalid.",
-                     "loading":  "Loading propertyâ€¦"
-                 },
-    "cities":  {
-                   "addisAbaba":  "Addis Ababa",
-                   "bahirDar":  "Bahir Dar",
-                   "harar":  "Harar"
-               },
-    "propertyTypes":  {
-                          "APARTMENT":  "Apartment",
-                          "HOUSE":  "House",
-                          "LAND":  "Land",
-                          "COMMERCIAL":  "Commercial"
-                      },
-    "dashboard":  {
-                      "workspace":  "Workspace",
-                      "nav":  {
-                                  "overview":  "Overview",
-                                  "listings":  "Listings",
-                                  "favorites":  "Favorites",
-                                  "messages":  "Messages",
-                                  "support":  "Support"
-                              },
-                      "seller":  {
-                                     "welcome":  "Welcome back, {name}",
-                                     "eyebrow":  "Seller performance",
-                                     "export":  "Export",
-                                     "newListing":  "New listing",
-                                     "performance":  "Performance score",
-                                     "excellent":  "Excellent",
-                                     "performanceBlurb":  "Your listings are outperforming the Addis average this week.",
-                                     "totalViews":  "Total views",
-                                     "inquiries":  "Inquiries",
-                                     "active":  "Active listings",
-                                     "manageListings":  "Manage listings",
-                                     "portfolio":  "Your portfolio"
-                                 },
-                      "listings":  {
-                                       "title":  "Listing workspace",
-                                       "subtitle":  "Manage renewals and visibility for {name}\u0027s inventory.",
-                                       "searchPlaceholder":  "Search your listingsâ€¦",
-                                       "empty":  "No listings yet",
-                                       "emptyHint":  "Post your first property to appear in search.",
-                                       "renew":  "Renew",
-                                       "boost":  "Boost",
-                                       "renewSuccess":  "Listing renewed for 30 days.",
-                                       "renewFallback":  "Renew queued locally â€” sign in when the API is available.",
-                                       "boostPending":  "Boost will be available once promotion billing ships."
-                                   },
-                      "buyer":  {
-                                    "member":  "Member",
-                                    "memberSince":  "Member since",
-                                    "bio":  "Exploring homes across Addis Ababa and secondary cities.",
-                                    "editProfile":  "Edit profile",
-                                    "shareProfile":  "Share profile",
-                                    "saved":  "Saved",
-                                    "viewed":  "Viewed",
-                                    "inquiries":  "Inquiries",
-                                    "reviews":  "Reviews",
-                                    "recentlySaved":  "Recently saved",
-                                    "savedSearches":  "Saved searches"
-                                },
-                      "favorites":  {
-                                        "title":  "Saved collections",
-                                        "subtitle":  "Properties you have bookmarked for later.",
-                                        "browse":  "Browse listings",
-                                        "all":  "All",
-                                        "villas":  "Villas",
-                                        "apartments":  "Apartments",
-                                        "land":  "Land",
-                                        "empty":  "No saved properties",
-                                        "emptyHint":  "Tap the heart on a listing to collect it here."
-                                    },
-                      "messages":  {
-                                       "title":  "Messages",
-                                       "subtitle":  "Conversations with sellers and agencies.",
-                                       "empty":  "No conversations yet",
-                                       "emptyHint":  "Contact a seller from a listing page to start a thread.",
-                                       "placeholder":  "Write a messageâ€¦",
-                                       "send":  "Send",
-                                       "thread":  "Conversation"
-                                   }
-                  },
-    "sellers":  {
-                    "unverified":  "Unverified",
-                    "listings":  "Listings",
-                    "score":  "Score",
-                    "contact":  "Message",
-                    "share":  "Share",
-                    "liveListings":  "Live listings",
-                    "noListings":  "This seller has no live listings right now."
-                },
-    "support":  {
-                    "eyebrow":  "Help center",
-                    "title":  "Support",
-                    "subtitle":  "Answers for listing, verification, and account questions â€” or open a support thread.",
-                    "faqTitle":  "Common questions",
-                    "ticketsTitle":  "Your support threads",
-                    "ticket":  "Support ticket",
-                    "empty":  "No support threads",
-                    "emptyHint":  "Start a conversation and our team will reply here.",
-                    "placeholder":  "Describe your issueâ€¦",
-                    "send":  "Send",
-                    "faq":  {
-                                "listing":  {
-                                                "q":  "How long until my listing goes live?",
-                                                "a":  "New and edited listings start as PENDING. An admin reviews AI flags and publishes LIVE listings, usually within one business day."
-                                            },
-                                "verification":  {
-                                                     "q":  "How do I become a verified seller?",
-                                                     "a":  "Apply as a seller and submit verification documents. Verified means role SELLER and verification_status VERIFIED â€” they are separate statuses."
-                                                 },
-                                "payment":  {
-                                                "q":  "What currencies does Bete use?",
-                                                "a":  "All listing prices are shown in Ethiopian Birr (ETB). Boost and renewals will bill in ETB when those products launch."
-                                            }
-                            }
-                }
+{
+  "nav": {
+    "signIn": "áŒá‰£",
+    "postListing": "áˆ›áˆµá‰³á‹ˆá‰‚á‹« áˆˆáŒ¥á",
+    "home": "áˆ˜áŠáˆ»",
+    "search": "áˆáˆáŒ",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "logOut": "Log out",
+    "support": "Support"
+  },
+  "brand": {
+    "name": "á‰¤á‰°"
+  },
+  "language": {
+    "label": "á‰‹áŠ•á‰‹"
+  },
+  "status": {
+    "property": {
+      "PENDING": "Pending",
+      "LIVE": "Live",
+      "REJECTED": "Rejected",
+      "EXPIRED": "Expired",
+      "REMOVED": "Removed",
+      "AUTO_HIDDEN": "Auto-hidden"
+    },
+    "verification": {
+      "UNVERIFIED": "Unverified",
+      "PENDING": "Pending",
+      "VERIFIED": "Verified",
+      "REJECTED": "Rejected"
+    }
+  },
+  "filters": {
+    "minEtb": "Min ETB",
+    "maxEtb": "Max ETB",
+    "any": "Any",
+    "city": "City",
+    "type": "Type",
+    "allCities": "All cities",
+    "allTypes": "All types",
+    "presets": {
+      "under1m": "< 1M ETB",
+      "1to3m": "1M - 3M ETB",
+      "over10m": "10M+ ETB"
+    }
+  },
+  "aiFinder": {
+    "label": "AI property finder",
+    "placeholder": "3-bedroom house in Bahir Dar under 2 million birr",
+    "submit": "Search",
+    "hint": "Describe your ideal living space in your own words.",
+    "engine": "AI Intelligence Engine"
+  },
+  "listing": {
+    "pricePerSqm": "Calculated ETB / mÂ²"
+  },
+  "home": {
+    "heroTitle": "Find Your Place in Ethiopia.",
+    "advancedSearch": "Advanced",
+    "findWithAi": "Find with AI",
+    "aiHeadline": "Find your home through conversation.",
+    "featuredEyebrow": "Market Leaders",
+    "featuredTitle": "Featured Agencies",
+    "aboutTitle": "About Bete",
+    "aboutP1": "Bete — \"house\" in Amharic — connects buyers and renters directly with real estate agencies and agents across Ethiopia.",
+    "aboutP2": "Sellers and agencies post properties; buyers browse and contact them directly. Verification and AI-assisted moderation make listings easier to trust.",
+    "aboutP3": "The marketplace speaks five languages: English, Amharic, Afaan Oromo, Tigrinya, and Somali.",
+    "aboutLink": "Read more about Bete",
+    "topAgencies": "Top Performing Agencies",
+    "assetClasses": "Asset Classes",
+    "recentTitle": "Recently Listed Properties",
+    "viewAll": "View all",
+    "responseTime": "min response",
+    "searchBar": {
+      "location": "Location",
+      "propertyType": "Property Type",
+      "priceRange": "Price Range",
+      "bedsBaths": "Beds/Baths"
+    }
+  },
+  "search": {
+    "emptyTitle": "No listings match these filters",
+    "emptyDescription": "Try widening the price range.",
+    "loadError": "Could not load listings from the API.",
+    "usingFallback": "Showing sample listings until the backend responds.",
+    "searching": "Searching propertiesâ€¦",
+    "locationPlaceholder": "Addis Ababa, Boleâ€¦",
+    "findProperty": "Find Property",
+    "transaction": "Transaction",
+    "buy": "Buy",
+    "rent": "Rent",
+    "beds": "Beds",
+    "baths": "Baths"
+  },
+  "property": {
+    "backToSearch": "Back to search",
+    "verifiedSeller": "Verified Seller",
+    "priceCompare": "How this price compares",
+    "priceCompareFallback": "Price comparison for this area will appear here once enough nearby sales are available.",
+    "description": "Description",
+    "contactMap": "Contact & map",
+    "location": "Location",
+    "investmentPrice": "Investment Price",
+    "seller": "Seller",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "views": "Views",
+    "contacts": "Contacts",
+    "notFoundTitle": "Property not found",
+    "notFoundDescription": "This listing may be offline or the id is invalid.",
+    "loading": "Loading propertyâ€¦"
+  },
+  "cities": {
+    "addisAbaba": "Addis Ababa",
+    "bahirDar": "Bahir Dar",
+    "harar": "Harar"
+  },
+  "propertyTypes": {
+    "APARTMENT": "Apartment",
+    "HOUSE": "House",
+    "LAND": "Land",
+    "COMMERCIAL": "Commercial"
+  },
+  "dashboard": {
+    "workspace": "Workspace",
+    "nav": {
+      "overview": "Overview",
+      "listings": "Listings",
+      "favorites": "Favorites",
+      "messages": "Messages",
+      "support": "Support",
+      "verification": "ማረጋገጫ"
+    },
+    "seller": {
+      "welcome": "Welcome back, {name}",
+      "eyebrow": "Seller performance",
+      "export": "Export",
+      "newListing": "New listing",
+      "performance": "Performance score",
+      "excellent": "Excellent",
+      "performanceBlurb": "Your listings are outperforming the Addis average this week.",
+      "totalViews": "Total views",
+      "inquiries": "Inquiries",
+      "active": "Active listings",
+      "manageListings": "Manage listings",
+      "portfolio": "Your portfolio"
+    },
+    "listings": {
+      "title": "Listing workspace",
+      "subtitle": "Manage renewals and visibility for {name}'s inventory.",
+      "searchPlaceholder": "Search your listingsâ€¦",
+      "empty": "No listings yet",
+      "emptyHint": "Post your first property to appear in search.",
+      "renew": "Renew",
+      "boost": "Boost",
+      "renewSuccess": "Listing renewed for 30 days.",
+      "renewFallback": "Renew queued locally â€” sign in when the API is available.",
+      "boostPending": "Boost will be available once promotion billing ships."
+    },
+    "buyer": {
+      "member": "Member",
+      "memberSince": "Member since",
+      "bio": "Exploring homes across Addis Ababa and secondary cities.",
+      "editProfile": "Edit profile",
+      "shareProfile": "Share profile",
+      "saved": "Saved",
+      "viewed": "Viewed",
+      "inquiries": "Inquiries",
+      "reviews": "Reviews",
+      "recentlySaved": "Recently saved",
+      "savedSearches": "Saved searches"
+    },
+    "favorites": {
+      "title": "Saved collections",
+      "subtitle": "Properties you have bookmarked for later.",
+      "browse": "Browse listings",
+      "all": "All",
+      "villas": "Villas",
+      "apartments": "Apartments",
+      "land": "Land",
+      "empty": "No saved properties",
+      "emptyHint": "Tap the heart on a listing to collect it here."
+    },
+    "messages": {
+      "title": "Messages",
+      "subtitle": "Conversations with sellers and agencies.",
+      "empty": "No conversations yet",
+      "emptyHint": "Contact a seller from a listing page to start a thread.",
+      "placeholder": "Write a messageâ€¦",
+      "send": "Send",
+      "thread": "Conversation"
+    },
+    "verification": {
+      "cardEyebrow": "የሻጭ እምነት",
+      "cardTitle": "የማረጋገጫ ሁኔታ",
+      "unverifiedBody": "Verify your phone and upload an ID document so buyers can trust your listings.",
+      "getVerified": "አረጋግጥ",
+      "pendingBody": "Your documents are under review. No action is needed right now.",
+      "verifiedBody": "You are a Verified Seller. Your badge appears on live listings and your profile.",
+      "rejectedLabel": "Rejection reason",
+      "rejectedFallback": "Your previous submission was rejected. Resubmit with a clearer ID document.",
+      "resubmit": "እንደገና አስገባ",
+      "title": "የሻጭ ማረጋገጫ",
+      "eyebrow": "Trust & safety",
+      "subtitle": "Confirm your phone, then upload a government ID. Admins make the final decision.",
+      "alreadyVerified": "You are already verified — nothing to do here.",
+      "step1Label": "1. Phone",
+      "step2Label": "2. ID document",
+      "phoneLabel": "Mobile number",
+      "phoneHint": "We send a one-time code to this number on file.",
+      "phoneMissing": "No phone on file",
+      "sendCode": "ኮድ ላክ",
+      "codeLabel": "6-digit code",
+      "codeInvalidFormat": "Enter the 6-digit code from your SMS.",
+      "verifyCode": "ስልክ አረጋግጥ",
+      "resend": "Resend code",
+      "resendIn": "Resend in {time}",
+      "codeSent": "Code sent. Check your SMS.",
+      "rateLimited": "Too many codes requested. Wait before trying again.",
+      "sendFailed": "Could not send a code.",
+      "phoneVerified": "Phone confirmed.",
+      "codeWrong": "That code is incorrect. Try again.",
+      "tooManyAttempts": "Too many attempts. Request a new code.",
+      "codeExpired": "No active code found. Request a new one.",
+      "verifyFailed": "Could not verify the code.",
+      "docIntro": "Upload a clear photo of your national ID or passport.",
+      "docLabel": "ID document",
+      "docHint": "One image. JPEG or PNG.",
+      "needDocument": "Add your ID document photo.",
+      "submitReview": "ለግምገማ አስገባ",
+      "submitSuccess": "Submitted for review.",
+      "submitFailed": "Could not submit verification."
+    }
+  },
+  "sellers": {
+    "unverified": "Unverified",
+    "listings": "Listings",
+    "score": "Score",
+    "contact": "Message",
+    "share": "Share",
+    "liveListings": "Live listings",
+    "noListings": "This seller has no live listings right now.",
+    "defaultBio": "Premium residential specialist covering Bole, Kazanchis, and Old Airport corridors.",
+    "makeInquiry": "Make an Inquiry",
+    "notFoundTitle": "Agency not found",
+    "notFoundDescription": "This agency profile does not exist or is no longer available.",
+    "backHome": "Back to home",
+    "statActiveListings": "Active Listings",
+    "statResponseTime": "Response Time",
+    "statTotalViews": "Total Views",
+    "newAgency": "New agency",
+    "collectionEyebrow": "Portfolio",
+    "collectionTitle": "Discover the Collection",
+    "inquiryTitle": "Make an Inquiry",
+    "inquiryHint": "Introduce yourself and what you are looking for. The agency will reply in your messages.",
+    "inquiryPlaceholder": "I am interested in properties in Bole around…",
+    "inquiryCancel": "Cancel",
+    "inquirySend": "Send inquiry",
+    "inquirySending": "Sending…",
+    "inquirySent": "Inquiry sent — check your messages.",
+    "inquiryFailed": "Could not send inquiry. Try again.",
+    "inquiryLoginRequired": "Sign in to message this agency."
+  },
+  "support": {
+    "eyebrow": "Help center",
+    "title": "Support",
+    "subtitle": "Answers for listing, verification, and account questions â€” or open a support thread.",
+    "faqTitle": "Common questions",
+    "ticketsTitle": "Your support threads",
+    "ticket": "Support ticket",
+    "empty": "No support threads",
+    "emptyHint": "Start a conversation and our team will reply here.",
+    "placeholder": "Describe your issueâ€¦",
+    "send": "Send",
+    "faq": {
+      "listing": {
+        "q": "How long until my listing goes live?",
+        "a": "New and edited listings start as PENDING. An admin reviews AI flags and publishes LIVE listings, usually within one business day."
+      },
+      "verification": {
+        "q": "How do I become a verified seller?",
+        "a": "Apply as a seller and submit verification documents. Verified means role SELLER and verification_status VERIFIED â€” they are separate statuses."
+      },
+      "payment": {
+        "q": "What currencies does Bete use?",
+        "a": "All listing prices are shown in Ethiopian Birr (ETB). Boost and renewals will bill in ETB when those products launch."
+      }
+    }
+  }
 }

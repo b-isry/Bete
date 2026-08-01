@@ -9,6 +9,7 @@ import {
   EmptyState,
   Icon,
   Input,
+  StatCard,
   StatusPill,
   useToast,
 } from "@/components/ui";
@@ -29,7 +30,7 @@ function relativeTime(iso: string): string {
 export default function PendingListingsPage() {
   const { t } = useLanguage();
   const { push } = useToast();
-  const { data, mutate } = usePendingListings(1);
+  const { data, mutate, isLoading } = usePendingListings(1);
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<FilterTab>("pending");
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -96,13 +97,33 @@ export default function PendingListingsPage() {
       title={t("admin.moderation.title")}
       searchPlaceholder={t("admin.moderation.search")}
     >
+      <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard
+          label={t("admin.moderation.pending")}
+          value={String(total)}
+        />
+        <StatCard
+          tone="secondary"
+          label={t("admin.moderation.flagged")}
+          value={String(flaggedCount)}
+        />
+        <StatCard
+          tone="danger"
+          label={t("admin.moderation.reported")}
+          value="0"
+        />
+      </section>
+
       <section className="-mx-6 mb-6 flex flex-wrap items-center justify-between gap-4 border-y border-outline-variant bg-surface-container-lowest px-6 py-4 md:-mx-8 md:px-8">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex border border-outline-variant bg-surface-container">
             {(
               [
                 ["pending", `${t("admin.moderation.pending")} (${total})`],
-                ["flagged", `${t("admin.moderation.flagged")} (${flaggedCount})`],
+                [
+                  "flagged",
+                  `${t("admin.moderation.flagged")} (${flaggedCount})`,
+                ],
                 ["reported", `${t("admin.moderation.reported")} (0)`],
               ] as const
             ).map(([id, label]) => (
@@ -131,7 +152,7 @@ export default function PendingListingsPage() {
         </div>
       </section>
 
-      {filtered.length === 0 ? (
+      {!isLoading && filtered.length === 0 ? (
         <EmptyState
           icon="gavel"
           title={t("admin.moderation.empty")}
@@ -163,7 +184,10 @@ export default function PendingListingsPage() {
                     <h3 className="max-w-md truncate font-serif text-lg text-primary">
                       {listing.title}
                     </h3>
-                    <Chip tone="gold">{listing.property_type}</Chip>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <StatusPill kind="property" status="PENDING" />
+                      <Chip tone="gold">{listing.property_type}</Chip>
+                    </div>
                   </div>
                   <div className="mb-4 flex flex-wrap items-center gap-2 text-on-surface-variant">
                     <Icon name="person" className="text-sm" />

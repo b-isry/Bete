@@ -1,39 +1,53 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import {
+  Accordion,
+  AccordionItem,
   Button,
-  Card,
   ChatBubble,
   EmptyState,
   Icon,
   Input,
   ThreadList,
+  useToast,
   type ThreadListItem,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { sendMessage } from "@/lib/api";
 import { useAuthMe, useMessageThreads, useThreadMessages } from "@/lib/hooks";
 
 const FAQ = [
-  { q: "support.faq.listing.q", a: "support.faq.listing.a" },
-  { q: "support.faq.verification.q", a: "support.faq.verification.a" },
-  { q: "support.faq.payment.q", a: "support.faq.payment.a" },
+  { id: "listing", q: "support.faq.listing.q", a: "support.faq.listing.a" },
+  {
+    id: "verification",
+    q: "support.faq.verification.q",
+    a: "support.faq.verification.a",
+  },
+  { id: "payment", q: "support.faq.payment.q", a: "support.faq.payment.a" },
 ] as const;
 
+/**
+ * P11 — Support Center (`bete_support_center`)
+ * Wired: GET /messages/threads (SUPPORT), GET /messages/thread/:id,
+ *        POST /messages with thread_type SUPPORT.
+ */
 export default function SupportPage() {
   const { t } = useLanguage();
+  const { push } = useToast();
   const { data: meData } = useAuthMe("USER");
-  const { data: threadsData } = useMessageThreads();
+  const { data: threadsData, mutate: mutateThreads } = useMessageThreads();
   const meId = meData?.user.id ?? "me";
   const supportThreads = (threadsData?.threads ?? []).filter(
     (th) => th.thread_type === "SUPPORT",
   );
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [sending, setSending] = useState(false);
 
   const selectedId = activeId ?? supportThreads[0]?.id ?? null;
-  const { data: messagesData } = useThreadMessages(selectedId);
+  const { data: messagesData, mutate: mutateMessages } =
+    useThreadMessages(selectedId);
   const messages = messagesData?.messages ?? [];
 
   const threadItems: ThreadListItem[] = useMemo(
@@ -51,6 +65,29 @@ export default function SupportPage() {
       })),
     [supportThreads, selectedId, t],
   );
+
+  async function onSend(e: FormEvent) {
+    e.preventDefault();
+    const text = draft.trim();
+    if (!text) return;
+    setSending(true);
+    try {
+      const result = await sendMessage(
+        selectedId
+          ? { thread_id: selectedId, message_text: text }
+          : { thread_type: "SUPPORT", message_text: text },
+      );
+      setDraft("");
+      if (!selectedId && result.thread_id) {
+        setActiveId(result.thread_id);
+      }
+      await Promise.all([mutateThreads(), mutateMessages()]);
+    } catch {
+      push(t("support.sendFailed"), "error");
+    } finally {
+      setSending(false);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 md:px-8">
@@ -71,39 +108,64 @@ export default function SupportPage() {
           <h2 className="mb-4 font-serif text-headline-sm">
             {t("support.faqTitle")}
           </h2>
-          <div className="space-y-2">
-            {FAQ.map((item, i) => (
-              <Card key={item.q} padding={false} className="overflow-hidden">
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-between px-4 py-4 text-left"
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                >
-                  <span className="font-serif text-lg text-primary">
-                    {t(item.q)}
-                  </span>
-                  <Icon name={openFaq === i ? "expand_less" : "expand_more"} />
-                </button>
-                {openFaq === i ? (
-                  <p className="border-t border-outline-variant px-4 py-4 font-body text-body-md text-on-surface-variant">
-                    {t(item.a)}
-                  </p>
-                ) : null}
-              </Card>
+          <Accordion defaultValue="listing">
+            {FAQ.map((item) => (
+              <AccordionItem key={item.id} value={item.id} title={t(item.q)}>
+                {t(item.a)}
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
         </section>
 
         <section>
-          <h2 className="mb-4 font-serif text-headline-sm">
-            {t("support.ticketsTitle")}
-          </h2>
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <h2 className="font-serif text-headline-sm">
+              {t("support.ticketsTitle")}
+            </h2>
+            {threadItems.length === 0 ? (
+              <Button
+                variant="outline"
+                className="gap-2"
+                disabled={sending}
+                onClick={() => {
+                  setDraft(t("support.placeholder"));
+                }}
+              >
+                <Icon name="add" />
+                {t("support.startThread")}
+              </Button>
+            ) : null}
+          </div>
+
           {threadItems.length === 0 ? (
-            <EmptyState
-              icon="support_agent"
-              title={t("support.empty")}
-              description={t("support.emptyHint")}
-            />
+            <div className="space-y-4">
+              <EmptyState
+                icon="support_agent"
+                title={t("support.empty")}
+                description={t("support.emptyHint")}
+              />
+              <form
+                className="flex gap-2 border border-outline-variant bg-surface-container-lowest p-4"
+                onSubmit={(e) => {
+                  void onSend(e);
+                }}
+              >
+                <Input
+                  variant="stroke"
+                  className="flex-1"
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder={t("support.placeholder")}
+                />
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={sending || !draft.trim()}
+                >
+                  {t("support.send")}
+                </Button>
+              </form>
+            </div>
           ) : (
             <div className="border border-outline-variant bg-surface-container-lowest">
               <ThreadList items={threadItems} onSelect={setActiveId} />
@@ -124,8 +186,7 @@ export default function SupportPage() {
               <form
                 className="flex gap-2 border-t border-outline-variant p-4"
                 onSubmit={(e) => {
-                  e.preventDefault();
-                  setDraft("");
+                  void onSend(e);
                 }}
               >
                 <Input
@@ -135,7 +196,11 @@ export default function SupportPage() {
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder={t("support.placeholder")}
                 />
-                <Button type="submit" variant="primary">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={sending || !draft.trim()}
+                >
                   {t("support.send")}
                 </Button>
               </form>

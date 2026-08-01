@@ -6,6 +6,7 @@ import {
   Button,
   Chip,
   EmptyState,
+  StatCard,
   StatusPill,
   Table,
   TableBody,
@@ -25,6 +26,13 @@ export default function AdminReportsPage() {
   const { data, mutate } = useAdminReports(1);
   const items = data?.items ?? [];
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  const pendingReports = items.reduce(
+    (sum, prop) =>
+      sum + prop.reports.filter((r) => r.status === "PENDING").length,
+    0,
+  );
+  const autoHidden = items.filter((p) => p.status === "AUTO_HIDDEN").length;
 
   async function onResolve(
     reportId: string,
@@ -67,6 +75,23 @@ export default function AdminReportsPage() {
       <p className="mb-6 font-body text-body-md text-on-surface-variant">
         {t("admin.reports.subtitle")}
       </p>
+
+      <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard
+          label={t("admin.reports.title")}
+          value={String(items.length)}
+        />
+        <StatCard
+          tone="danger"
+          label={t("admin.reports.pendingCount")}
+          value={String(pendingReports)}
+        />
+        <StatCard
+          tone="secondary"
+          label="AUTO_HIDDEN"
+          value={String(autoHidden)}
+        />
+      </section>
 
       {items.length === 0 ? (
         <EmptyState

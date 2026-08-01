@@ -7,14 +7,19 @@ import {
   Card,
   Chip,
   DashboardShell,
+  EmptyState,
   Icon,
   ListingCard,
   StatusPill,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAuthMe, useFavorites } from "@/lib/hooks";
-import { PLACEHOLDER_IMAGE } from "@/lib/mocks";
 
+/**
+ * P8 — Buyer profile dashboard (`bete_user_profile_dashboard`)
+ * Wired: GET /auth/me, GET /favorites (preview). Saved searches: mock labels
+ * until SavedSearch HTTP ships (Prisma model only).
+ */
 export function BuyerDashboard() {
   const { t } = useLanguage();
   const { data: meData } = useAuthMe("USER");
@@ -28,13 +33,18 @@ export function BuyerDashboard() {
       })
     : "—";
 
+  const savedSearchLabels = [
+    t("dashboard.buyer.savedSearch1"),
+    t("dashboard.buyer.savedSearch2"),
+  ];
+
   return (
     <DashboardShell role="USER">
       <header className="mb-10 border-b border-outline-variant/30 pb-10">
         <div className="flex flex-col items-start gap-8 md:flex-row md:items-center">
           <Avatar
             size="lg"
-            shape="circle"
+            shape="square"
             initials={(user?.name ?? "U").slice(0, 2)}
             className="h-32 w-32 md:h-40 md:w-40"
           />
@@ -44,10 +54,12 @@ export function BuyerDashboard() {
               <Chip tone="gold">{t("dashboard.buyer.member")}</Chip>
             </div>
             <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-on-surface-variant">
-              <span className="inline-flex items-center gap-2 font-sans text-label-md">
-                <Icon name="alternate_email" className="text-lg" />
-                @{user?.username}
-              </span>
+              {user?.username ? (
+                <span className="inline-flex items-center gap-2 font-sans text-label-md">
+                  <Icon name="alternate_email" className="text-lg" />@
+                  {user.username}
+                </span>
+              ) : null}
               <span className="inline-flex items-center gap-2 font-sans text-label-md">
                 <Icon name="calendar_today" className="text-lg" />
                 {t("dashboard.buyer.memberSince")} {memberSince}
@@ -68,9 +80,10 @@ export function BuyerDashboard() {
         <div className="grid grid-cols-2 gap-6 px-4 py-8 text-center md:grid-cols-4 md:text-left">
           {[
             [favorites.length, "dashboard.buyer.saved"],
-            [48, "dashboard.buyer.viewed"],
-            [5, "dashboard.buyer.inquiries"],
-            [2, "dashboard.buyer.reviews"],
+            // Viewed / inquiries / reviews: no buyer analytics API yet — placeholders.
+            ["—", "dashboard.buyer.viewed"],
+            ["—", "dashboard.buyer.inquiries"],
+            ["—", "dashboard.buyer.reviews"],
           ].map(([value, key]) => (
             <div
               key={String(key)}
@@ -92,32 +105,61 @@ export function BuyerDashboard() {
           </h2>
           <Link
             href="/dashboard/favorites"
-            className="font-sans text-label-sm uppercase tracking-wider text-secondary border-b border-secondary pb-0.5"
+            className="border-b border-secondary pb-0.5 font-sans text-label-sm uppercase tracking-wider text-secondary"
           >
             {t("home.viewAll")}
           </Link>
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {favorites.slice(0, 4).map((fav) => {
-            const price = Number(fav.property.price);
-            const pps = fav.property.price_per_sqm
-              ? Number(fav.property.price_per_sqm)
-              : 0;
-            return (
-              <ListingCard
-                key={fav.id}
-                id={fav.property.id}
-                title={fav.property.title}
-                priceEtb={Number.isFinite(price) ? price : 0}
-                pricePerSqm={Number.isFinite(pps) ? pps : 0}
-                imageUrl={
-                  fav.property.images[0]?.image_url ?? PLACEHOLDER_IMAGE
-                }
-                location={fav.property.location_text}
-              />
-            );
-          })}
-        </div>
+        {favorites.length === 0 ? (
+          <EmptyState
+            icon="favorite_border"
+            title={t("dashboard.favorites.empty")}
+            description={t("dashboard.favorites.emptyHint")}
+            action={
+              <Link href="/search">
+                <Button variant="primary">
+                  {t("dashboard.favorites.browse")}
+                </Button>
+              </Link>
+            }
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {favorites.slice(0, 4).map((fav) => {
+              const price = Number(fav.property.price);
+              const pps = fav.property.price_per_sqm
+                ? Number(fav.property.price_per_sqm)
+                : null;
+              const area = fav.property.area_sqm
+                ? Number(fav.property.area_sqm)
+                : null;
+              return (
+                <ListingCard
+                  key={fav.id}
+                  id={fav.property.id}
+                  title={fav.property.title}
+                  priceEtb={Number.isFinite(price) ? price : 0}
+                  pricePerSqm={
+                    pps != null && Number.isFinite(pps) ? pps : null
+                  }
+                  areaSqm={
+                    area != null && Number.isFinite(area) ? area : null
+                  }
+                  images={fav.property.images}
+                  location={fav.property.location_text}
+                  bedrooms={fav.property.bedrooms}
+                  bathrooms={fav.property.bathrooms}
+                  verified={
+                    fav.property.seller?.verification_status === "VERIFIED"
+                  }
+                  sellerId={fav.property.seller?.id}
+                  sellerPhone={fav.property.seller?.phone}
+                  initiallyFavorited
+                />
+              );
+            })}
+          </div>
+        )}
       </section>
 
       <section className="mt-12">
@@ -125,10 +167,7 @@ export function BuyerDashboard() {
           {t("dashboard.buyer.savedSearches")}
         </h2>
         <div className="space-y-3">
-          {[
-            "3-bed villa in Bole under 20M",
-            "Apartment near Meskel Square",
-          ].map((label) => (
+          {savedSearchLabels.map((label) => (
             <Card
               key={label}
               className="flex items-center justify-between hover:border-primary"

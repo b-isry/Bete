@@ -112,7 +112,7 @@ export function ImageDropzone({
           ref={inputRef}
           type="file"
           accept="image/*"
-          multiple
+          multiple={max > 1}
           className="hidden"
           onChange={onInput}
         />
@@ -131,7 +131,7 @@ export function ImageDropzone({
                 alt={item.name}
                 className="h-full w-full object-cover"
               />
-              <span className="absolute left-1 top-1 bg-primary-container px-1.5 py-0.5 font-sans text-[10px] uppercase text-on-primary">
+              <span className="absolute left-1 top-1 bg-primary-container px-1.5 py-0.5 font-sans text-label-sm uppercase tracking-widest text-on-primary">
                 {index + 1}
               </span>
               <button

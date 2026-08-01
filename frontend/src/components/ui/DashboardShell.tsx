@@ -23,6 +23,12 @@ const NAV_ITEMS: DashboardNavItem[] = [
     roles: ["SELLER", "ADMIN"],
   },
   {
+    href: "/dashboard/verification",
+    labelKey: "dashboard.nav.verification",
+    icon: "verified_user",
+    roles: ["SELLER"],
+  },
+  {
     href: "/dashboard/favorites",
     labelKey: "dashboard.nav.favorites",
     icon: "favorite",

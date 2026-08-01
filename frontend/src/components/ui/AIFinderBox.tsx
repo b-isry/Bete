@@ -3,10 +3,12 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import useSWRMutation from "swr/mutation";
-import { Chip, Icon } from "@/components/ui";
 import { AI_PARSE_PATH, apiPost } from "@/lib/api";
 import { mockAiParse, type AiParseResult } from "@/lib/mocks";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { Button } from "./Button";
+import { Chip } from "./Chip";
+import { Icon } from "./Icon";
 import { cn } from "./cn";
 
 export type AIFinderBoxProps = {
@@ -29,6 +31,10 @@ async function parseQuery(
   }
 }
 
+/**
+ * AI Home Finder — underline compose field from
+ * `bete_ai_home_finder_brand_synchronized` (full experience on /ai-finder).
+ */
 export function AIFinderBox({
   onSubmit,
   navigateOnSubmit = false,
@@ -85,16 +91,17 @@ export function AIFinderBox({
             onChange={(event) => setQuery(event.target.value)}
             rows={2}
             placeholder={placeholder ?? t("aiFinder.placeholder")}
-            className="w-full resize-none bg-transparent pb-4 pr-14 font-serif text-2xl italic leading-relaxed text-on-surface placeholder:text-outline focus:outline-none md:text-3xl"
+            className="w-full resize-none bg-transparent pb-4 pr-14 font-serif text-headline-sm italic text-on-surface placeholder:text-outline focus:outline-none md:text-headline-md"
           />
-          <button
+          <Button
             type="submit"
+            variant="ghost"
             aria-label={t("aiFinder.submit")}
-            className="absolute bottom-3 right-0 flex h-10 w-10 items-center justify-center text-primary-container transition-colors hover:text-primary disabled:opacity-40"
+            className="absolute bottom-3 right-0 h-10 w-10 px-0 text-primary-container hover:text-primary"
             disabled={!query.trim() || isMutating}
           >
-            <Icon name="arrow_forward" className="text-2xl leading-none" />
-          </button>
+            <Icon name="arrow_forward" className="text-headline-sm leading-none" />
+          </Button>
         </div>
         <p className="mt-4 font-sans text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60">
           {t("aiFinder.hint")}

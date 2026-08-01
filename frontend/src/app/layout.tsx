@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Libre_Caslon_Text, Source_Serif_4, Work_Sans } from "next/font/google";
+import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { ToastProvider } from "@/components/ui";
 import { LanguageProvider } from "@/i18n/LanguageContext";
@@ -46,6 +47,7 @@ export default function RootLayout({
           <ToastProvider>
             <Header />
             <main>{children}</main>
+            <Footer />
           </ToastProvider>
         </LanguageProvider>
       </body>

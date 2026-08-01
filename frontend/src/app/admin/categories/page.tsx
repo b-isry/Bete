@@ -3,6 +3,7 @@
 import {
   AdminShell,
   EmptyState,
+  StatCard,
   Table,
   TableBody,
   TableCell,
@@ -17,12 +18,25 @@ export default function AdminCategoriesPage() {
   const { t } = useLanguage();
   const { data } = useAdminCategories();
   const items = data?.items ?? [];
+  const totalListings = items.reduce((sum, c) => sum + c.listing_count, 0);
 
   return (
     <AdminShell title={t("admin.categories.title")}>
       <p className="mb-6 font-body text-body-md text-on-surface-variant">
         {t("admin.categories.subtitle")}
       </p>
+
+      <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:max-w-xl">
+        <StatCard
+          label={t("admin.categories.title")}
+          value={String(items.length)}
+        />
+        <StatCard
+          tone="secondary"
+          label={t("admin.categories.cols.listings")}
+          value={String(totalListings)}
+        />
+      </section>
 
       {items.length === 0 ? (
         <EmptyState
@@ -35,7 +49,9 @@ export default function AdminCategoriesPage() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableHeaderCell>{t("admin.categories.cols.id")}</TableHeaderCell>
+                <TableHeaderCell>
+                  {t("admin.categories.cols.id")}
+                </TableHeaderCell>
                 <TableHeaderCell>
                   {t("admin.categories.cols.name")}
                 </TableHeaderCell>

@@ -85,3 +85,9 @@ export {
   type ImageDropzoneItem,
 } from "./ImageDropzone";
 export { ContentShell, type ContentShellProps } from "./ContentShell";
+export {
+  Accordion,
+  AccordionItem,
+  type AccordionProps,
+  type AccordionItemProps,
+} from "./Accordion";

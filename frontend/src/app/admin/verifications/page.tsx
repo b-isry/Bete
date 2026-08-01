@@ -8,6 +8,7 @@ import {
   EmptyState,
   Icon,
   ScoreRing,
+  StatCard,
   StatusPill,
   cn,
   useToast,
@@ -74,6 +75,18 @@ export default function VerificationsPage() {
 
   return (
     <AdminShell hideSearch title={t("admin.verify.title")}>
+      <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:max-w-xl">
+        <StatCard
+          tone="secondary"
+          label={t("admin.verify.pending")}
+          value={String(items.length)}
+        />
+        <StatCard
+          label={t("admin.verify.awaiting")}
+          value={String(data?.pagination?.total ?? items.length)}
+        />
+      </section>
+
       {items.length === 0 ? (
         <EmptyState
           icon="verified_user"

@@ -8,6 +8,7 @@ import {
   Icon,
   ImageDropzone,
   Input,
+  RequireRole,
   Select,
   Textarea,
   useToast,
@@ -117,6 +118,7 @@ export default function NewListingPage() {
   }
 
   return (
+    <RequireRole role="SELLER" fallbackHref="/sign-in">
     <div className="mx-auto max-w-3xl px-4 py-10 md:px-8">
       <p className="mb-2 font-sans text-label-sm uppercase tracking-[0.2em] text-secondary">
         {t("listings.new.eyebrow")}
@@ -364,5 +366,6 @@ export default function NewListingPage() {
         </form>
       </Card>
     </div>
+    </RequireRole>
   );
 }

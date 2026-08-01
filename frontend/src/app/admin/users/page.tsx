@@ -3,6 +3,7 @@
 import {
   AdminShell,
   EmptyState,
+  StatCard,
   StatusPill,
   Table,
   TableBody,
@@ -18,12 +19,31 @@ export default function AdminUsersPage() {
   const { t } = useLanguage();
   const { data } = useAdminUsers(1);
   const items = data?.items ?? [];
+  const total = data?.pagination.total ?? items.length;
+  const sellers = items.filter((u) => u.role === "SELLER").length;
+  const pendingVerify = items.filter(
+    (u) => u.role === "SELLER" && u.verification_status === "PENDING",
+  ).length;
 
   return (
     <AdminShell title={t("admin.users.title")}>
       <p className="mb-6 font-body text-body-md text-on-surface-variant">
         {t("admin.users.subtitle")}
       </p>
+
+      <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard label={t("admin.users.cols.role")} value={String(total)} />
+        <StatCard
+          tone="primary"
+          label={t("auth.roles.seller")}
+          value={String(sellers)}
+        />
+        <StatCard
+          tone="secondary"
+          label={t("admin.verify.pending")}
+          value={String(pendingVerify)}
+        />
+      </section>
 
       {items.length === 0 ? (
         <EmptyState
@@ -37,12 +57,16 @@ export default function AdminUsersPage() {
             <TableHead>
               <TableRow>
                 <TableHeaderCell>{t("admin.users.cols.name")}</TableHeaderCell>
-                <TableHeaderCell>{t("admin.users.cols.contact")}</TableHeaderCell>
+                <TableHeaderCell>
+                  {t("admin.users.cols.contact")}
+                </TableHeaderCell>
                 <TableHeaderCell>{t("admin.users.cols.role")}</TableHeaderCell>
                 <TableHeaderCell>
                   {t("admin.users.cols.verification")}
                 </TableHeaderCell>
-                <TableHeaderCell>{t("admin.users.cols.joined")}</TableHeaderCell>
+                <TableHeaderCell>
+                  {t("admin.users.cols.joined")}
+                </TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -57,7 +81,9 @@ export default function AdminUsersPage() {
                     </p>
                   </TableCell>
                   <TableCell>
-                    <p className="font-body text-body-md">{user.phone ?? "—"}</p>
+                    <p className="font-body text-body-md">
+                      {user.phone ?? "—"}
+                    </p>
                     <p className="font-sans text-label-sm text-on-surface-variant">
                       {user.email ?? "—"}
                     </p>

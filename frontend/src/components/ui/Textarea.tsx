@@ -7,9 +7,10 @@ export type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
   variant?: TextareaVariant;
 };
 
+/** Defaults to underline — Messages compose / Support contact form (stitch). */
 const variantClasses: Record<TextareaVariant, string> = {
   underline:
-    "border-0 border-b border-outline-variant bg-transparent px-0 py-4 focus:border-primary",
+    "border-0 border-b border-outline-variant bg-transparent px-0 py-2 focus:border-primary",
   stroke:
     "border border-outline-variant bg-surface-container-lowest px-4 py-3 focus:border-primary",
 };

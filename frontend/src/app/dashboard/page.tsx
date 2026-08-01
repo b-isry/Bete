@@ -11,11 +11,16 @@ import {
   StatCard,
   StatusPill,
 } from "@/components/ui";
+import { VerificationStatusCard } from "@/components/dashboard/VerificationStatusCard";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAuthMe, useMyListings, useTopSellers } from "@/lib/hooks";
-import { PLACEHOLDER_IMAGE } from "@/lib/mocks";
 import { BuyerDashboard } from "./BuyerDashboard";
 
+/**
+ * P5 — Seller dashboard (`bete_seller_dashboard`)
+ * Wired: GET /auth/me, GET /sellers/top (own rank), GET /properties?seller_id=me
+ *        (listings path placeholder — mock fallback) for per-listing stats.
+ */
 export default function DashboardPage() {
   const { t } = useLanguage();
   const { data: meData } = useAuthMe("SELLER");
@@ -37,7 +42,7 @@ function SellerDashboard() {
 
   const user = meData?.user;
   const ownRank = top?.sellers.find(
-    (s) => s.username === user?.username || s.name === user?.name,
+    (s) => s.seller_id === user?.id || s.username === user?.username,
   );
   const listings = listingsData?.items ?? [];
   const live = listings.filter((l) => l.status === "LIVE").length;
@@ -60,16 +65,12 @@ function SellerDashboard() {
             <Icon name="ios_share" />
             {t("dashboard.seller.export")}
           </Button>
-          <Button
-            variant="primary"
-            className="gap-2"
-            onClick={() => {
-              window.location.href = "/listings/new";
-            }}
-          >
-            <Icon name="add" />
-            {t("dashboard.seller.newListing")}
-          </Button>
+          <Link href="/listings/new">
+            <Button variant="primary" className="gap-2">
+              <Icon name="add" />
+              {t("dashboard.seller.newListing")}
+            </Button>
+          </Link>
         </>
       }
     >
@@ -77,6 +78,12 @@ function SellerDashboard() {
         {t("dashboard.seller.eyebrow")}
         {ownRank ? ` · #${ownRank.rank} · ${ownRank.stat_line}` : ""}
       </p>
+
+      {user ? (
+        <div className="mb-8">
+          <VerificationStatusCard user={user} />
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
         <Card className="flex h-80 flex-col justify-between md:col-span-4">
@@ -154,16 +161,27 @@ function SellerDashboard() {
             const price = Number(listing.price);
             const pps = listing.price_per_sqm
               ? Number(listing.price_per_sqm)
-              : 0;
+              : null;
+            const area = listing.area_sqm ? Number(listing.area_sqm) : null;
             return (
               <div key={listing.id} className="space-y-3">
                 <ListingCard
                   id={listing.id}
                   title={listing.title}
                   priceEtb={Number.isFinite(price) ? price : 0}
-                  pricePerSqm={Number.isFinite(pps) ? pps : 0}
-                  imageUrl={listing.images[0]?.image_url ?? PLACEHOLDER_IMAGE}
+                  pricePerSqm={
+                    pps != null && Number.isFinite(pps) ? pps : null
+                  }
+                  areaSqm={
+                    area != null && Number.isFinite(area) ? area : null
+                  }
+                  images={listing.images}
                   location={listing.location_text}
+                  bedrooms={listing.bedrooms}
+                  bathrooms={listing.bathrooms}
+                  verified={listing.seller?.verification_status === "VERIFIED"}
+                  sellerId={listing.seller?.id}
+                  sellerPhone={listing.seller?.phone}
                 />
                 <div className="flex items-center justify-between gap-2">
                   <StatusPill kind="property" status={listing.status} />

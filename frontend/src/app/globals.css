@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Matches Header shell height (`h-16` / 64px) — sticky offsets read this. */
+  --header-height: 4rem;
+}
+
 body {
   background-color: #fbf9f5;
 }

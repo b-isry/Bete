@@ -1,7 +1,13 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "./cn";
 
-export type ChipTone = "forest" | "gold" | "neutral" | "error";
+/** Tones from stitch chips / listing badges (homepage, property detail, filters). */
+export type ChipTone =
+  | "forest"
+  | "gold"
+  | "neutral"
+  | "error"
+  | "solid";
 
 export type ChipProps = HTMLAttributes<HTMLSpanElement> & {
   tone?: ChipTone;
@@ -9,10 +15,11 @@ export type ChipProps = HTMLAttributes<HTMLSpanElement> & {
 };
 
 const toneClasses: Record<ChipTone, string> = {
-  forest: "bg-primary/10 text-primary",
+  forest: "bg-primary/10 text-primary border border-primary/10",
   gold: "bg-secondary-container text-on-secondary-container",
   neutral: "bg-surface-container-highest text-on-surface-variant",
   error: "bg-error-container text-on-error-container",
+  solid: "bg-primary text-on-primary",
 };
 
 export function Chip({

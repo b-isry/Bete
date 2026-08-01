@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useMemo, useState, type FormEvent } from "react";
 import {
   Button,
   ChatBubble,
@@ -9,39 +10,51 @@ import {
   Icon,
   Input,
   ThreadList,
+  useToast,
   type ThreadListItem,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { sendMessage } from "@/lib/api";
 import { useAuthMe, useMessageThreads, useThreadMessages } from "@/lib/hooks";
 
+/**
+ * P10 — Messages (`bete_messages`)
+ * Wired: GET /messages/threads, GET /messages/thread/:id, POST /messages
+ */
 function counterpartName(
   participants: Array<{ id: string; name: string }>,
   meId: string,
+  fallback: string,
 ): string {
-  return participants.find((p) => p.id !== meId)?.name ?? "Conversation";
+  return participants.find((p) => p.id !== meId)?.name ?? fallback;
 }
 
 export default function MessagesPage() {
   const { t } = useLanguage();
+  const { push } = useToast();
   const { data: meData } = useAuthMe("USER");
-  const { data: threadsData } = useMessageThreads();
+  const { data: threadsData, mutate: mutateThreads } = useMessageThreads();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [sending, setSending] = useState(false);
 
   const meId = meData?.user.id ?? "me";
   const threads = threadsData?.threads ?? [];
   const inboxThreads = threads.filter((th) => th.thread_type !== "SUPPORT");
 
   const selectedId = activeId ?? inboxThreads[0]?.id ?? null;
-  const { data: messagesData } = useThreadMessages(selectedId);
+  const { data: messagesData, mutate: mutateMessages } =
+    useThreadMessages(selectedId);
   const messages = messagesData?.messages ?? [];
+
+  const threadFallback = t("dashboard.messages.thread");
 
   const threadItems: ThreadListItem[] = useMemo(
     () =>
       inboxThreads.map((th) => {
         const title =
           th.property?.title ??
-          counterpartName(th.participants, meId);
+          counterpartName(th.participants, meId, threadFallback);
         return {
           id: th.id,
           title,
@@ -55,14 +68,34 @@ export default function MessagesPage() {
               })
             : "",
           unread: th.unread_count,
-          avatarInitials: counterpartName(th.participants, meId).slice(0, 2),
+          avatarInitials: counterpartName(
+            th.participants,
+            meId,
+            threadFallback,
+          ).slice(0, 2),
           selected: th.id === selectedId,
         };
       }),
-    [inboxThreads, meId, selectedId],
+    [inboxThreads, meId, selectedId, threadFallback],
   );
 
   const activeThread = inboxThreads.find((th) => th.id === selectedId);
+
+  async function onSend(e: FormEvent) {
+    e.preventDefault();
+    const text = draft.trim();
+    if (!text || !selectedId) return;
+    setSending(true);
+    try {
+      await sendMessage({ thread_id: selectedId, message_text: text });
+      setDraft("");
+      await Promise.all([mutateMessages(), mutateThreads()]);
+    } catch {
+      push(t("dashboard.messages.sendFailed"), "error");
+    } finally {
+      setSending(false);
+    }
+  }
 
   return (
     <DashboardShell role="USER" title={t("dashboard.messages.title")}>
@@ -87,10 +120,18 @@ export default function MessagesPage() {
               <div>
                 <h2 className="font-serif text-lg text-primary">
                   {activeThread?.property?.title ??
-                    counterpartName(activeThread?.participants ?? [], meId)}
+                    counterpartName(
+                      activeThread?.participants ?? [],
+                      meId,
+                      threadFallback,
+                    )}
                 </h2>
                 <p className="font-sans text-label-sm uppercase tracking-widest text-on-surface-variant">
-                  {counterpartName(activeThread?.participants ?? [], meId)}
+                  {counterpartName(
+                    activeThread?.participants ?? [],
+                    meId,
+                    threadFallback,
+                  )}
                 </p>
               </div>
               <Icon name="more_horiz" className="text-on-surface-variant" />
@@ -114,8 +155,7 @@ export default function MessagesPage() {
             <form
               className="flex gap-2 border-t border-outline-variant p-4"
               onSubmit={(e) => {
-                e.preventDefault();
-                setDraft("");
+                void onSend(e);
               }}
             >
               <Input
@@ -125,7 +165,12 @@ export default function MessagesPage() {
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder={t("dashboard.messages.placeholder")}
               />
-              <Button type="submit" variant="primary" className="gap-2">
+              <Button
+                type="submit"
+                variant="primary"
+                className="gap-2"
+                disabled={sending || !draft.trim()}
+              >
                 <Icon name="send" />
                 {t("dashboard.messages.send")}
               </Button>

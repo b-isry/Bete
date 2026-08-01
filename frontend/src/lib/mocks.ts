@@ -3,12 +3,20 @@ export type PropertySearchItem = {
   title: string;
   price: string;
   price_per_sqm: string | null;
+  area_sqm?: string | null;
   location_text: string;
   property_type: string;
   is_featured?: boolean;
   bedrooms?: number | null;
   bathrooms?: number | null;
   images: Array<{ id: string; image_url: string; sort_order: number }>;
+  seller?: {
+    id: string;
+    name: string;
+    username: string | null;
+    phone: string;
+    verification_status: string;
+  } | null;
 };
 
 export type PropertySearchResult = {
@@ -39,6 +47,48 @@ export type TopSellersResult = {
   sellers: TopSeller[];
 };
 
+export type SellerDirectoryItem = {
+  id: string;
+  username: string | null;
+  name: string;
+  logo_url: string | null;
+  bio: string | null;
+  verification_status: string;
+  cities: Array<{ id: number; slug: string }>;
+  active_listing_count: number;
+  avg_response_time_minutes: number | null;
+  score: number | null;
+};
+
+export type SellerDirectoryResult = {
+  items: SellerDirectoryItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+export type SellerPublicProfile = {
+  id: string;
+  username: string | null;
+  name: string;
+  bio: string | null;
+  cover_image_url: string | null;
+  logo_url: string | null;
+  verification_status: "UNVERIFIED" | "PENDING" | "VERIFIED" | "REJECTED";
+  phone: string;
+  whatsapp_number: string | null;
+  telegram_username: string | null;
+  facebook_url: string | null;
+  stats: {
+    active_listing_count: number;
+    avg_response_time_minutes: number | null;
+    total_views: number;
+  };
+};
+
 export type AiParseResult = {
   keyword: string;
   chips: string[];
@@ -66,12 +116,32 @@ export const MOCK_SEARCH_ITEMS: PropertySearchItem[] = [
     is_featured: true,
     bedrooms: 4,
     bathrooms: 3,
+    area_sqm: "200.00",
+    seller: {
+      id: "mock-user-seller",
+      name: "Arthur Heritage",
+      username: "heritage",
+      phone: "+251911000001",
+      verification_status: "VERIFIED",
+    },
     images: [
       {
         id: "m1",
         image_url:
           "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80",
         sort_order: 0,
+      },
+      {
+        id: "m1b",
+        image_url:
+          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
+        sort_order: 1,
+      },
+      {
+        id: "m1c",
+        image_url:
+          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
+        sort_order: 2,
       },
     ],
   },
@@ -229,6 +299,120 @@ export const MOCK_TOP_SELLERS: TopSeller[] = [
   },
 ];
 
+export const MOCK_SELLER_DIRECTORY_ITEMS: SellerDirectoryItem[] = [
+  {
+    id: "mock-seller-1",
+    username: "heritage",
+    name: "Heritage Group",
+    logo_url:
+      "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80",
+    bio: "Premium residential specialist covering Bole, Kazanchis, and Old Airport corridors.",
+    verification_status: "VERIFIED",
+    cities: [
+      { id: 1, slug: "addis-ababa" },
+      { id: 2, slug: "bahir-dar" },
+    ],
+    active_listing_count: 24,
+    avg_response_time_minutes: 18,
+    score: 240,
+  },
+  {
+    id: "mock-seller-2",
+    username: "noah",
+    name: "Noah Real Estate",
+    logo_url:
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80",
+    bio: "Lake-city villas and family compounds from Bahir Dar to the Blue Nile shore.",
+    verification_status: "VERIFIED",
+    cities: [{ id: 2, slug: "bahir-dar" }],
+    active_listing_count: 16,
+    avg_response_time_minutes: 32,
+    score: 210,
+  },
+  {
+    id: "mock-seller-3",
+    username: "gift",
+    name: "Gift Real Estate",
+    logo_url:
+      "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800&q=80",
+    bio: "Apartments and commercial floors around Meskel Square and Kirkos.",
+    verification_status: "VERIFIED",
+    cities: [{ id: 1, slug: "addis-ababa" }],
+    active_listing_count: 11,
+    avg_response_time_minutes: 45,
+    score: 175,
+  },
+  {
+    id: "mock-seller-4",
+    username: "flintstone",
+    name: "Flintstone Homes",
+    logo_url: null,
+    bio: "Land parcels and shell homes for buyers ready to build.",
+    verification_status: "VERIFIED",
+    cities: [{ id: 1, slug: "addis-ababa" }],
+    active_listing_count: 8,
+    avg_response_time_minutes: null,
+    score: 140,
+  },
+  {
+    id: "mock-seller-5",
+    username: "sunrise",
+    name: "Sunrise Estates",
+    logo_url:
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
+    bio: "Garden villas and gated compounds across East Addis.",
+    verification_status: "VERIFIED",
+    cities: [{ id: 1, slug: "addis-ababa" }],
+    active_listing_count: 14,
+    avg_response_time_minutes: 22,
+    score: 160,
+  },
+  {
+    id: "mock-seller-6",
+    username: "blue-nile",
+    name: "Blue Nile Realty",
+    logo_url:
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
+    bio: "Waterfront and hillside homes with clear ETB pricing.",
+    verification_status: "VERIFIED",
+    cities: [{ id: 2, slug: "bahir-dar" }],
+    active_listing_count: 9,
+    avg_response_time_minutes: 28,
+    score: 155,
+  },
+];
+
+export const MOCK_SELLER_DIRECTORY: SellerDirectoryResult = {
+  items: MOCK_SELLER_DIRECTORY_ITEMS,
+  pagination: {
+    page: 1,
+    limit: 12,
+    total: MOCK_SELLER_DIRECTORY_ITEMS.length,
+    totalPages: 1,
+  },
+};
+
+export const MOCK_SELLER_PUBLIC: SellerPublicProfile = {
+  id: "mock-seller-1",
+  username: "heritage",
+  name: "Heritage Group",
+  bio: "Premium residential specialist covering Bole, Kazanchis, and Old Airport corridors.",
+  cover_image_url:
+    "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1600&q=80",
+  logo_url:
+    "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&q=80",
+  verification_status: "VERIFIED",
+  phone: "+251911000001",
+  whatsapp_number: "+251911000001",
+  telegram_username: "heritage_et",
+  facebook_url: null,
+  stats: {
+    active_listing_count: 24,
+    avg_response_time_minutes: 28,
+    total_views: 4200,
+  },
+};
+
 export function mockAiParse(query: string): AiParseResult {
   const chips: string[] = [];
   const lower = query.toLowerCase();
@@ -260,7 +444,14 @@ export type AuthUser = {
   phone: string | null;
   email: string | null;
   role: "USER" | "SELLER" | "ADMIN";
-  verification_status: string;
+  verification_status: "UNVERIFIED" | "PENDING" | "VERIFIED" | "REJECTED" | string;
+  /** ISO timestamp when OTP phone verification succeeded. Present on GET /auth/me. */
+  phone_verified_at: string | null;
+  /**
+   * Admin rejection note for VERIFY reject.
+   * Backend follow-up: currently only stored on AdminActionLog.note — not yet on /auth/me.
+   */
+  verification_rejection_reason?: string | null;
   created_at: string;
 };
 
@@ -298,7 +489,9 @@ export const MOCK_AUTH_SELLER: AuthUser = {
   phone: "+251911000001",
   email: "arthur@heritage.et",
   role: "SELLER",
-  verification_status: "VERIFIED",
+  verification_status: "UNVERIFIED",
+  phone_verified_at: null,
+  verification_rejection_reason: null,
   created_at: "2022-06-01T00:00:00.000Z",
 };
 
@@ -310,6 +503,7 @@ export const MOCK_AUTH_BUYER: AuthUser = {
   email: "abebe@example.com",
   role: "USER",
   verification_status: "UNVERIFIED",
+  phone_verified_at: null,
   created_at: "2022-06-15T00:00:00.000Z",
 };
 
@@ -419,6 +613,7 @@ export const MOCK_AUTH_ADMIN: AuthUser = {
   email: "admin@bete.et",
   role: "ADMIN",
   verification_status: "UNVERIFIED",
+  phone_verified_at: null,
   created_at: "2022-01-01T00:00:00.000Z",
 };
 

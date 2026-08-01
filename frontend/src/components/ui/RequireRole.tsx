@@ -15,7 +15,7 @@ export type RequireRoleProps = {
 
 /**
  * Client-side gate mirroring backend `requireRole(...)`.
- * Uses GET /auth/me; mock ADMIN/SELLER/USER fallbacks power local design review.
+ * Blocks non-matching roles. Design-time mock via useAuthMe preferredRole.
  */
 export function RequireRole({
   role,
@@ -37,7 +37,7 @@ export function RequireRole({
     );
   }
 
-  if (userRole && userRole !== role) {
+  if (!userRole || userRole !== role) {
     return (
       <div className="mx-auto max-w-lg px-6 py-24">
         <EmptyState

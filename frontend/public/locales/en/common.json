@@ -5,10 +5,36 @@
     "home": "Home",
     "search": "Search",
     "dashboard": "Dashboard",
+    "profile": "Profile",
+    "logOut": "Log out",
     "support": "Support"
   },
   "brand": {
     "name": "Bete"
+  },
+  "footer": {
+    "tagline": "Ethiopian real estate marketplace.",
+    "copyright": "© {year} Bete. All rights reserved.",
+    "columns": {
+      "discover": "Discover",
+      "agency": "Agency",
+      "legal": "Legal"
+    },
+    "links": {
+      "search": "Search",
+      "about": "About",
+      "help": "Help",
+      "signIn": "Sign In",
+      "postListing": "Post a Listing",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "safety": "Safety Tips"
+    },
+    "contact": {
+      "email": "Contact",
+      "telegram": "Telegram",
+      "facebook": "Facebook"
+    }
   },
   "language": {
     "label": "Language"
@@ -51,18 +77,46 @@
     "engine": "AI Intelligence Engine"
   },
   "listing": {
-    "pricePerSqm": "Calculated ETB / m²"
+    "pricePerSqm": "Calculated ETB / m²",
+    "viewDetails": "View Details",
+    "favorite": "Save to favorites",
+    "unfavorite": "Remove from favorites",
+    "favoriteError": "Could not update favorites.",
+    "message": "Message seller",
+    "call": "Call seller",
+    "messageTitle": "Message about this listing",
+    "messagePlaceholder": "Ask about availability, viewing times, or price…",
+    "messageSend": "Send message",
+    "messageCancel": "Cancel",
+    "messageSent": "Message sent.",
+    "messageFailed": "Could not send message.",
+    "messageUnavailable": "Seller contact is unavailable for this listing.",
+    "callUnavailable": "Phone number is unavailable for this listing.",
+    "signInRequired": "Sign in to continue."
   },
   "home": {
     "heroTitle": "Find Your Place in Ethiopia.",
     "advancedSearch": "Advanced",
+    "findWithAi": "Find with AI",
     "aiHeadline": "Find your home through conversation.",
+    "searchBar": {
+      "location": "Location",
+      "propertyType": "Property Type",
+      "priceRange": "Price Range",
+      "bedsBaths": "Beds/Baths"
+    },
     "featuredEyebrow": "Market Leaders",
-    "featuredTitle": "Featured Listings",
+    "featuredTitle": "Featured Agencies",
+    "aboutTitle": "About Bete",
+    "aboutP1": "Bete — “house” in Amharic — connects buyers and renters directly with real estate agencies and agents across Ethiopia.",
+    "aboutP2": "Sellers and agencies post properties; buyers browse and contact them directly. Verification and AI-assisted moderation make listings easier to trust.",
+    "aboutP3": "The marketplace speaks five languages: English, Amharic, Afaan Oromo, Tigrinya, and Somali.",
+    "aboutLink": "Read more about Bete",
     "topAgencies": "Top Performing Agencies",
     "assetClasses": "Asset Classes",
     "recentTitle": "Recently Listed Properties",
-    "viewAll": "View all"
+    "viewAll": "View all",
+    "responseTime": "min response"
   },
   "search": {
     "emptyTitle": "No listings match these filters",
@@ -115,7 +169,8 @@
       "listings": "Listings",
       "favorites": "Favorites",
       "messages": "Messages",
-      "support": "Support"
+      "support": "Support",
+      "verification": "Verification"
     },
     "seller": {
       "welcome": "Welcome back, {name}",
@@ -154,7 +209,10 @@
       "inquiries": "Inquiries",
       "reviews": "Reviews",
       "recentlySaved": "Recently saved",
-      "savedSearches": "Saved searches"
+      "savedSearches": "Saved searches",
+      "savedSearch1": "3-bed villa in Bole under 20M",
+      "savedSearch2": "Apartment near Meskel Square",
+      "alertsOn": "Alerts on"
     },
     "favorites": {
       "title": "Saved collections",
@@ -174,7 +232,49 @@
       "emptyHint": "Contact a seller from a listing page to start a thread.",
       "placeholder": "Write a message…",
       "send": "Send",
-      "thread": "Conversation"
+      "thread": "Conversation",
+      "sendFailed": "Could not send — check that you are signed in."
+    },
+    "verification": {
+      "cardEyebrow": "Seller trust",
+      "cardTitle": "Verification status",
+      "unverifiedBody": "Verify your phone and upload an ID document so buyers can trust your listings.",
+      "getVerified": "Get verified",
+      "pendingBody": "Your documents are under review. No action is needed right now.",
+      "verifiedBody": "You are a Verified Seller. Your badge appears on live listings and your profile.",
+      "rejectedLabel": "Rejection reason",
+      "rejectedFallback": "Your previous submission was rejected. Resubmit with a clearer ID document.",
+      "resubmit": "Resubmit",
+      "title": "Seller verification",
+      "eyebrow": "Trust & safety",
+      "subtitle": "Confirm your phone, then upload a government ID. Admins make the final decision.",
+      "alreadyVerified": "You are already verified — nothing to do here.",
+      "step1Label": "1. Phone",
+      "step2Label": "2. ID document",
+      "phoneLabel": "Mobile number",
+      "phoneHint": "We send a one-time code to this number on file.",
+      "phoneMissing": "No phone on file",
+      "sendCode": "Send code",
+      "codeLabel": "6-digit code",
+      "codeInvalidFormat": "Enter the 6-digit code from your SMS.",
+      "verifyCode": "Verify phone",
+      "resend": "Resend code",
+      "resendIn": "Resend in {time}",
+      "codeSent": "Code sent. Check your SMS.",
+      "rateLimited": "Too many codes requested. Wait before trying again.",
+      "sendFailed": "Could not send a code.",
+      "phoneVerified": "Phone confirmed.",
+      "codeWrong": "That code is incorrect. Try again.",
+      "tooManyAttempts": "Too many attempts. Request a new code.",
+      "codeExpired": "No active code found. Request a new one.",
+      "verifyFailed": "Could not verify the code.",
+      "docIntro": "Upload a clear photo of your national ID or passport.",
+      "docLabel": "ID document",
+      "docHint": "One image. JPEG or PNG.",
+      "needDocument": "Add your ID document photo.",
+      "submitReview": "Submit for review",
+      "submitSuccess": "Submitted for review.",
+      "submitFailed": "Could not submit verification."
     }
   },
   "sellers": {
@@ -184,7 +284,27 @@
     "contact": "Message",
     "share": "Share",
     "liveListings": "Live listings",
-    "noListings": "This seller has no live listings right now."
+    "noListings": "This seller has no live listings right now.",
+    "defaultBio": "Premium residential specialist covering Bole, Kazanchis, and Old Airport corridors.",
+    "makeInquiry": "Make an Inquiry",
+    "notFoundTitle": "Agency not found",
+    "notFoundDescription": "This agency profile does not exist or is no longer available.",
+    "backHome": "Back to home",
+    "statActiveListings": "Active Listings",
+    "statResponseTime": "Response Time",
+    "statTotalViews": "Total Views",
+    "newAgency": "New agency",
+    "collectionEyebrow": "Portfolio",
+    "collectionTitle": "Discover the Collection",
+    "inquiryTitle": "Make an Inquiry",
+    "inquiryHint": "Introduce yourself and what you are looking for. The agency will reply in your messages.",
+    "inquiryPlaceholder": "I am interested in properties in Bole around…",
+    "inquiryCancel": "Cancel",
+    "inquirySend": "Send inquiry",
+    "inquirySending": "Sending…",
+    "inquirySent": "Inquiry sent — check your messages.",
+    "inquiryFailed": "Could not send inquiry. Try again.",
+    "inquiryLoginRequired": "Sign in to message this agency."
   },
   "support": {
     "eyebrow": "Help center",
@@ -197,6 +317,8 @@
     "emptyHint": "Start a conversation and our team will reply here.",
     "placeholder": "Describe your issue…",
     "send": "Send",
+    "startThread": "Start support thread",
+    "sendFailed": "Could not send — sign in to open a support thread.",
     "faq": {
       "listing": {
         "q": "How long until my listing goes live?",
@@ -373,6 +495,10 @@
       "password": "Password",
       "passwordHint": "At least 8 characters, one uppercase letter, one number.",
       "name": "Full name",
+      "agencyName": "Agency or Business Name",
+      "primaryCity": "Primary City",
+      "bio": "Short bio",
+      "bioPlaceholder": "What areas and property types do you specialize in?",
       "role": "I am a"
     },
     "roles": {
@@ -385,6 +511,11 @@
       "submit": "Sign in",
       "success": "Welcome back.",
       "error": "Could not sign in.",
+      "roleMismatch": "This account is registered as a {role} — switch tabs to continue.",
+      "roleLabels": {
+        "buyer": "buyer",
+        "agency": "agency"
+      },
       "noAccount": "New to Bete?",
       "link": "Sign in"
     },
@@ -395,7 +526,11 @@
       "success": "Account created.",
       "error": "Could not register.",
       "hasAccount": "Already registered?",
-      "link": "Create account"
+      "link": "Create account",
+      "nextStepsTitle": "What you'll need next",
+      "nextStepsIntro": "After registering, finish these from your dashboard:",
+      "nextStepsOtp": "Confirm your phone with a one-time code (OTP).",
+      "nextStepsDocs": "Upload an ID document or business license for verification."
     }
   },
   "listings": {
@@ -460,6 +595,12 @@
       "p2": "Listings may be REJECTED, REMOVED, or AUTO_HIDDEN when they violate marketplace rules or accumulate unresolved reports.",
       "p3": "Seller verification is separate from role: only SELLER accounts with verification_status VERIFIED are shown as Verified Sellers.",
       "p4": "Bete does not escrow funds. Payments between parties remain their responsibility."
+    },
+    "privacy": {
+      "title": "Privacy",
+      "p1": "Bete collects account details you provide — name, phone, email, and listing content — to operate the marketplace.",
+      "p2": "View counts are deduplicated by listing, visitor key, and UTC date. We do not sell personal data to third parties.",
+      "p3": "Soft-deleted accounts and listings are retained only as long as needed for moderation and legal obligations."
     },
     "contact": {
       "title": "Contact",

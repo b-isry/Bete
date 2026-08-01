@@ -10,6 +10,7 @@ import {
   Icon,
   SparkBars,
   StatCard,
+  StatusPill,
   Table,
   TableBody,
   TableCell,
@@ -108,7 +109,7 @@ export default function AdminOverviewPage() {
             .replace("{pending}", String(pendingCount))
             .replace(
               "{verifications}",
-              String(totals?.pending_verifications ?? 28),
+              String(totals?.pending_verifications ?? 0),
             )}
         </p>
       </div>
@@ -122,7 +123,7 @@ export default function AdminOverviewPage() {
         <StatCard
           tone="primary"
           label={t("admin.overview.verifications")}
-          value={String(totals?.pending_verifications ?? 28)}
+          value={String(totals?.pending_verifications ?? 0)}
         />
         <StatCard
           tone="danger"
@@ -132,7 +133,7 @@ export default function AdminOverviewPage() {
         <StatCard
           tone="secondary"
           label={t("admin.overview.revenue")}
-          value={formatCompactEtb(totals?.monthly_revenue_etb ?? "4200000")}
+          value={formatCompactEtb(totals?.monthly_revenue_etb ?? "0")}
           trend={{ value: "5.2%", direction: "up" }}
         />
       </section>
@@ -231,7 +232,24 @@ export default function AdminOverviewPage() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{item.seller.name}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <span>{item.seller.name}</span>
+                        <StatusPill
+                          kind="verification"
+                          status={
+                            item.seller.verification_status === "VERIFIED"
+                              ? "VERIFIED"
+                              : item.seller.verification_status === "PENDING"
+                                ? "PENDING"
+                                : item.seller.verification_status === "REJECTED"
+                                  ? "REJECTED"
+                                  : "UNVERIFIED"
+                          }
+                          className="w-fit"
+                        />
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-2">
                         {item.flags.length === 0 ? (
