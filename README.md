@@ -21,11 +21,21 @@ Or from `backend/`:
 npm run docker:up
 ```
 
-Once the stack is up, apply the Prisma schema (after Prompt 2 has generated it) **inside the backend container** — do not run Prisma against a host-local database:
+Once the stack is up, apply the Prisma schema **inside the backend container** — do not run Prisma against a host-local database — then seed reference data:
 
 ```bash
 npm run docker:migrate
+npm run docker:seed
 ```
+
+Run `docker:seed` once after migrate. Re-run anytime; it is idempotent (upserts by slug). To also refresh local test sellers and LIVE listings, set `SEED_DEMO_DATA=true` in `backend/.env` (or pass it for that run) and seed again:
+
+```bash
+# from backend/, with demo listings opted in
+docker compose -f ../docker-compose.yml --project-directory .. exec -e SEED_DEMO_DATA=true backend npx prisma db seed
+```
+
+Optional admin overrides: `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PHONE`, `SEED_ADMIN_PASSWORD` (if password is unset, a random one is printed on first create).
 
 | Service | URL |
 |---------|-----|
@@ -40,6 +50,7 @@ Useful scripts (run from `backend/`):
 | `npm run docker:up` | `docker compose up --build` |
 | `npm run docker:down` | Stop the stack |
 | `npm run docker:migrate` | `prisma migrate dev` inside the backend container |
+| `npm run docker:seed` | `prisma db seed` inside the backend container |
 | `npm run docker:studio` | Prisma Studio inside the backend container |
 | `npm run docker:logs` | Follow backend container logs |
 
@@ -47,4 +58,5 @@ Useful scripts (run from `backend/`):
 
 - `DATABASE_URL` must use the Compose service hostname `postgres` (not `localhost`) so the API container can reach the database.
 - Deploy with the Dockerfile `production` stage only — never ship the `dev` image.
-- Always run Prisma migrate/generate/studio via `docker:migrate` / `docker:studio` (inside the container), never as bare `npx prisma …` on the host.
+- Always run Prisma migrate/generate/seed/studio via `docker:migrate` / `docker:seed` / `docker:studio` (inside the container), never as bare `npx prisma …` on the host.
+- `SEED_DEMO_DATA` defaults to off — never enable it for a production seed unless you explicitly opt in.
