@@ -138,13 +138,29 @@ export function usePendingListings(page = 1) {
   });
 }
 
-export function usePendingVerifications() {
-  return useSWR<{ items: PendingVerification[] }>(
-    ADMIN_PENDING_VERIFICATIONS_PATH,
+export function usePendingVerifications(page = 1) {
+  return useSWR<{
+    items: PendingVerification[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }>(
+    `${ADMIN_PENDING_VERIFICATIONS_PATH}?page=${page}&limit=20`,
     apiAuthFetcher,
     {
       shouldRetryOnError: false,
-      fallbackData: { items: MOCK_PENDING_VERIFICATIONS },
+      fallbackData: {
+        items: MOCK_PENDING_VERIFICATIONS,
+        pagination: {
+          page: 1,
+          limit: 20,
+          total: MOCK_PENDING_VERIFICATIONS.length,
+          totalPages: 1,
+        },
+      },
     },
   );
 }

@@ -2,30 +2,48 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useId, useState } from "react";
+import {
+  AuthRoleToggle,
+  type AuthRoleChoice,
+} from "@/components/auth/AuthRoleToggle";
 import {
   Button,
   Card,
+  Icon,
   Input,
-  cn,
+  Select,
+  Textarea,
   useToast,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { ApiError, register } from "@/lib/api";
 import { setAccessToken } from "@/lib/auth";
-
-type RoleChoice = "USER" | "SELLER";
+import { MOCK_CITIES } from "@/lib/mocks";
 
 export default function RegisterPage() {
   const { t } = useLanguage();
   const router = useRouter();
   const { push } = useToast();
+  const ids = {
+    name: useId(),
+    phone: useId(),
+    email: useId(),
+    password: useId(),
+    city: useId(),
+    bio: useId(),
+  };
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<RoleChoice>("USER");
+  const [primaryCityId, setPrimaryCityId] = useState(
+    String(MOCK_CITIES[0]?.id ?? ""),
+  );
+  const [bio, setBio] = useState("");
+  const [role, setRole] = useState<AuthRoleChoice>("USER");
   const [busy, setBusy] = useState(false);
+  const isSeller = role === "SELLER";
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -37,6 +55,12 @@ export default function RegisterPage() {
         email: email.trim() || undefined,
         password,
         role,
+        ...(isSeller
+          ? {
+              primary_city_id: Number(primaryCityId),
+              bio: bio.trim() || undefined,
+            }
+          : {}),
       });
       setAccessToken(result.token);
       push(t("auth.register.success"), "success");
@@ -64,78 +88,91 @@ export default function RegisterPage() {
 
       <Card>
         <form className="space-y-6" onSubmit={onSubmit}>
-          <div>
-            <span className="mb-3 block font-sans text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60">
-              {t("auth.fields.role")}
-            </span>
-            <div className="flex border border-outline-variant bg-surface-container">
-              {(
-                [
-                  ["USER", t("auth.roles.buyer")],
-                  ["SELLER", t("auth.roles.seller")],
-                ] as const
-              ).map(([id, label]) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setRole(id)}
-                  className={cn(
-                    "flex-1 border-r border-outline-variant px-4 py-2 font-sans text-label-md last:border-r-0",
-                    role === id
-                      ? "bg-primary-container text-on-primary"
-                      : "hover:bg-surface-container-high",
-                  )}
+          <AuthRoleToggle value={role} onChange={setRole} />
+
+          <Input
+            id={ids.name}
+            label={
+              isSeller
+                ? t("auth.fields.agencyName")
+                : t("auth.fields.name")
+            }
+            variant="underline"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            minLength={2}
+          />
+
+          <Input
+            id={ids.phone}
+            label={t("auth.fields.phone")}
+            variant="underline"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="0912345678"
+            required
+          />
+
+          <Input
+            id={ids.email}
+            label={t("auth.fields.emailOptional")}
+            variant="underline"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+          />
+
+          {isSeller ? (
+            <>
+              <div className="w-full">
+                <label
+                  htmlFor={ids.city}
+                  className="mb-2 block font-sans text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60"
                 >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
+                  {t("auth.fields.primaryCity")}
+                </label>
+                <Select
+                  id={ids.city}
+                  variant="underline"
+                  className="w-full"
+                  value={primaryCityId}
+                  onChange={(e) => setPrimaryCityId(e.target.value)}
+                  required
+                >
+                  {MOCK_CITIES.map((city) => (
+                    <option key={city.id} value={city.id}>
+                      {city.name}
+                    </option>
+                  ))}
+                </Select>
+              </div>
 
-          <label className="block">
-            <span className="mb-4 block font-sans text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60">
-              {t("auth.fields.name")}
-            </span>
-            <Input
-              variant="underline"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              minLength={2}
-            />
-          </label>
+              <div className="w-full">
+                <label
+                  htmlFor={ids.bio}
+                  className="mb-2 block font-sans text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60"
+                >
+                  {t("auth.fields.bio")}
+                </label>
+                <Textarea
+                  id={ids.bio}
+                  variant="underline"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={3}
+                  maxLength={2000}
+                  placeholder={t("auth.fields.bioPlaceholder")}
+                />
+              </div>
+            </>
+          ) : null}
 
-          <label className="block">
-            <span className="mb-4 block font-sans text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60">
-              {t("auth.fields.phone")}
-            </span>
+          <div>
             <Input
-              variant="underline"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="0912345678"
-              required
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-4 block font-sans text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60">
-              {t("auth.fields.emailOptional")}
-            </span>
-            <Input
-              variant="underline"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-4 block font-sans text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60">
-              {t("auth.fields.password")}
-            </span>
-            <Input
+              id={ids.password}
+              label={t("auth.fields.password")}
               variant="underline"
               type="password"
               autoComplete="new-password"
@@ -147,7 +184,25 @@ export default function RegisterPage() {
             <span className="mt-2 block font-sans text-label-sm text-on-surface-variant">
               {t("auth.fields.passwordHint")}
             </span>
-          </label>
+          </div>
+
+          {isSeller ? (
+            <aside className="border border-outline-variant bg-surface-container-low p-4 text-left">
+              <div className="mb-3 flex items-center gap-2">
+                <Icon name="info" className="text-secondary" />
+                <h2 className="font-sans text-label-sm font-bold uppercase tracking-widest text-primary">
+                  {t("auth.register.nextStepsTitle")}
+                </h2>
+              </div>
+              <p className="mb-3 font-body text-body-md text-on-surface-variant">
+                {t("auth.register.nextStepsIntro")}
+              </p>
+              <ul className="list-disc space-y-2 pl-5 font-body text-body-md text-on-surface">
+                <li>{t("auth.register.nextStepsOtp")}</li>
+                <li>{t("auth.register.nextStepsDocs")}</li>
+              </ul>
+            </aside>
+          ) : null}
 
           <Button type="submit" variant="primary" className="w-full" disabled={busy}>
             {t("auth.register.submit")}

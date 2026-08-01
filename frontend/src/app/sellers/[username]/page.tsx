@@ -1,182 +1,335 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
 import useSWR from "swr";
+import { PropertySearchPanel } from "@/components/search/PropertySearchPanel";
 import {
   Avatar,
   Button,
-  Card,
-  Chip,
+  EmptyState,
   Icon,
-  ListingCard,
+  Modal,
+  ModalBody,
   Skeleton,
+  StatCard,
   StatusPill,
+  Textarea,
+  useToast,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { apiFetcher, buildSearchUrl } from "@/lib/api";
+import { ApiError, apiFetcher, sendMessage } from "@/lib/api";
+import { getAccessToken } from "@/lib/auth";
 import {
-  MOCK_AUTH_SELLER,
-  MOCK_SEARCH_ITEMS,
+  MOCK_SELLER_PUBLIC,
   PLACEHOLDER_IMAGE,
-  type PropertySearchResult,
+  type SellerPublicProfile,
 } from "@/lib/mocks";
 
-type SellerPublic = {
-  id: string;
-  name: string;
-  username: string;
-  bio?: string | null;
-  avatar_url?: string | null;
-  verification_status: "UNVERIFIED" | "PENDING" | "VERIFIED" | "REJECTED";
-  listing_count?: number;
-  score?: number;
-};
+function formatResponseTime(minutes: number): string {
+  if (minutes < 60) {
+    const rounded = Math.max(5, Math.round(minutes / 5) * 5);
+    return `~${rounded} min`;
+  }
+  if (minutes < 120) {
+    return "< 2 Hours";
+  }
+  const hours = Math.round(minutes / 60);
+  return `~${hours} Hours`;
+}
 
+function formatViews(count: number): string {
+  if (count >= 1000) {
+    const compact = count / 1000;
+    return `${compact % 1 === 0 ? compact.toFixed(0) : compact.toFixed(1)}k`;
+  }
+  return String(count);
+}
+
+/**
+ * P7 — Agency profile (`bete_agency_profile_listings`)
+ * Wired: GET /sellers/:username,
+ *        GET /properties/search?seller_username=… (via PropertySearchPanel),
+ *        POST /messages LISTING inquiry (property_id null).
+ */
 export default function SellerProfilePage() {
   const { t } = useLanguage();
+  const { push } = useToast();
+  const router = useRouter();
   const params = useParams();
   const username = String(params.username ?? "");
 
-  const { data: seller, isLoading: sellerLoading } = useSWR<SellerPublic>(
+  const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [inquiryDraft, setInquiryDraft] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const {
+    data: sellerData,
+    error: sellerError,
+    isLoading: sellerLoading,
+  } = useSWR<SellerPublicProfile>(
     username ? `/sellers/${username}` : null,
     apiFetcher,
-    {
-      shouldRetryOnError: false,
-      fallbackData: {
-        id: MOCK_AUTH_SELLER.id,
-        name: MOCK_AUTH_SELLER.name,
-        username: MOCK_AUTH_SELLER.username,
-        bio: "Premium residential specialist covering Bole, Kazanchis, and Old Airport corridors.",
-        avatar_url: null,
-        verification_status:
-          MOCK_AUTH_SELLER.verification_status as SellerPublic["verification_status"],
-        listing_count: 12,
-        score: 92,
-      },
-    },
+    { shouldRetryOnError: false },
   );
 
-  const { data: listingsData, isLoading: listingsLoading } =
-    useSWR<PropertySearchResult>(
-      seller?.id
-        ? buildSearchUrl({ seller_id: seller.id, status: "LIVE", limit: 12 })
-        : null,
-      apiFetcher,
-      {
-        shouldRetryOnError: false,
-        fallbackData: {
-          items: MOCK_SEARCH_ITEMS,
-          pagination: {
-            page: 1,
-            limit: 12,
-            total: MOCK_SEARCH_ITEMS.length,
-            totalPages: 1,
-          },
-          summary: "Sample live listings",
-        },
-      },
-    );
+  const isNotFound =
+    sellerError instanceof ApiError && sellerError.status === 404;
 
-  const listings = listingsData?.items ?? [];
+  // Mock only for local/dev when the API is down — never for a real 404.
+  const seller: SellerPublicProfile | undefined = sellerData
+    ? sellerData
+    : sellerError && !isNotFound
+      ? {
+          ...MOCK_SELLER_PUBLIC,
+          username: username || MOCK_SELLER_PUBLIC.username,
+        }
+      : undefined;
+
+  const coverSrc =
+    seller?.cover_image_url && seller.cover_image_url.trim().length > 0
+      ? seller.cover_image_url
+      : PLACEHOLDER_IMAGE;
+  const logoSrc =
+    seller?.logo_url && seller.logo_url.trim().length > 0
+      ? seller.logo_url
+      : undefined;
+
+  const verified = seller?.verification_status === "VERIFIED";
+  const responseMinutes = seller?.stats.avg_response_time_minutes ?? null;
+
+  function openInquiry() {
+    if (!getAccessToken()) {
+      push(t("sellers.inquiryLoginRequired"), "error");
+      router.push("/sign-in");
+      return;
+    }
+    setInquiryOpen(true);
+  }
+
+  async function onSendInquiry(e: FormEvent) {
+    e.preventDefault();
+    const text = inquiryDraft.trim();
+    if (!text || !seller) return;
+
+    setSending(true);
+    try {
+      await sendMessage({
+        thread_type: "LISTING",
+        recipient_id: seller.id,
+        message_text: text,
+      });
+      setInquiryDraft("");
+      setInquiryOpen(false);
+      push(t("sellers.inquirySent"), "success");
+      router.push("/dashboard/messages");
+    } catch {
+      push(t("sellers.inquiryFailed"), "error");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  if (!username) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-24">
+        <EmptyState
+          icon="storefront"
+          title={t("sellers.notFoundTitle")}
+          description={t("sellers.notFoundDescription")}
+        />
+      </div>
+    );
+  }
+
+  if (isNotFound) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-24">
+        <EmptyState
+          icon="storefront"
+          title={t("sellers.notFoundTitle")}
+          description={t("sellers.notFoundDescription")}
+        />
+        <div className="mt-8 text-center">
+          <Link href="/">
+            <Button variant="outline">{t("sellers.backHome")}</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (sellerLoading && !seller) {
+    return (
+      <div className="min-h-screen">
+        <Skeleton className="h-72 w-full" />
+        <div className="mx-auto max-w-7xl space-y-8 px-6 py-10 sm:px-10 lg:px-16">
+          <Skeleton className="h-24 w-2/3" />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!seller) {
+    return null;
+  }
+
+  const phoneHref = `tel:${seller.phone.replace(/\s+/g, "")}`;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 md:px-8">
-      {sellerLoading ? (
-        <Skeleton className="mb-10 h-40 w-full" />
-      ) : (
-        <header className="mb-12 border-b border-outline-variant pb-10">
-          <div className="flex flex-col gap-8 md:flex-row md:items-start">
+    <div className="min-h-screen">
+      {/* Hero */}
+      <section className="relative">
+        <div className="relative h-56 w-full overflow-hidden bg-surface-variant sm:h-72 md:h-80">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={coverSrc}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-primary/35" />
+        </div>
+
+        <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
+          <div className="relative -mt-16 flex flex-col gap-8 border border-outline-variant/50 bg-surface-container-lowest p-6 sm:-mt-20 sm:flex-row sm:items-end sm:p-8 md:-mt-24">
             <Avatar
               size="lg"
               shape="square"
-              initials={(seller?.name ?? "S").slice(0, 2)}
-              src={seller?.avatar_url ?? undefined}
-              className="h-28 w-28 md:h-36 md:w-36"
+              src={logoSrc}
+              initials={seller.name.slice(0, 2)}
+              className="h-28 w-28 border border-outline-variant sm:h-36 sm:w-36"
             />
-            <div className="flex-1">
-              <div className="mb-3 flex flex-wrap items-center gap-3">
-<h1 className="font-serif text-display-lg-mobile text-primary">
-                    {seller?.name}
-                  </h1>
-                {seller?.verification_status === "VERIFIED" ? (
-                  <StatusPill kind="verification" status="VERIFIED" />
-                ) : (
-                  <Chip tone="neutral">{t("sellers.unverified")}</Chip>
-                )}
+
+            <div className="min-w-0 flex-1 space-y-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="font-serif text-display-lg-mobile text-primary md:text-headline-md">
+                  {seller.name}
+                </h1>
+                <StatusPill
+                  kind="verification"
+                  status={verified ? "VERIFIED" : "UNVERIFIED"}
+                />
               </div>
-              <p className="mb-2 font-sans text-label-md uppercase tracking-widest text-on-surface-variant">
-                @{seller?.username}
+              {seller.username ? (
+                <p className="font-sans text-label-md uppercase tracking-widest text-on-surface-variant">
+                  @{seller.username}
+                </p>
+              ) : null}
+              <p className="max-w-3xl font-body text-body-lg text-on-surface">
+                {seller.bio?.trim() || t("sellers.defaultBio")}
               </p>
-              <p className="max-w-2xl font-body text-body-lg text-on-surface">
-                {seller?.bio}
-              </p>
-              <div className="mt-6 flex flex-wrap gap-6 font-sans text-label-sm uppercase tracking-widest text-on-surface-variant">
-                <span className="inline-flex items-center gap-2">
-                  <Icon name="home_work" />
-                  {seller?.listing_count ?? listings.length}{" "}
-                  {t("sellers.listings")}
-                </span>
-                {seller?.score != null ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Icon name="star" className="text-secondary" />
-                    {seller.score} {t("sellers.score")}
-                  </span>
-                ) : null}
-              </div>
+              <a
+                href={phoneHref}
+                className="inline-flex items-center gap-2 font-sans text-label-md font-medium text-primary hover:underline"
+              >
+                <Icon name="call" className="text-lg" />
+                {seller.phone}
+              </a>
             </div>
-            <div className="flex flex-col gap-3">
-              <Link href="/dashboard/messages">
-                <Button variant="primary" className="w-full gap-2">
-                  <Icon name="chat" />
-                  {t("sellers.contact")}
-                </Button>
-              </Link>
-              <Button variant="outline" className="gap-2">
-                <Icon name="share" />
-                {t("sellers.share")}
+
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[12rem]">
+              <Button
+                type="button"
+                variant="primary"
+                className="w-full gap-2"
+                onClick={openInquiry}
+              >
+                <Icon name="chat" />
+                {t("sellers.makeInquiry")}
               </Button>
             </div>
           </div>
-        </header>
-      )}
-
-      <section>
-        <h2 className="mb-6 font-serif text-headline-sm">
-          {t("sellers.liveListings")}
-        </h2>
-        {listingsLoading ? (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <Skeleton className="h-72" />
-            <Skeleton className="h-72" />
-            <Skeleton className="h-72" />
-          </div>
-        ) : listings.length === 0 ? (
-          <Card className="py-12 text-center font-body text-on-surface-variant">
-            {t("sellers.noListings")}
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {listings.map((listing) => {
-              const price = Number(listing.price);
-              const pps = listing.price_per_sqm
-                ? Number(listing.price_per_sqm)
-                : 0;
-              return (
-                <ListingCard
-                  key={listing.id}
-                  id={listing.id}
-                  title={listing.title}
-                  priceEtb={Number.isFinite(price) ? price : 0}
-                  pricePerSqm={Number.isFinite(pps) ? pps : 0}
-                  imageUrl={listing.images[0]?.image_url ?? PLACEHOLDER_IMAGE}
-                  location={listing.location_text}
-                />
-              );
-            })}
-          </div>
-        )}
+        </div>
       </section>
+
+      {/* Stats */}
+      <section className="mx-auto max-w-7xl px-6 py-10 sm:px-10 lg:px-16">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <StatCard
+            label={t("sellers.statActiveListings")}
+            value={String(seller.stats.active_listing_count)}
+          />
+          <StatCard
+            label={t("sellers.statResponseTime")}
+            value={
+              responseMinutes == null
+                ? t("sellers.newAgency")
+                : formatResponseTime(responseMinutes)
+            }
+            tone="secondary"
+          />
+          <StatCard
+            label={t("sellers.statTotalViews")}
+            value={formatViews(seller.stats.total_views)}
+            tone="primary"
+          />
+        </div>
+      </section>
+
+      {/* Discover the Collection — same search implementation as /search */}
+      <section className="border-t border-outline-variant/20 bg-surface py-12">
+        <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
+          <div className="mb-10 max-w-2xl">
+            <p className="mb-3 font-sans text-label-sm font-bold uppercase tracking-widest text-secondary">
+              {t("sellers.collectionEyebrow")}
+            </p>
+            <h2 className="font-serif text-headline-md text-primary md:text-display-lg-mobile">
+              {t("sellers.collectionTitle")}
+            </h2>
+          </div>
+          {seller.username ? (
+            <PropertySearchPanel
+              sellerUsername={seller.username}
+              compactHeader
+            />
+          ) : (
+            <EmptyState
+              icon="home_work"
+              title={t("sellers.noListings")}
+            />
+          )}
+        </div>
+      </section>
+
+      <Modal
+        open={inquiryOpen}
+        onClose={() => setInquiryOpen(false)}
+        title={t("sellers.inquiryTitle")}
+      >
+        <ModalBody>
+          <p className="mb-4 text-on-surface-variant">
+            {t("sellers.inquiryHint")}
+          </p>
+          <form onSubmit={onSendInquiry} className="space-y-4">
+            <Textarea
+              variant="underline"
+              rows={5}
+              value={inquiryDraft}
+              onChange={(e) => setInquiryDraft(e.target.value)}
+              placeholder={t("sellers.inquiryPlaceholder")}
+              required
+            />
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setInquiryOpen(false)}
+              >
+                {t("sellers.inquiryCancel")}
+              </Button>
+              <Button type="submit" variant="primary" disabled={sending}>
+                {sending ? t("sellers.inquirySending") : t("sellers.inquirySend")}
+              </Button>
+            </div>
+          </form>
+        </ModalBody>
+      </Modal>
     </div>
   );
 }

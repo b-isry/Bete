@@ -116,7 +116,7 @@ export function buildSearchUrl(
   return `/properties/search${qs ? `?${qs}` : ""}`;
 }
 
-/** Placeholder until the AI query parser ships. */
+/** Placeholder until the AI query parser ships (P2). Tries POST then falls back locally. */
 export const AI_PARSE_PATH = "/ai/parse-query";
 
 /**
@@ -125,8 +125,31 @@ export const AI_PARSE_PATH = "/ai/parse-query";
  */
 export const MY_LISTINGS_PATH = "/properties?seller_id=me";
 
-/** Intended favorites list (Prisma Favorite exists; HTTP not shipped). */
+/** Favorites — GET/POST/DELETE /favorites */
 export const FAVORITES_PATH = "/favorites";
+
+export async function apiDelete<T>(path: string): Promise<T> {
+  const res = await fetch(toUrl(path), {
+    method: "DELETE",
+    headers: {
+      ...authHeaders(),
+    },
+  });
+  const body = await parseBody<T>(res);
+  return unwrap(res, body);
+}
+
+export async function addFavorite(
+  propertyId: string,
+): Promise<{ id: string; property: unknown }> {
+  return apiPost("/favorites", { property_id: propertyId });
+}
+
+export async function removeFavorite(
+  propertyId: string,
+): Promise<{ removed: boolean; property_id: string }> {
+  return apiDelete(`/favorites/${propertyId}`);
+}
 
 export type ContactChannel = "CALL" | "WHATSAPP" | "TELEGRAM" | "MESSAGE";
 
@@ -135,6 +158,26 @@ export async function trackPropertyEvent(
   channel: ContactChannel,
 ): Promise<void> {
   await apiPost(`/properties/${propertyId}/event`, { channel });
+}
+
+export type SendMessagePayload = {
+  thread_id?: string;
+  thread_type?: "LISTING" | "SUPPORT";
+  message_type?: "TEXT" | "VOICE" | "IMAGE" | "VIDEO";
+  message_text?: string;
+  media_url?: string;
+  property_id?: string;
+  recipient_id?: string;
+};
+
+/** POST /messages — listing reply or new SUPPORT thread. */
+export async function sendMessage(
+  payload: SendMessagePayload,
+): Promise<{ message: unknown; thread_id: string }> {
+  return apiPost("/messages", {
+    message_type: "TEXT",
+    ...payload,
+  });
 }
 
 export async function renewListing(propertyId: string): Promise<unknown> {
@@ -154,15 +197,15 @@ export async function apiPatch<T>(path: string, payload: unknown): Promise<T> {
   return unwrap(res, body);
 }
 
-/** Intended platform totals (not shipped — mock fallback). */
+/** Platform totals — GET /admin/overview */
 export const ADMIN_OVERVIEW_PATH = "/admin/overview";
 
-/** Boost / revenue analytics (not shipped — mock + sellers/top). */
+/** Boost / revenue analytics — GET /admin/analytics */
 export const ADMIN_ANALYTICS_PATH = "/admin/analytics";
 
 export const ADMIN_PENDING_LISTINGS_PATH = "/admin/pending-listings";
 
-/** Intended pending seller queue (PATCH verify exists; list not shipped). */
+/** Pending seller verification queue — GET /admin/pending-verifications */
 export const ADMIN_PENDING_VERIFICATIONS_PATH = "/admin/pending-verifications";
 
 export async function moderateListing(
@@ -206,6 +249,8 @@ export type RegisterPayload = {
   email?: string;
   password: string;
   role: "USER" | "SELLER";
+  primary_city_id?: number;
+  bio?: string;
 };
 
 export async function login(
@@ -252,6 +297,22 @@ export async function aiWriteDescription(input: {
   property_type: string;
 }): Promise<{ description: string }> {
   return apiPost(AI_WRITE_PATH, input);
+}
+
+/** Empty body — phone taken from JWT user. Rate limit: 3 / 15 minutes. */
+export async function requestOtp(): Promise<{ sent: true }> {
+  return apiPost("/auth/otp/request", {});
+}
+
+export async function verifyOtp(code: string): Promise<{ verified: true }> {
+  return apiPost("/auth/otp/verify", { code });
+}
+
+export async function submitVerificationRequest(payload: {
+  id_document_url: string;
+  business_license_url?: string;
+}): Promise<{ user?: unknown } | unknown> {
+  return apiPost("/auth/verify-request", payload);
 }
 
 export const ADMIN_USERS_PATH = "/admin/users";

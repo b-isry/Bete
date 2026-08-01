@@ -14,10 +14,14 @@ import {
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useFavorites } from "@/lib/hooks";
-import { PLACEHOLDER_IMAGE } from "@/lib/mocks";
 
-type Collection = "all" | "villas" | "apartments" | "land";
+type Collection = "all" | "HOUSE" | "APARTMENT" | "LAND";
 
+/**
+ * P9 — Saved collections (`bete_saved_collections_clean_hierarchy`)
+ * Wired: GET /favorites (placeholder path — mock fallback until HTTP ships).
+ * Tabs filter by property_type from listing payload.
+ */
 export default function FavoritesPage() {
   const { t } = useLanguage();
   const { data } = useFavorites();
@@ -26,13 +30,7 @@ export default function FavoritesPage() {
 
   const filtered = useMemo(() => {
     if (collection === "all") return favorites;
-    return favorites.filter((f) => {
-      const title = f.property.title.toLowerCase();
-      if (collection === "villas") return title.includes("villa");
-      if (collection === "apartments") return title.includes("apartment");
-      if (collection === "land") return title.includes("land");
-      return true;
-    });
+    return favorites.filter((f) => f.property.property_type === collection);
   }, [favorites, collection]);
 
   return (
@@ -60,13 +58,13 @@ export default function FavoritesPage() {
       >
         <TabsList>
           <TabsTrigger value="all">{t("dashboard.favorites.all")}</TabsTrigger>
-          <TabsTrigger value="villas">
+          <TabsTrigger value="HOUSE">
             {t("dashboard.favorites.villas")}
           </TabsTrigger>
-          <TabsTrigger value="apartments">
+          <TabsTrigger value="APARTMENT">
             {t("dashboard.favorites.apartments")}
           </TabsTrigger>
-          <TabsTrigger value="land">{t("dashboard.favorites.land")}</TabsTrigger>
+          <TabsTrigger value="LAND">{t("dashboard.favorites.land")}</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -87,18 +85,30 @@ export default function FavoritesPage() {
             const price = Number(fav.property.price);
             const pps = fav.property.price_per_sqm
               ? Number(fav.property.price_per_sqm)
-              : 0;
+              : null;
+            const area = fav.property.area_sqm
+              ? Number(fav.property.area_sqm)
+              : null;
             return (
               <ListingCard
                 key={fav.id}
                 id={fav.property.id}
                 title={fav.property.title}
                 priceEtb={Number.isFinite(price) ? price : 0}
-                pricePerSqm={Number.isFinite(pps) ? pps : 0}
-                imageUrl={
-                  fav.property.images[0]?.image_url ?? PLACEHOLDER_IMAGE
+                pricePerSqm={
+                  pps != null && Number.isFinite(pps) ? pps : null
                 }
+                areaSqm={area != null && Number.isFinite(area) ? area : null}
+                images={fav.property.images}
                 location={fav.property.location_text}
+                bedrooms={fav.property.bedrooms}
+                bathrooms={fav.property.bathrooms}
+                verified={
+                  fav.property.seller?.verification_status === "VERIFIED"
+                }
+                sellerId={fav.property.seller?.id}
+                sellerPhone={fav.property.seller?.phone}
+                initiallyFavorited
               />
             );
           })}
