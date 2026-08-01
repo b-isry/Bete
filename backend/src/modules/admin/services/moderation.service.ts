@@ -240,6 +240,79 @@ export async function moderateListing(
   };
 }
 
+export async function listPendingVerifications(page: number, limit: number) {
+  const skip = (page - 1) * limit;
+  const where = {
+    role: UserRole.SELLER,
+    verification_status: VerificationStatus.PENDING,
+    deleted_at: null,
+  };
+
+  const [total, rows] = await prisma.$transaction([
+    prisma.user.count({ where }),
+    prisma.user.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { created_at: 'asc' },
+      include: {
+        sellerStats: {
+          select: { score: true, total_views: true },
+        },
+        _count: {
+          select: {
+            properties: {
+              where: { deleted_at: null },
+            },
+          },
+        },
+      },
+    }),
+  ]);
+
+  return {
+    items: rows.map((row) => {
+      const docs = [row.id_document_url, row.business_license_url].filter(
+        Boolean,
+      ).length;
+      const trustFromDocs = docs * 20;
+      const trustFromPhone = row.phone_verified_at ? 15 : 0;
+      const trustFromScore = row.sellerStats
+        ? Math.min(40, Math.round(row.sellerStats.score))
+        : 0;
+      const trustScore = Math.min(
+        99,
+        Math.max(40, trustFromDocs + trustFromPhone + trustFromScore),
+      );
+
+      return {
+        id: row.id,
+        name: row.name,
+        username: row.username,
+        phone: row.phone,
+        email: row.email,
+        verification_status: row.verification_status,
+        created_at: row.created_at.toISOString(),
+        doc_count: Math.max(docs, 1),
+        trust_score: trustScore,
+        location_text: 'Ethiopia',
+        account_type:
+          row._count.properties >= 5 ? 'Agency' : 'Individual seller',
+        bio:
+          row._count.properties > 0
+            ? `Seller with ${row._count.properties} listing(s) awaiting verification.`
+            : 'Seller account awaiting document verification.',
+      };
+    }),
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: total === 0 ? 0 : Math.ceil(total / limit),
+    },
+  };
+}
+
 export async function verifySeller(
   userId: string,
   adminId: string,

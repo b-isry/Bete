@@ -21,6 +21,10 @@ const adminRouter = Router();
 
 adminRouter.use(authenticate, requireRole(UserRole.ADMIN));
 
+adminRouter.get('/overview', adminController.platformOverview);
+
+adminRouter.get('/analytics', adminController.adminAnalytics);
+
 adminRouter.get(
   '/pending-listings',
   validateQuery(PaginationQuerySchema),
@@ -32,6 +36,12 @@ adminRouter.patch(
   validateParams(IdParamSchema),
   validateBody(ModerateListingSchema),
   adminController.moderateListing,
+);
+
+adminRouter.get(
+  '/pending-verifications',
+  validateQuery(PaginationQuerySchema),
+  adminController.pendingVerifications,
 );
 
 adminRouter.get(
@@ -53,6 +63,14 @@ adminRouter.patch(
   validateBody(VerifySellerSchema),
   adminController.verifySeller,
 );
+
+adminRouter.get(
+  '/users',
+  validateQuery(PaginationQuerySchema),
+  adminController.listUsers,
+);
+
+adminRouter.get('/categories', adminController.listCategories);
 
 export { adminRouter };
 

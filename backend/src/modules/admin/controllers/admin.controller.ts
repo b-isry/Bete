@@ -8,8 +8,82 @@ import {
   ResolveReportInput,
   VerifySellerInput,
 } from '../schemas/admin.schema';
+import * as catalogService from '../services/catalog.service';
+import * as dashboardService from '../services/dashboard.service';
 import * as moderationService from '../services/moderation.service';
 import * as reportService from '../services/report.service';
+
+export async function platformOverview(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const result = await dashboardService.getPlatformOverview();
+    sendSuccess(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function adminAnalytics(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const result = await dashboardService.getAdminAnalytics();
+    sendSuccess(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function pendingVerifications(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const query = req.query as unknown as PaginationQuery;
+    const result = await moderationService.listPendingVerifications(
+      query.page,
+      query.limit,
+    );
+    sendSuccess(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listUsers(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const query = req.query as unknown as PaginationQuery;
+    const result = await catalogService.listUsers(query.page, query.limit);
+    sendSuccess(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listCategories(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const locale =
+      typeof req.query.locale === 'string' ? req.query.locale : undefined;
+    const result = await catalogService.listCategories(locale);
+    sendSuccess(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
 
 export async function pendingListings(
   req: Request,
