@@ -6,6 +6,7 @@ import { prisma } from '../../../config/prisma';
 import {
   ConflictError,
   ForbiddenError,
+  BadRequestError,
   UnauthorizedError,
 } from '../../../errors/app-error';
 import {
@@ -29,6 +30,7 @@ const userProfileSelect = {
   verification_status: true,
   id_document_url: true,
   business_license_url: true,
+  phone_verified_at: true,
   verified_at: true,
   last_login_at: true,
   created_at: true,
@@ -81,6 +83,17 @@ export async function register(data: RegisterInput): Promise<{
   }
 
   const password_hash = await bcrypt.hash(data.password, BCRYPT_ROUNDS);
+  const isSeller = data.role === 'SELLER';
+
+  if (isSeller && data.primary_city_id != null) {
+    const city = await prisma.city.findUnique({
+      where: { id: data.primary_city_id },
+      select: { id: true },
+    });
+    if (!city) {
+      throw new BadRequestError('Invalid primary_city_id');
+    }
+  }
 
   const user = await prisma.user.create({
     data: {
@@ -88,7 +101,11 @@ export async function register(data: RegisterInput): Promise<{
       phone: data.phone,
       email: data.email,
       password_hash,
-      role: data.role === 'SELLER' ? UserRole.SELLER : UserRole.USER,
+      role: isSeller ? UserRole.SELLER : UserRole.USER,
+      ...(isSeller && data.primary_city_id != null
+        ? { primary_city_id: data.primary_city_id }
+        : {}),
+      ...(isSeller && data.bio ? { bio: data.bio } : {}),
     },
     select: userProfileSelect,
   });
@@ -146,6 +163,10 @@ export async function submitVerification(
 
   if (user.role !== UserRole.SELLER) {
     throw new ForbiddenError('Verification is only available for sellers');
+  }
+
+  if (user.phone_verified_at === null) {
+    throw new BadRequestError('Verify your phone number first');
   }
 
   return prisma.user.update({

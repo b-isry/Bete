@@ -1,7 +1,9 @@
 import {
   LoginSchema,
   RegisterSchema,
+  RequestOtpSchema,
   SubmitVerificationSchema,
+  VerifyOtpSchema,
 } from '../schemas/auth.schema';
 
 describe('RegisterSchema', () => {
@@ -23,9 +25,30 @@ describe('RegisterSchema', () => {
       phone: '+251912345678',
       role: 'SELLER',
       email: 'abebe@example.com',
+      primary_city_id: 1,
+      bio: 'Residential specialist in Bole.',
     });
     expect(result.role).toBe('SELLER');
     expect(result.email).toBe('abebe@example.com');
+    expect(result.primary_city_id).toBe(1);
+    expect(result.bio).toBe('Residential specialist in Bole.');
+  });
+
+  it('rejects seller-only fields on USER registration', () => {
+    expect(
+      RegisterSchema.safeParse({
+        ...valid,
+        role: 'USER',
+        primary_city_id: 1,
+      }).success,
+    ).toBe(false);
+    expect(
+      RegisterSchema.safeParse({
+        ...valid,
+        role: 'USER',
+        bio: 'Should not be allowed',
+      }).success,
+    ).toBe(false);
   });
 
   it('rejects ADMIN role on public registration', () => {
@@ -87,5 +110,29 @@ describe('SubmitVerificationSchema', () => {
       business_license_url: 'https://cdn.example.com/license.pdf',
     });
     expect(result.business_license_url).toContain('license.pdf');
+  });
+});
+
+describe('RequestOtpSchema', () => {
+  it('accepts an empty body', () => {
+    expect(RequestOtpSchema.parse({})).toEqual({});
+  });
+
+  it('rejects unexpected fields', () => {
+    expect(RequestOtpSchema.safeParse({ phone: '0912345678' }).success).toBe(
+      false,
+    );
+  });
+});
+
+describe('VerifyOtpSchema', () => {
+  it('accepts a 6-digit numeric code', () => {
+    expect(VerifyOtpSchema.parse({ code: '123456' }).code).toBe('123456');
+  });
+
+  it('rejects non-numeric or wrong-length codes', () => {
+    expect(VerifyOtpSchema.safeParse({ code: '12345' }).success).toBe(false);
+    expect(VerifyOtpSchema.safeParse({ code: '1234567' }).success).toBe(false);
+    expect(VerifyOtpSchema.safeParse({ code: 'abcdef' }).success).toBe(false);
   });
 });

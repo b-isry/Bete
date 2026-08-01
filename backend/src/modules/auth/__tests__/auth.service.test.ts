@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { env } from '../../../config/env';
 import { prisma } from '../../../config/prisma';
 import {
+  BadRequestError,
   ConflictError,
   ForbiddenError,
   UnauthorizedError,
@@ -17,6 +18,9 @@ jest.mock('../../../config/prisma', () => ({
       create: jest.fn(),
       update: jest.fn(),
     },
+    city: {
+      findUnique: jest.fn(),
+    },
   },
 }));
 
@@ -25,6 +29,9 @@ const prismaMock = prisma as unknown as {
     findFirst: jest.Mock;
     create: jest.Mock;
     update: jest.Mock;
+  };
+  city: {
+    findUnique: jest.Mock;
   };
 };
 
@@ -42,6 +49,7 @@ function profile(overrides: Record<string, unknown> = {}) {
     verification_status: VerificationStatus.UNVERIFIED,
     id_document_url: null,
     business_license_url: null,
+    phone_verified_at: null,
     verified_at: null,
     last_login_at: null,
     created_at: new Date('2026-01-01T00:00:00.000Z'),
@@ -55,11 +63,13 @@ describe('auth.service', () => {
     prismaMock.user.findFirst.mockReset();
     prismaMock.user.create.mockReset();
     prismaMock.user.update.mockReset();
+    prismaMock.city.findUnique.mockReset();
   });
 
   describe('register', () => {
     it('hashes the password, creates the user, and returns a JWT', async () => {
       prismaMock.user.findFirst.mockResolvedValue(null);
+      prismaMock.city.findUnique.mockResolvedValue({ id: 1 });
       prismaMock.user.create.mockResolvedValue(profile({ role: UserRole.SELLER }));
 
       const result = await authService.register({
@@ -68,6 +78,8 @@ describe('auth.service', () => {
         email: 'abebe@example.com',
         password: 'Password1',
         role: 'SELLER',
+        primary_city_id: 1,
+        bio: 'Heritage homes across Bole.',
       });
 
       expect(prismaMock.user.create).toHaveBeenCalledWith(
@@ -76,6 +88,8 @@ describe('auth.service', () => {
             phone: '0912345678',
             role: UserRole.SELLER,
             password_hash: expect.any(String),
+            primary_city_id: 1,
+            bio: 'Heritage homes across Bole.',
           }),
         }),
       );
@@ -162,7 +176,10 @@ describe('auth.service', () => {
   describe('submitVerification', () => {
     it('sets verification_status to PENDING without changing role', async () => {
       prismaMock.user.findFirst.mockResolvedValue({
-        ...profile({ role: UserRole.SELLER }),
+        ...profile({
+          role: UserRole.SELLER,
+          phone_verified_at: new Date('2026-07-01T00:00:00.000Z'),
+        }),
         password_hash: 'hash',
         deleted_at: null,
       });
@@ -171,6 +188,7 @@ describe('auth.service', () => {
           role: UserRole.SELLER,
           verification_status: VerificationStatus.PENDING,
           id_document_url: 'https://cdn.example.com/id.pdf',
+          phone_verified_at: new Date('2026-07-01T00:00:00.000Z'),
         }),
       );
 
@@ -188,6 +206,20 @@ describe('auth.service', () => {
       );
       expect(user.role).toBe(UserRole.SELLER);
       expect(user.verification_status).toBe(VerificationStatus.PENDING);
+    });
+
+    it('rejects when phone is not verified', async () => {
+      prismaMock.user.findFirst.mockResolvedValue({
+        ...profile({ role: UserRole.SELLER, phone_verified_at: null }),
+        password_hash: 'hash',
+        deleted_at: null,
+      });
+
+      await expect(
+        authService.submitVerification('user-1', {
+          id_document_url: 'https://cdn.example.com/id.pdf',
+        }),
+      ).rejects.toBeInstanceOf(BadRequestError);
     });
 
     it('rejects non-sellers', async () => {

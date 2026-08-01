@@ -7,16 +7,40 @@ const passwordSchema = z
   .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
   .regex(/[0-9]/, 'Password must contain at least one number');
 
-export const RegisterSchema = z.object({
-  name: z.string().trim().min(2, 'Name must be at least 2 characters').max(120),
-  phone: z
-    .string()
-    .trim()
-    .regex(ETHIOPIAN_PHONE_REGEX, 'Invalid Ethiopian phone number'),
-  email: z.string().trim().email('Invalid email address').optional(),
-  password: passwordSchema,
-  role: z.enum(['USER', 'SELLER']).optional().default('USER'),
-});
+export const RegisterSchema = z
+  .object({
+    name: z.string().trim().min(2, 'Name must be at least 2 characters').max(120),
+    phone: z
+      .string()
+      .trim()
+      .regex(ETHIOPIAN_PHONE_REGEX, 'Invalid Ethiopian phone number'),
+    email: z.string().trim().email('Invalid email address').optional(),
+    password: passwordSchema,
+    role: z.enum(['USER', 'SELLER']).optional().default('USER'),
+    /** Seller onboarding — ignored when role is USER. */
+    primary_city_id: z.coerce.number().int().positive().optional(),
+    /** Seller onboarding — ignored when role is USER. */
+    bio: z.string().trim().max(2000).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.role !== 'USER') {
+      return;
+    }
+    if (data.primary_city_id != null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'primary_city_id is only allowed for SELLER registrations',
+        path: ['primary_city_id'],
+      });
+    }
+    if (data.bio != null && data.bio.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'bio is only allowed for SELLER registrations',
+        path: ['bio'],
+      });
+    }
+  });
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 
@@ -43,3 +67,20 @@ export const SubmitVerificationSchema = z.object({
 });
 
 export type SubmitVerificationInput = z.infer<typeof SubmitVerificationSchema>;
+
+/** Empty body — phone is taken from the authenticated user. */
+export const RequestOtpSchema = z.preprocess(
+  (val) => (val == null ? {} : val),
+  z.object({}).strict(),
+);
+
+export type RequestOtpInput = z.infer<typeof RequestOtpSchema>;
+
+export const VerifyOtpSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, 'Code must be a 6-digit numeric string'),
+});
+
+export type VerifyOtpInput = z.infer<typeof VerifyOtpSchema>;

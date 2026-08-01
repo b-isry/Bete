@@ -7,7 +7,9 @@ import { requireRole } from '../middlewares/rbac.middleware';
 import {
   LoginSchema,
   RegisterSchema,
+  RequestOtpSchema,
   SubmitVerificationSchema,
+  VerifyOtpSchema,
 } from '../schemas/auth.schema';
 
 const authRouter = Router();
@@ -32,6 +34,22 @@ authRouter.post(
   requireRole(UserRole.SELLER),
   validateBody(SubmitVerificationSchema),
   authController.submitVerification,
+);
+
+authRouter.post(
+  '/otp/request',
+  authenticate,
+  requireRole(UserRole.SELLER),
+  validateBody(RequestOtpSchema),
+  authController.requestOtp,
+);
+
+authRouter.post(
+  '/otp/verify',
+  authenticate,
+  requireRole(UserRole.SELLER),
+  validateBody(VerifyOtpSchema),
+  authController.verifyOtp,
 );
 
 export { authRouter };

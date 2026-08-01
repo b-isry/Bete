@@ -1,12 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
 import { UnauthorizedError } from '../../../errors/app-error';
 import { sendSuccess } from '../../../utils/response';
+import { OtpPurpose } from '@prisma/client';
 import {
   LoginInput,
   RegisterInput,
   SubmitVerificationInput,
+  VerifyOtpInput,
 } from '../schemas/auth.schema';
 import * as authService from '../services/auth.service';
+import * as otpService from '../services/otp.service';
 
 export async function register(
   req: Request,
@@ -64,6 +67,46 @@ export async function submitVerification(
       req.body as SubmitVerificationInput,
     );
     sendSuccess(res, { user });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function requestOtp(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    if (!req.user) {
+      throw new UnauthorizedError('Authentication required');
+    }
+    const result = await otpService.requestOtp(
+      req.user.id,
+      OtpPurpose.SELLER_VERIFICATION,
+    );
+    sendSuccess(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function verifyOtp(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    if (!req.user) {
+      throw new UnauthorizedError('Authentication required');
+    }
+    const { code } = req.body as VerifyOtpInput;
+    const result = await otpService.verifyOtp(
+      req.user.id,
+      OtpPurpose.SELLER_VERIFICATION,
+      code,
+    );
+    sendSuccess(res, result);
   } catch (err) {
     next(err);
   }

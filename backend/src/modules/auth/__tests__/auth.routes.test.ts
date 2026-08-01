@@ -48,6 +48,7 @@ function profile(overrides: Record<string, unknown> = {}) {
     verification_status: VerificationStatus.UNVERIFIED,
     id_document_url: null,
     business_license_url: null,
+    phone_verified_at: null,
     verified_at: null,
     last_login_at: null,
     created_at: new Date('2026-01-01T00:00:00.000Z').toISOString(),
@@ -188,7 +189,10 @@ describe('auth routes', () => {
           deleted_at: null,
         })
         .mockResolvedValueOnce({
-          ...profile({ role: UserRole.SELLER }),
+          ...profile({
+            role: UserRole.SELLER,
+            phone_verified_at: new Date().toISOString(),
+          }),
           password_hash: 'hash',
           deleted_at: null,
           created_at: new Date(),
