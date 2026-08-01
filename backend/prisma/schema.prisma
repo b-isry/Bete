@@ -101,6 +101,11 @@ enum Locale {
   so
 }
 
+enum OtpPurpose {
+  SELLER_VERIFICATION
+  PHONE_CHANGE
+}
+
 // ---------------------------------------------------------------------------
 // Models
 // ---------------------------------------------------------------------------
@@ -119,12 +124,18 @@ model User {
   verification_status VerificationStatus @default(UNVERIFIED)
   id_document_url       String?
   business_license_url  String?
+  bio                   String?            @db.Text
+  cover_image_url       String?
+  logo_url              String?
+  primary_city_id       Int?
+  phone_verified_at     DateTime?
   verified_at           DateTime?
   last_login_at         DateTime?
   deleted_at            DateTime?
   created_at            DateTime           @default(now())
   updated_at            DateTime           @updatedAt
 
+  primary_city       City?               @relation(fields: [primary_city_id], references: [id], onDelete: SetNull)
   properties         Property[]
   threadParticipants ThreadParticipant[]
   sentMessages       Message[]           @relation("MessageSender")
@@ -139,6 +150,21 @@ model User {
   notifications      Notification[]
 
   @@index([role, verification_status])
+  @@index([primary_city_id])
+}
+
+model OtpCode {
+  id           String     @id @default(uuid()) @db.Uuid
+  phone        String
+  code_hash    String
+  purpose      OtpPurpose
+  attempts     Int        @default(0)
+  max_attempts Int        @default(5)
+  expires_at   DateTime
+  consumed_at  DateTime?
+  created_at   DateTime   @default(now())
+
+  @@index([phone, purpose, consumed_at])
 }
 
 model City {
@@ -149,6 +175,7 @@ model City {
   // Display name resolved via Translation (entity_type = 'CITY', entity_id = id)
   properties    Property[]
   savedSearches SavedSearch[]
+  users         User[]
 }
 
 model Category {
@@ -215,6 +242,7 @@ model Property {
   @@index([created_at])
   @@index([price])
   @@index([status, city_id, property_type, price])
+  @@index([seller_id, status])
 }
 
 model PropertyFlag {
@@ -255,27 +283,29 @@ model ListingEvent {
 }
 
 model SellerStats {
-  id             String   @id @default(uuid()) @db.Uuid
-  seller_id      String   @unique @db.Uuid
-  total_views    Int      @default(0)
-  total_contacts Int      @default(0)
-  response_rate  Float    @default(0)
-  score          Float    @default(0)
-  rank           Int?
-  computed_at    DateTime @default(now())
+  id                         String   @id @default(uuid()) @db.Uuid
+  seller_id                  String   @unique @db.Uuid
+  total_views                Int      @default(0)
+  total_contacts             Int      @default(0)
+  response_rate              Float    @default(0)
+  avg_response_time_minutes  Int?
+  score                      Float    @default(0)
+  rank                       Int?
+  computed_at                DateTime @default(now())
 
   seller User @relation(fields: [seller_id], references: [id])
 }
 
 model SellerStatsHistory {
-  id             String   @id @default(uuid()) @db.Uuid
-  seller_id      String   @db.Uuid
-  period_date    DateTime @db.Date
-  total_views    Int
-  total_contacts Int
-  response_rate  Float
-  score          Float
-  rank           Int?
+  id                         String   @id @default(uuid()) @db.Uuid
+  seller_id                  String   @db.Uuid
+  period_date                DateTime @db.Date
+  total_views                Int
+  total_contacts             Int
+  response_rate              Float
+  avg_response_time_minutes  Int?
+  score                      Float
+  rank                       Int?
 
   seller User @relation(fields: [seller_id], references: [id])
 

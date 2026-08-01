@@ -12,8 +12,18 @@
     "docker:up": "docker compose -f ../docker-compose.yml --project-directory .. up --build",
     "docker:down": "docker compose -f ../docker-compose.yml --project-directory .. down",
     "docker:migrate": "docker compose -f ../docker-compose.yml --project-directory .. exec backend npx prisma migrate dev",
+    "docker:seed": "docker compose -f ../docker-compose.yml --project-directory .. exec backend npx prisma db seed",
     "docker:studio": "docker compose -f ../docker-compose.yml --project-directory .. exec backend npx prisma studio",
     "docker:logs": "docker compose -f ../docker-compose.yml --project-directory .. logs -f backend"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
   },
   "keywords": [],
   "author": "",
@@ -47,6 +57,7 @@
     "prisma": "^6.5.0",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.11",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.2"
   }
