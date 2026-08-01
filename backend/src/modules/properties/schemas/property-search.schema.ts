@@ -15,6 +15,7 @@ export const PropertySearchSchema = z.object({
   bedrooms: z.coerce.number().int().nonnegative().optional(),
   bathrooms: z.coerce.number().int().nonnegative().optional(),
   keyword: z.string().trim().min(1).max(200).optional(),
+  seller_username: z.string().trim().min(1).max(100).optional(),
   sort_by: z.enum(['newest', 'price_asc', 'price_desc']).optional().default('newest'),
   page: z.coerce.number().int().positive().optional().default(1),
   limit: z.coerce.number().int().positive().max(100).optional().default(20),

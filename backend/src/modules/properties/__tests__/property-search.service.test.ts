@@ -10,6 +10,9 @@ jest.mock('../../../config/prisma', () => ({
       count: jest.fn(),
       findMany: jest.fn(),
     },
+    user: {
+      findFirst: jest.fn(),
+    },
     translation: {
       findFirst: jest.fn(),
     },
@@ -21,6 +24,9 @@ const prismaMock = prisma as unknown as {
   property: {
     count: jest.Mock;
     findMany: jest.Mock;
+  };
+  user: {
+    findFirst: jest.Mock;
   };
   translation: {
     findFirst: jest.Mock;
@@ -55,6 +61,13 @@ function listing(overrides: Record<string, unknown> = {}) {
         sort_order: 0,
       },
     ],
+    seller: {
+      id: 'seller-1',
+      name: 'Lake Realty',
+      username: 'lakerealty',
+      phone: '0912345678',
+      verification_status: 'VERIFIED',
+    },
     ...overrides,
   };
 }
@@ -64,6 +77,7 @@ describe('searchProperties', () => {
     prismaMock.$transaction.mockReset();
     prismaMock.property.count.mockReset();
     prismaMock.property.findMany.mockReset();
+    prismaMock.user.findFirst.mockReset();
     prismaMock.translation.findFirst.mockReset();
 
     prismaMock.$transaction.mockImplementation(
@@ -118,6 +132,52 @@ describe('searchProperties', () => {
     expect(result.summary).toBe(
       '128 properties found between 1.5M - 2.0M ETB in Bahir Dar',
     );
+  });
+
+  it('resolves seller_username to seller_id and keeps LIVE filter', async () => {
+    prismaMock.user.findFirst.mockResolvedValue({ id: 'seller-1' });
+    prismaMock.property.count.mockResolvedValue(0);
+    prismaMock.property.findMany.mockResolvedValue([]);
+
+    await searchProperties({
+      seller_username: 'bekele-homes',
+      sort_by: 'newest',
+      page: 1,
+      limit: 20,
+    });
+
+    expect(prismaMock.user.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          role: 'SELLER',
+          deleted_at: null,
+        }),
+      }),
+    );
+    expect(prismaMock.property.count).toHaveBeenCalledWith({
+      where: expect.objectContaining({
+        status: 'LIVE',
+        deleted_at: null,
+        seller_id: 'seller-1',
+      }),
+    });
+  });
+
+  it('throws NotFoundError when seller_username does not resolve', async () => {
+    prismaMock.user.findFirst.mockResolvedValue(null);
+
+    await expect(
+      searchProperties({
+        seller_username: 'missing-agency',
+        sort_by: 'newest',
+        page: 1,
+        limit: 20,
+      }),
+    ).rejects.toMatchObject({
+      statusCode: 404,
+      code: 'NOT_FOUND',
+    });
+    expect(prismaMock.property.count).not.toHaveBeenCalled();
   });
 
   it('applies keyword search across title and location_text', async () => {

@@ -144,23 +144,14 @@ export async function sendMessage(
     return { message: result.message, thread_id: result.thread.id };
   }
 
-  if (!input.property_id || !input.recipient_id) {
+  if (!input.recipient_id) {
     throw new BadRequestError(
-      'property_id and recipient_id are required to start a LISTING thread',
+      'recipient_id is required to start a LISTING thread',
     );
   }
 
   if (input.recipient_id === senderId) {
     throw new BadRequestError('Cannot start a thread with yourself');
-  }
-
-  const property = await prisma.property.findFirst({
-    where: { id: input.property_id, deleted_at: null },
-    select: { id: true, seller_id: true, status: true },
-  });
-
-  if (!property) {
-    throw new NotFoundError('Property not found');
   }
 
   const recipient = await prisma.user.findFirst({
@@ -172,11 +163,25 @@ export async function sendMessage(
     throw new NotFoundError('Recipient not found');
   }
 
-  // Reuse existing LISTING thread between these two on this property
+  let propertyId: string | null = null;
+  if (input.property_id) {
+    const property = await prisma.property.findFirst({
+      where: { id: input.property_id, deleted_at: null },
+      select: { id: true, seller_id: true, status: true },
+    });
+
+    if (!property) {
+      throw new NotFoundError('Property not found');
+    }
+
+    propertyId = property.id;
+  }
+
+  // Reuse existing LISTING thread between these two (same property, or both null)
   const existing = await prisma.thread.findFirst({
     where: {
       thread_type: ThreadType.LISTING,
-      property_id: input.property_id,
+      property_id: propertyId,
       AND: [
         { participants: { some: { user_id: senderId } } },
         { participants: { some: { user_id: input.recipient_id } } },
@@ -190,7 +195,7 @@ export async function sendMessage(
       (await tx.thread.create({
         data: {
           thread_type: ThreadType.LISTING,
-          property_id: input.property_id,
+          property_id: propertyId,
           participants: {
             create: [
               { user_id: senderId },
@@ -227,7 +232,7 @@ export async function sendMessage(
       data: {
         thread_id: thread.id,
         sender_id: senderId,
-        message_type: input.message_type ?? MessageType.TEXT,
+        message_type: input.message_type,
         message_text: input.message_text,
         media_url: input.media_url,
       },

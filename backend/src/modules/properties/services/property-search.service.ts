@@ -1,6 +1,7 @@
-import { Locale, Prisma, PropertyStatus } from '@prisma/client';
+import { Locale, Prisma, PropertyStatus, UserRole } from '@prisma/client';
 import Decimal from 'decimal.js';
 import { prisma } from '../../../config/prisma';
+import { NotFoundError } from '../../../errors/app-error';
 import { formatSearchSummary } from '../../../utils/locale-format';
 import { resolveLocale } from '../../../utils/locale';
 import { PropertySearchQuery } from '../schemas/property-search.schema';
@@ -24,11 +25,18 @@ function buildOrderBy(
   }
 }
 
-function buildWhere(query: PropertySearchQuery): Prisma.PropertyWhereInput {
+function buildWhere(
+  query: PropertySearchQuery,
+  sellerId?: string,
+): Prisma.PropertyWhereInput {
   const where: Prisma.PropertyWhereInput = {
     status: PropertyStatus.LIVE,
     deleted_at: null,
   };
+
+  if (sellerId !== undefined) {
+    where.seller_id = sellerId;
+  }
 
   if (query.min_price !== undefined || query.max_price !== undefined) {
     where.price = {};
@@ -65,6 +73,23 @@ function buildWhere(query: PropertySearchQuery): Prisma.PropertyWhereInput {
   return where;
 }
 
+async function resolveSellerIdByUsername(username: string): Promise<string> {
+  const seller = await prisma.user.findFirst({
+    where: {
+      username: { equals: username, mode: 'insensitive' },
+      role: UserRole.SELLER,
+      deleted_at: null,
+    },
+    select: { id: true },
+  });
+
+  if (!seller) {
+    throw new NotFoundError('Seller not found');
+  }
+
+  return seller.id;
+}
+
 export interface PropertySearchResultItem {
   id: string;
   title: string;
@@ -87,6 +112,13 @@ export interface PropertySearchResultItem {
   contact_count: number;
   created_at: Date;
   images: Array<{ id: string; image_url: string; sort_order: number }>;
+  seller: {
+    id: string;
+    name: string;
+    username: string | null;
+    phone: string;
+    verification_status: string;
+  };
 }
 
 export interface PropertySearchResult {
@@ -105,7 +137,11 @@ export async function searchProperties(
   localeHint?: string | null,
 ): Promise<PropertySearchResult> {
   const locale: Locale = resolveLocale(query.locale ?? localeHint ?? undefined);
-  const where = buildWhere(query);
+  const sellerId =
+    query.seller_username !== undefined
+      ? await resolveSellerIdByUsername(query.seller_username)
+      : undefined;
+  const where = buildWhere(query, sellerId);
   const orderBy = buildOrderBy(query.sort_by);
   const page = query.page;
   const limit = query.limit;
@@ -125,6 +161,15 @@ export async function searchProperties(
             id: true,
             image_url: true,
             sort_order: true,
+          },
+        },
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            phone: true,
+            verification_status: true,
           },
         },
       },
@@ -163,6 +208,13 @@ export async function searchProperties(
       contact_count: row.contact_count,
       created_at: row.created_at,
       images: row.images,
+      seller: {
+        id: row.seller.id,
+        name: row.seller.name,
+        username: row.seller.username,
+        phone: row.seller.phone,
+        verification_status: row.seller.verification_status,
+      },
     };
   });
 

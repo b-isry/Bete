@@ -16,11 +16,12 @@ export const SendMessageSchema = z
       const isSupport = data.thread_type === 'SUPPORT';
       if (isSupport) {
         // SUPPORT threads: no property_id; recipient optional (pool)
-      } else if (!data.property_id || !data.recipient_id) {
+      } else if (!data.recipient_id) {
+        // LISTING: recipient required; property_id optional (agency-level inquiry)
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message:
-            'Provide thread_id, or property_id + recipient_id to start a LISTING thread',
+            'Provide thread_id, or recipient_id to start a LISTING thread (property_id optional)',
           path: ['thread_id'],
         });
       }
