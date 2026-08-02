@@ -1,6 +1,9 @@
 import {
   MessageType,
+  NotificationType,
   PropertyStatus,
+  PropertyType,
+  Prisma,
   ThreadType,
   UserRole,
   VerificationStatus,
@@ -10,10 +13,54 @@ import {
   BadRequestError,
   NotFoundError,
 } from '../../../errors/app-error';
+import { notify } from '../../notifications/services/notification.service';
 import {
   ModerateListingInput,
   VerifySellerInput,
 } from '../schemas/admin.schema';
+
+/**
+ * After a listing goes LIVE, notify users whose alert-enabled SavedSearch
+ * matches on structured fields only (min/max price, city_id, property_type).
+ * filters_json is advisory and intentionally ignored.
+ */
+async function notifySavedSearchMatches(property: {
+  id: string;
+  title: string;
+  price: Prisma.Decimal;
+  city_id: number;
+  property_type: PropertyType;
+}): Promise<void> {
+  const searches = await prisma.savedSearch.findMany({
+    where: {
+      alerts_enabled: true,
+      AND: [
+        { OR: [{ city_id: null }, { city_id: property.city_id }] },
+        {
+          OR: [
+            { property_type: null },
+            { property_type: property.property_type },
+          ],
+        },
+        { OR: [{ min_price: null }, { min_price: { lte: property.price } }] },
+        { OR: [{ max_price: null }, { max_price: { gte: property.price } }] },
+      ],
+    },
+    select: { user_id: true },
+  });
+
+  const userIds = [...new Set(searches.map((row) => row.user_id))];
+
+  for (const userId of userIds) {
+    await notify(
+      userId,
+      NotificationType.SAVED_SEARCH_MATCH,
+      'New listing matches your saved search',
+      `A new listing "${property.title}" matches one of your saved searches.`,
+      `/properties/${property.id}`,
+    );
+  }
+}
 
 function slugifyName(name: string): string {
   const slug = name
@@ -231,6 +278,15 @@ export async function moderateListing(
     return approved;
   });
 
+  // After commit: alert users with matching saved searches
+  await notifySavedSearchMatches({
+    id: updated.id,
+    title: updated.title,
+    price: updated.price,
+    city_id: updated.city_id,
+    property_type: updated.property_type,
+  });
+
   return {
     property: {
       ...updated,
@@ -361,6 +417,16 @@ export async function verifySeller(
       return rejected;
     });
 
+    await notify(
+      userId,
+      NotificationType.VERIFICATION_REJECTED,
+      'Seller verification rejected',
+      input.rejection_reason
+        ? `Your seller verification was rejected: ${input.rejection_reason}`
+        : 'Your seller verification was rejected. Please review your documents and try again.',
+      '/dashboard/verification',
+    );
+
     return { user: updated };
   }
 
@@ -397,6 +463,14 @@ export async function verifySeller(
 
     return verified;
   });
+
+  await notify(
+    userId,
+    NotificationType.VERIFICATION_APPROVED,
+    'Seller verification approved',
+    'Your seller account is now verified on Bete. You can list properties with a verified badge.',
+    '/dashboard/verification',
+  );
 
   return { user: updated };
 }

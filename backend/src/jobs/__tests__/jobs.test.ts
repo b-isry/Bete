@@ -1,8 +1,8 @@
-import { PropertyStatus } from '@prisma/client';
+import { NotificationType, PropertyStatus } from '@prisma/client';
 import { prisma } from '../../config/prisma';
 import { expireListings } from '../expire-listings.job';
 import { sendRenewalReminders } from '../renewal-reminder.job';
-import * as notification from '../../modules/analytics/services/notification.service';
+import * as notification from '../../modules/notifications/services/notification.service';
 import * as expireJob from '../expire-listings.job';
 import * as reminderJob from '../renewal-reminder.job';
 import * as ranking from '../../modules/analytics/services/seller-ranking.service';
@@ -15,14 +15,11 @@ jest.mock('../../config/prisma', () => ({
       findMany: jest.fn(),
       update: jest.fn(),
     },
-    notification: {
-      create: jest.fn(),
-    },
   },
 }));
 
-jest.mock('../../modules/analytics/services/notification.service', () => ({
-  notifyUser: jest.fn(),
+jest.mock('../../modules/notifications/services/notification.service', () => ({
+  notify: jest.fn(),
 }));
 
 const prismaMock = prisma as unknown as {
@@ -33,7 +30,7 @@ const prismaMock = prisma as unknown as {
   };
 };
 
-const notifyUserMock = notification.notifyUser as jest.Mock;
+const notifyMock = notification.notify as jest.Mock;
 
 describe('expireListings', () => {
   beforeEach(() => {
@@ -70,23 +67,21 @@ describe('sendRenewalReminders', () => {
         expires_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
         seller: {
           id: 'seller-1',
-          email: 'seller@example.com',
-          name: 'Abebe',
         },
       },
     ]);
-    notifyUserMock.mockResolvedValue(undefined);
+    notifyMock.mockResolvedValue({ id: 'notif-1' });
     prismaMock.property.update.mockResolvedValue({});
 
     const result = await sendRenewalReminders();
 
     expect(result.remindedCount).toBe(1);
-    expect(notifyUserMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        userId: 'seller-1',
-        email: 'seller@example.com',
-        type: 'RENEWAL_REMINDER',
-      }),
+    expect(notifyMock).toHaveBeenCalledWith(
+      'seller-1',
+      NotificationType.LISTING_EXPIRING,
+      'Listing renewal reminder',
+      expect.stringContaining('Lake apartment'),
+      '/dashboard/listings',
     );
     expect(prismaMock.property.update).toHaveBeenCalledWith(
       expect.objectContaining({

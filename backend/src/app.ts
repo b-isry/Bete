@@ -18,6 +18,7 @@ import {
 import { authRouter } from './modules/auth/routes/auth.routes';
 import { messagingRouter } from './modules/messaging/routes/messaging.routes';
 import { favoritesRouter } from './modules/favorites/routes/favorites.routes';
+import { notificationsRouter } from './modules/notifications/routes/notifications.routes';
 import { propertyRouter } from './modules/properties/routes/property.routes';
 import { propertySearchRouter } from './modules/properties/routes/property-search.routes';
 import { sellerDirectoryRouter } from './modules/sellers/routes/seller-directory.routes';
@@ -52,6 +53,7 @@ export function createApp(): Application {
   app.use('/api/v1/admin', adminRouter);
   app.use('/api/v1/messages', messagingRouter);
   app.use('/api/v1/favorites', favoritesRouter);
+  app.use('/api/v1/notifications', notificationsRouter);
   // Search + event + report routes before generic `/:id`
   app.use('/api/v1/properties', propertySearchRouter);
   app.use('/api/v1/properties', propertyEventRouter);

@@ -1,7 +1,7 @@
-import { PropertyStatus } from '@prisma/client';
+import { NotificationType, PropertyStatus } from '@prisma/client';
 import { prisma } from '../config/prisma';
 import { logger } from '../config/logger';
-import { notifyUser } from '../modules/analytics/services/notification.service';
+import { notify } from '../modules/notifications/services/notification.service';
 
 /**
  * Notify sellers whose LIVE listings expire within the next 3 days
@@ -28,8 +28,6 @@ export async function sendRenewalReminders(): Promise<{ remindedCount: number }>
       seller: {
         select: {
           id: true,
-          email: true,
-          name: true,
         },
       },
     },
@@ -42,13 +40,13 @@ export async function sendRenewalReminders(): Promise<{ remindedCount: number }>
     const title = 'Listing renewal reminder';
     const body = `Your listing "${listing.title}" expires on ${expiresOn}. Renew it to keep it LIVE.`;
 
-    await notifyUser({
-      userId: listing.seller.id,
-      email: listing.seller.email,
-      type: 'RENEWAL_REMINDER',
+    await notify(
+      listing.seller.id,
+      NotificationType.LISTING_EXPIRING,
       title,
       body,
-    });
+      `/dashboard/listings`,
+    );
 
     await prisma.property.update({
       where: { id: listing.id },
