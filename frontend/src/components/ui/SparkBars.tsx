@@ -1,3 +1,6 @@
+"use client";
+
+import { useLanguage } from "@/i18n/LanguageContext";
 import { cn } from "./cn";
 
 export type SparkBarsProps = {
@@ -16,6 +19,7 @@ export function SparkBars({
   highlightIndexes = [],
   accentIndexes = [],
 }: SparkBarsProps) {
+  const { t } = useLanguage();
   const max = Math.max(...values, 1);
 
   return (
@@ -25,7 +29,7 @@ export function SparkBars({
         className,
       )}
       role="img"
-      aria-label="Bar chart"
+      aria-label={t("a11y.barChart")}
     >
       {values.map((value, index) => {
         const height = `${Math.round((value / max) * 100)}%`;

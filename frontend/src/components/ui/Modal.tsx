@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "./Button";
 import { Icon } from "./Icon";
 import { cn } from "./cn";
@@ -21,6 +22,7 @@ export type ModalProps = {
 
 export function Modal({ open, onClose, title, children, className }: ModalProps) {
   const titleId = useId();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!open) {
@@ -51,7 +53,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
     >
       <button
         type="button"
-        aria-label="Close dialog"
+        aria-label={t("a11y.closeDialog")}
         className="absolute inset-0 bg-inverse-surface/40"
         onClick={onClose}
       />
@@ -75,7 +77,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
           ) : (
             <span />
           )}
-          <Button variant="icon" aria-label="Close" onClick={onClose}>
+          <Button variant="icon" aria-label={t("a11y.close")} onClick={onClose}>
             <Icon name="close" />
           </Button>
         </div>

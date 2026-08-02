@@ -32,28 +32,32 @@ const HERO_IMAGE =
 /** Agency directory grid — GET /sellers (verified_only defaults true on the API). */
 const HOME_AGENCIES_PATH = "/sellers?verified_only=true&limit=12";
 
-function formatCompactEtb(value: number): string {
+function formatCompactEtb(value: number, currency: string): string {
   if (value >= 1_000_000) {
     const millions = value / 1_000_000;
     const rounded =
       millions >= 10
         ? String(Math.round(millions))
         : millions.toFixed(1).replace(/\.0$/, "");
-    return `${rounded}M ETB`;
+    return `${rounded}M ${currency}`;
   }
   if (value >= 1_000) {
-    return `${Math.round(value / 1_000)}k ETB`;
+    return `${Math.round(value / 1_000)}k ${currency}`;
   }
-  return `${value.toLocaleString("en-ET")} ETB`;
+  return `${value.toLocaleString("en-ET")} ${currency}`;
 }
 
-function priceSummary(range: PriceRange, anyLabel: string): string {
+function priceSummary(
+  range: PriceRange,
+  anyLabel: string,
+  currency: string,
+): string {
   if (range.min == null && range.max == null) return anyLabel;
   if (range.min != null && range.max != null) {
-    return `${formatCompactEtb(range.min)} – ${formatCompactEtb(range.max)}`;
+    return `${formatCompactEtb(range.min, currency)} – ${formatCompactEtb(range.max, currency)}`;
   }
-  if (range.min != null) return `${formatCompactEtb(range.min)}+`;
-  return `≤ ${formatCompactEtb(range.max!)}`;
+  if (range.min != null) return `${formatCompactEtb(range.min, currency)}+`;
+  return `≤ ${formatCompactEtb(range.max!, currency)}`;
 }
 
 function bedsBathsSummary(
@@ -252,7 +256,11 @@ export default function HomePage() {
                       className="flex w-full items-center justify-between gap-2 text-left font-sans text-label-md text-on-surface"
                     >
                       <span className="truncate">
-                        {priceSummary(priceRange, t("filters.any"))}
+                        {priceSummary(
+                          priceRange,
+                          t("filters.any"),
+                          t("common.currencyEtb"),
+                        )}
                       </span>
                       <Icon
                         name="expand_more"

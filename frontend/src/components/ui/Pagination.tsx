@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "./Button";
 import { Icon } from "./Icon";
 import { cn } from "./cn";
@@ -30,6 +31,8 @@ export function Pagination({
   onPageChange,
   className,
 }: PaginationProps) {
+  const { t } = useLanguage();
+
   if (totalPages <= 1) {
     return null;
   }
@@ -38,13 +41,13 @@ export function Pagination({
 
   return (
     <nav
-      aria-label="Pagination"
+      aria-label={t("a11y.pagination")}
       className={cn("flex items-center gap-2", className)}
     >
       <Button
         variant="outline"
         className="h-10 w-10 px-0"
-        aria-label="Previous page"
+        aria-label={t("a11y.previousPage")}
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
       >
@@ -81,7 +84,7 @@ export function Pagination({
       <Button
         variant="outline"
         className="h-10 w-10 px-0"
-        aria-label="Next page"
+        aria-label={t("a11y.nextPage")}
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
       >

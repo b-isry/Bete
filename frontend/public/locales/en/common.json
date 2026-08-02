@@ -7,7 +7,22 @@
     "dashboard": "Dashboard",
     "profile": "Profile",
     "logOut": "Log out",
-    "support": "Support"
+    "support": "Support",
+    "menu": "Menu",
+    "primary": "Primary"
+  },
+  "notifications": {
+    "label": "Notifications",
+    "markAllRead": "Mark all read",
+    "empty": "No notifications yet.",
+    "loading": "Loading…",
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": "{n}m ago",
+      "hoursAgo": "{n}h ago",
+      "daysAgo": "{n}d ago",
+      "yesterday": "Yesterday"
+    }
   },
   "brand": {
     "name": "Bete"
@@ -38,6 +53,21 @@
   },
   "language": {
     "label": "Language"
+  },
+  "a11y": {
+    "pagination": "Pagination",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "close": "Close",
+    "closeDialog": "Close dialog",
+    "closeDrawer": "Close drawer",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "barChart": "Bar chart"
+  },
+  "common": {
+    "currencyEtb": "ETB",
+    "loadingEllipsis": "…"
   },
   "status": {
     "property": {
@@ -78,6 +108,8 @@
   },
   "listing": {
     "pricePerSqm": "Calculated ETB / m²",
+    "areaSqm": " m²",
+    "perSqm": " / m²",
     "viewDetails": "View Details",
     "favorite": "Save to favorites",
     "unfavorite": "Remove from favorites",
@@ -130,7 +162,8 @@
     "buy": "Buy",
     "rent": "Rent",
     "beds": "Beds",
-    "baths": "Baths"
+    "baths": "Baths",
+    "resultsSummary": "{count} properties found"
   },
   "property": {
     "backToSearch": "Back to search",
@@ -149,7 +182,9 @@
     "contacts": "Contacts",
     "notFoundTitle": "Property not found",
     "notFoundDescription": "This listing may be offline or the id is invalid.",
-    "loading": "Loading property…"
+    "loading": "Loading property…",
+    "mapLoading": "Loading map",
+    "galleryA11y": "Property gallery"
   },
   "cities": {
     "addisAbaba": "Addis Ababa",
@@ -184,7 +219,8 @@
       "inquiries": "Inquiries",
       "active": "Active listings",
       "manageListings": "Manage listings",
-      "portfolio": "Your portfolio"
+      "portfolio": "Your portfolio",
+      "defaultName": "Seller"
     },
     "listings": {
       "title": "Listing workspace",
@@ -294,6 +330,11 @@
     "statResponseTime": "Response Time",
     "statTotalViews": "Total Views",
     "newAgency": "New agency",
+    "responseTime": {
+      "minutes": "~{n} min",
+      "under2Hours": "< 2 Hours",
+      "hours": "~{n} Hours"
+    },
     "collectionEyebrow": "Portfolio",
     "collectionTitle": "Discover the Collection",
     "inquiryTitle": "Make an Inquiry",
@@ -364,12 +405,15 @@
       "property": "Property",
       "seller": "Seller",
       "flags": "AI Flags",
-      "actions": "Actions"
+      "actions": "Actions",
+      "idPrefix": "ID: "
     },
     "moderate": {
       "approved": "Listing approved and set LIVE.",
       "rejected": "Listing rejected.",
-      "fallback": "Moderation applied locally — sign in as ADMIN when the API is available."
+      "fallback": "Moderation applied locally — sign in as ADMIN when the API is available.",
+      "rejectReasonDefault": "Does not meet marketplace standards",
+      "rejectReasonOverview": "Rejected from platform overview"
     },
     "verify": {
       "title": "Seller verification",
@@ -390,7 +434,9 @@
       "actionHint": "Approve sets verification_status to VERIFIED. Reject returns REJECTED without changing role.",
       "approved": "Seller verified.",
       "rejected": "Seller verification rejected.",
-      "fallback": "Verification applied locally — sign in as ADMIN when the API is available."
+      "fallback": "Verification applied locally — sign in as ADMIN when the API is available.",
+      "rejectReasonDefault": "Incomplete verification documents",
+      "usernamePending": "@pending"
     },
     "overview": {
       "title": "Platform Overview",
@@ -417,7 +463,8 @@
       "emptyHint": "No PENDING listings match this filter.",
       "cleanPass": "Clean AI Pass",
       "cleanHint": "No anomalies detected. Images and metadata look consistent.",
-      "submitted": "Submitted"
+      "submitted": "Submitted",
+      "aiFlagLabel": "AI Flag: "
     },
     "analytics": {
       "title": "Analytics & Revenue",
@@ -501,6 +548,12 @@
       "bioPlaceholder": "What areas and property types do you specialize in?",
       "role": "I am a"
     },
+    "placeholders": {
+      "phoneOrEmail": "0912345678 or you@example.com",
+      "phone": "0912345678",
+      "email": "you@example.com",
+      "otp": "000000"
+    },
     "roles": {
       "buyer": "Buyer",
       "seller": "Seller"
@@ -542,6 +595,11 @@
       "aiDone": "Description drafted.",
       "aiFallback": "Used a local draft while the AI writer is unavailable.",
       "needImages": "Add at least one photo.",
+      "dropzone": {
+        "prompt": "Drag photos here, or choose files ({remaining} remaining)",
+        "choose": "Choose images",
+        "removeA11y": "Remove {name}"
+      },
       "success": "Listing submitted for review.",
       "error": "Could not create listing.",
       "submit": "Submit for review",

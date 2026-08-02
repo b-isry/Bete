@@ -134,7 +134,7 @@ export default function SellerListingsPage() {
                   </p>
                   <p className="mt-1 font-sans text-label-md text-on-surface">
                     {Number.isFinite(price)
-                      ? `${price.toLocaleString("en-ET")} ETB`
+                      ? `${price.toLocaleString("en-ET")} ${t("common.currencyEtb")}`
                       : "—"}{" "}
                     · {listing.view_count} {t("property.views").toLowerCase()} ·{" "}
                     {listing.contact_count}{" "}

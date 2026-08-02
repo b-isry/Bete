@@ -18,12 +18,17 @@ import { verifySeller } from "@/lib/api";
 import { usePendingVerifications } from "@/lib/hooks";
 import type { PendingVerification } from "@/lib/mocks";
 
-function relativeTime(iso: string): string {
+function relativeTime(iso: string, t: (key: string) => string): string {
   const delta = Date.now() - new Date(iso).getTime();
   const hours = Math.max(1, Math.round(delta / 3_600_000));
-  if (hours < 24) return `${hours}h ago`;
-  if (hours < 48) return "Yesterday";
-  return `${Math.round(hours / 24)}d ago`;
+  if (hours < 24) {
+    return t("notifications.time.hoursAgo").replace("{n}", String(hours));
+  }
+  if (hours < 48) return t("notifications.time.yesterday");
+  return t("notifications.time.daysAgo").replace(
+    "{n}",
+    String(Math.round(hours / 24)),
+  );
 }
 
 export default function VerificationsPage() {
@@ -46,7 +51,7 @@ export default function VerificationsPage() {
       await verifySeller(
         selected.id,
         action,
-        action === "REJECT" ? "Incomplete verification documents" : undefined,
+        action === "REJECT" ? t("admin.verify.rejectReasonDefault") : undefined,
       );
       push(
         action === "APPROVE"
@@ -131,12 +136,14 @@ export default function VerificationsPage() {
                             {item.name}
                           </h3>
                           <p className="font-sans text-[11px] uppercase tracking-wider text-on-surface-variant">
-                            @{item.username ?? "pending"}
+                            {item.username
+                              ? `@${item.username}`
+                              : t("admin.verify.usernamePending")}
                           </p>
                         </div>
                       </div>
                       <span className="font-sans text-[10px] text-on-surface-variant">
-                        {relativeTime(item.created_at)}
+                        {relativeTime(item.created_at, t)}
                       </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">

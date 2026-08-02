@@ -110,7 +110,7 @@ export default function RegisterPage() {
             variant="underline"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            placeholder="0912345678"
+            placeholder={t("auth.placeholders.phone")}
             required
           />
 
@@ -121,7 +121,7 @@ export default function RegisterPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder={t("auth.placeholders.email")}
           />
 
           {isSeller ? (

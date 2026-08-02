@@ -16,10 +16,10 @@ import {
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAdminAnalytics, useTopSellers } from "@/lib/hooks";
 
-function formatEtb(amount: string): string {
+function formatEtb(amount: string, currency: string): string {
   const n = Number(amount);
   if (!Number.isFinite(n)) return "—";
-  return `${n.toLocaleString("en-ET")} ETB`;
+  return `${n.toLocaleString("en-ET")} ${currency}`;
 }
 
 export default function AdminAnalyticsPage() {
@@ -53,7 +53,10 @@ export default function AdminAnalyticsPage() {
       <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
         <StatCard
           label={t("admin.analytics.totalRevenue")}
-          value={formatEtb(analytics?.revenue_total_etb ?? "0")}
+          value={formatEtb(
+            analytics?.revenue_total_etb ?? "0",
+            t("common.currencyEtb"),
+          )}
           trend={{
             value: `+${analytics?.revenue_growth_pct ?? 0}%`,
             direction: "up",
@@ -62,7 +65,10 @@ export default function AdminAnalyticsPage() {
         <StatCard
           tone="secondary"
           label={t("admin.analytics.boostRevenue")}
-          value={formatEtb(analytics?.boost_revenue_etb ?? "0")}
+          value={formatEtb(
+            analytics?.boost_revenue_etb ?? "0",
+            t("common.currencyEtb"),
+          )}
         />
         <StatCard
           tone="primary"
@@ -84,7 +90,10 @@ export default function AdminAnalyticsPage() {
             </div>
             <div className="text-left sm:text-right">
               <p className="font-serif text-display-lg-mobile leading-none text-primary">
-                {formatEtb(analytics?.revenue_total_etb ?? "0")}
+                {formatEtb(
+                  analytics?.revenue_total_etb ?? "0",
+                  t("common.currencyEtb"),
+                )}
               </p>
               <p className="mt-2 inline-flex items-center gap-1 font-sans text-label-md text-primary-container">
                 <Icon name="trending_up" />+
@@ -210,7 +219,7 @@ export default function AdminAnalyticsPage() {
                     +{row.growth_pct}%
                   </TableCell>
                   <TableCell className="text-right font-bold text-primary">
-                    {formatEtb(row.revenue_etb)}
+                    {formatEtb(row.revenue_etb, t("common.currencyEtb"))}
                   </TableCell>
                 </TableRow>
               ))}

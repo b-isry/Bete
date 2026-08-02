@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "./Button";
 import { Icon } from "./Icon";
 import { cn } from "./cn";
@@ -25,6 +26,8 @@ export function Drawer({
   children,
   className,
 }: DrawerProps) {
+  const { t } = useLanguage();
+
   useEffect(() => {
     if (!open) {
       return;
@@ -51,7 +54,7 @@ export function Drawer({
     <div className="fixed inset-0 z-50" role="presentation">
       <button
         type="button"
-        aria-label="Close drawer"
+        aria-label={t("a11y.closeDrawer")}
         className="absolute inset-0 bg-inverse-surface/40"
         onClick={onClose}
       />
@@ -70,7 +73,7 @@ export function Drawer({
           ) : (
             <span />
           )}
-          <Button variant="icon" aria-label="Close" onClick={onClose}>
+          <Button variant="icon" aria-label={t("a11y.close")} onClick={onClose}>
             <Icon name="close" />
           </Button>
         </header>

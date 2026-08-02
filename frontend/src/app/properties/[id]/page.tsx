@@ -87,8 +87,8 @@ const MOCK_PROPERTY: PropertyDetail = {
   },
 };
 
-function formatEtb(amount: number): string {
-  return `${amount.toLocaleString("en-ET")} ETB`;
+function formatEtb(amount: number, currency: string): string {
+  return `${amount.toLocaleString("en-ET")} ${currency}`;
 }
 
 function formatCount(n: number): string {
@@ -223,7 +223,7 @@ export default function PropertyDetailsPage({ params }: PageProps) {
             </h1>
           </header>
 
-          <section aria-label="Property gallery">
+          <section aria-label={t("property.galleryA11y")}>
             <div className="relative aspect-[16/10] w-full overflow-hidden border border-outline-variant bg-surface-variant">
               <Image
                 src={images[0]}
@@ -298,11 +298,15 @@ export default function PropertyDetailsPage({ params }: PageProps) {
                 {t("property.investmentPrice")}
               </p>
               <p className="font-serif text-display-lg-mobile text-primary">
-                {formatEtb(Number.isFinite(priceEtb) ? priceEtb : 0)}
+                {formatEtb(
+                  Number.isFinite(priceEtb) ? priceEtb : 0,
+                  t("common.currencyEtb"),
+                )}
               </p>
               {perSqm !== null ? (
                 <p className="font-sans text-label-sm font-semibold text-secondary">
-                  {formatEtb(Math.round(perSqm))} / m²
+                  {formatEtb(Math.round(perSqm), t("common.currencyEtb"))}
+                  {t("listing.perSqm")}
                 </p>
               ) : null}
             </div>

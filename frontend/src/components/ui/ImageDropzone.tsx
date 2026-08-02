@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, type DragEvent, type ChangeEvent } from "react";
+import { useLanguage } from "@/i18n/LanguageContext";
 import { Icon } from "./Icon";
 import { Button } from "./Button";
 import { cn } from "./cn";
@@ -49,11 +50,14 @@ export function ImageDropzone({
   onChange,
   max = 10,
   className,
-  label = "Photos",
-  hint = "Up to 10 images. JPEG or PNG.",
+  label,
+  hint,
 }: ImageDropzoneProps) {
+  const { t } = useLanguage();
   const inputRef = useRef<HTMLInputElement>(null);
   const remaining = Math.max(0, max - value.length);
+  const resolvedLabel = label ?? t("listings.new.fields.photos");
+  const resolvedHint = hint ?? t("listings.new.photosHint");
 
   async function addFiles(fileList: FileList | null) {
     if (!fileList || remaining === 0) return;
@@ -86,9 +90,11 @@ export function ImageDropzone({
     <div className={cn("space-y-4", className)}>
       <div>
         <p className="mb-1 font-sans text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60">
-          {label}
+          {resolvedLabel}
         </p>
-        <p className="font-body text-body-md text-on-surface-variant">{hint}</p>
+        <p className="font-body text-body-md text-on-surface-variant">
+          {resolvedHint}
+        </p>
       </div>
 
       <div
@@ -98,7 +104,10 @@ export function ImageDropzone({
       >
         <Icon name="add_photo_alternate" className="text-4xl text-outline" />
         <p className="font-body text-body-md text-on-surface-variant">
-          Drag photos here, or choose files ({remaining} remaining)
+          {t("listings.new.dropzone.prompt").replace(
+            "{remaining}",
+            String(remaining),
+          )}
         </p>
         <Button
           type="button"
@@ -106,7 +115,7 @@ export function ImageDropzone({
           disabled={remaining === 0}
           onClick={() => inputRef.current?.click()}
         >
-          Choose images
+          {t("listings.new.dropzone.choose")}
         </Button>
         <input
           ref={inputRef}
@@ -136,7 +145,10 @@ export function ImageDropzone({
               </span>
               <button
                 type="button"
-                aria-label={`Remove ${item.name}`}
+                aria-label={t("listings.new.dropzone.removeA11y").replace(
+                  "{name}",
+                  item.name,
+                )}
                 onClick={() => removeAt(item.id)}
                 className="absolute right-1 top-1 flex h-8 w-8 items-center justify-center border border-outline-variant bg-surface text-on-surface hover:bg-error-container"
               >

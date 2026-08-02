@@ -27,16 +27,19 @@ import {
   type SellerPublicProfile,
 } from "@/lib/mocks";
 
-function formatResponseTime(minutes: number): string {
+function formatResponseTime(
+  minutes: number,
+  t: (key: string) => string,
+): string {
   if (minutes < 60) {
     const rounded = Math.max(5, Math.round(minutes / 5) * 5);
-    return `~${rounded} min`;
+    return t("sellers.responseTime.minutes").replace("{n}", String(rounded));
   }
   if (minutes < 120) {
-    return "< 2 Hours";
+    return t("sellers.responseTime.under2Hours");
   }
   const hours = Math.round(minutes / 60);
-  return `~${hours} Hours`;
+  return t("sellers.responseTime.hours").replace("{n}", String(hours));
 }
 
 function formatViews(count: number): string {
@@ -260,7 +263,7 @@ export default function SellerProfilePage() {
             value={
               responseMinutes == null
                 ? t("sellers.newAgency")
-                : formatResponseTime(responseMinutes)
+                : formatResponseTime(responseMinutes, t)
             }
             tone="secondary"
           />

@@ -6,6 +6,7 @@ import {
   type InputHTMLAttributes,
   type ReactNode,
 } from "react";
+import { useLanguage } from "@/i18n/LanguageContext";
 import { Icon } from "./Icon";
 import { cn } from "./cn";
 
@@ -35,6 +36,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   { variant = "underline", className, type = "text", label, id, ...props },
   ref,
 ) {
+  const { t } = useLanguage();
   const [revealed, setRevealed] = useState(false);
   const isPassword = type === "password";
   const inputType = isPassword && revealed ? "text" : type;
@@ -61,7 +63,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         <button
           type="button"
           tabIndex={-1}
-          aria-label={revealed ? "Hide password" : "Show password"}
+          aria-label={
+            revealed ? t("a11y.hidePassword") : t("a11y.showPassword")
+          }
           aria-pressed={revealed}
           onClick={() => setRevealed((prev) => !prev)}
           className="absolute bottom-2 right-0 inline-flex h-8 w-8 items-center justify-center text-on-surface-variant hover:text-primary"

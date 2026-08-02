@@ -57,7 +57,7 @@ function SellerDashboard() {
       role="SELLER"
       title={t("dashboard.seller.welcome").replace(
         "{name}",
-        user?.name?.split(" ")[0] ?? "Seller",
+        user?.name?.split(" ")[0] ?? t("dashboard.seller.defaultName"),
       )}
       actions={
         <>

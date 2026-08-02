@@ -59,8 +59,8 @@ export type ListingCardProps = {
 
 const CAROUSEL_MS = 1200;
 
-function formatEtb(amount: number): string {
-  return `${amount.toLocaleString("en-ET")} ETB`;
+function formatEtb(amount: number, currency: string): string {
+  return `${amount.toLocaleString("en-ET")} ${currency}`;
 }
 
 function resolveImages(
@@ -317,11 +317,12 @@ export function ListingCard({
             </h3>
             <div className="shrink-0 text-right">
               <p className="font-sans text-label-md font-bold text-on-surface">
-                {formatEtb(priceEtb)}
+                {formatEtb(priceEtb, t("common.currencyEtb"))}
               </p>
               {showPerSqm ? (
                 <p className="mt-0.5 font-sans text-label-sm text-on-surface-variant">
-                  {formatEtb(Math.round(pricePerSqm))} / m²
+                  {formatEtb(Math.round(pricePerSqm), t("common.currencyEtb"))}
+                  {t("listing.perSqm")}
                 </p>
               ) : null}
             </div>
@@ -350,7 +351,8 @@ export function ListingCard({
             {areaSqm != null && Number.isFinite(areaSqm) && areaSqm > 0 ? (
               <span className="inline-flex items-center gap-1.5">
                 <Icon name="square_foot" className="text-base" />
-                {Math.round(areaSqm)} m²
+                {Math.round(areaSqm)}
+                {t("listing.areaSqm")}
               </span>
             ) : null}
           </div>

@@ -140,7 +140,7 @@ export default function SignInPage() {
               setPendingLogin(null);
               setRoleMismatch(null);
             }}
-            placeholder="0912345678 or you@example.com"
+            placeholder={t("auth.placeholders.phoneOrEmail")}
             required
           />
 

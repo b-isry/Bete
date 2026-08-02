@@ -28,12 +28,12 @@ import {
 } from "@/lib/hooks";
 import { PLACEHOLDER_IMAGE } from "@/lib/mocks";
 
-function formatCompactEtb(amount: string): string {
+function formatCompactEtb(amount: string, currency: string): string {
   const n = Number(amount);
   if (!Number.isFinite(n)) return "—";
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M ETB`;
-  if (n >= 1_000) return `${Math.round(n / 1_000)}k ETB`;
-  return `${n.toLocaleString("en-ET")} ETB`;
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M ${currency}`;
+  if (n >= 1_000) return `${Math.round(n / 1_000)}k ${currency}`;
+  return `${n.toLocaleString("en-ET")} ${currency}`;
 }
 
 function flagTone(flagType: string): "error" | "gold" | "forest" | "neutral" {
@@ -68,7 +68,7 @@ export default function AdminOverviewPage() {
       await moderateListing(
         id,
         action,
-        action === "REJECT" ? "Rejected from platform overview" : undefined,
+        action === "REJECT" ? t("admin.moderate.rejectReasonOverview") : undefined,
       );
       push(
         action === "APPROVE"
@@ -133,7 +133,10 @@ export default function AdminOverviewPage() {
         <StatCard
           tone="secondary"
           label={t("admin.overview.revenue")}
-          value={formatCompactEtb(totals?.monthly_revenue_etb ?? "0")}
+          value={formatCompactEtb(
+            totals?.monthly_revenue_etb ?? "0",
+            t("common.currencyEtb"),
+          )}
           trend={{ value: "5.2%", direction: "up" }}
         />
       </section>
@@ -227,7 +230,8 @@ export default function AdminOverviewPage() {
                             {item.title}
                           </p>
                           <p className="font-sans text-label-sm text-on-surface-variant">
-                            ID: {item.id.slice(0, 8)}
+                            {t("admin.table.idPrefix")}
+                            {item.id.slice(0, 8)}
                           </p>
                         </div>
                       </div>
@@ -253,7 +257,7 @@ export default function AdminOverviewPage() {
                     <TableCell>
                       <div className="flex flex-wrap gap-2">
                         {item.flags.length === 0 ? (
-                          <Chip tone="forest">Clear</Chip>
+                          <Chip tone="forest">{t("admin.moderation.cleanPass")}</Chip>
                         ) : (
                           item.flags.map((flag) => (
                             <Chip key={flag.id} tone={flagTone(flag.flag_type)}>

@@ -286,7 +286,7 @@ export default function VerificationWizardPage() {
                   onChange={(e) =>
                     setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
                   }
-                  placeholder="000000"
+                  placeholder={t("auth.placeholders.otp")}
                   required
                 />
               </label>

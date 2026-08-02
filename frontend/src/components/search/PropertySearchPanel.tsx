@@ -112,9 +112,11 @@ export function PropertySearchPanel({
   const result = data ?? (error ? MOCK_SEARCH_RESULT : undefined);
   const items = result?.items ?? [];
   const totalPages = result?.pagination.totalPages ?? 1;
+  const resultCount = result?.pagination.total ?? items.length;
   const summaryText =
-    result?.summary ??
-    (isLoading ? t("search.searching") : MOCK_SEARCH_RESULT.summary);
+    isLoading && !result
+      ? t("search.searching")
+      : t("search.resultsSummary").replace("{count}", String(resultCount));
   const usingFallback = Boolean(error && !data);
 
   return (

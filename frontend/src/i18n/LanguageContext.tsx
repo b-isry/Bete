@@ -83,12 +83,19 @@ function resolveKey(dictionary: Dictionary, key: string): string | undefined {
   return typeof current === "string" ? current : undefined;
 }
 
+/** Strip leading // line comments so locale files can carry review notes. */
+function parseLocaleJson(raw: string): Dictionary {
+  const withoutComments = raw.replace(/^\uFEFF?(?:\/\/[^\r\n]*\r?\n)+/, "");
+  return JSON.parse(withoutComments) as Dictionary;
+}
+
 async function loadDictionary(locale: Locale): Promise<Dictionary> {
   const response = await fetch(`/locales/${locale}/common.json`);
   if (!response.ok) {
     throw new Error(`Failed to load locale: ${locale}`);
   }
-  return (await response.json()) as Dictionary;
+  const raw = await response.text();
+  return parseLocaleJson(raw);
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {

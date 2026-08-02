@@ -20,11 +20,16 @@ import { PLACEHOLDER_IMAGE, type PendingListing } from "@/lib/mocks";
 
 type FilterTab = "pending" | "flagged" | "reported";
 
-function relativeTime(iso: string): string {
+function relativeTime(iso: string, t: (key: string) => string): string {
   const delta = Date.now() - new Date(iso).getTime();
   const hours = Math.max(1, Math.round(delta / 3_600_000));
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.round(hours / 24)}d ago`;
+  if (hours < 24) {
+    return t("notifications.time.hoursAgo").replace("{n}", String(hours));
+  }
+  return t("notifications.time.daysAgo").replace(
+    "{n}",
+    String(Math.round(hours / 24)),
+  );
 }
 
 export default function PendingListingsPage() {
@@ -62,7 +67,7 @@ export default function PendingListingsPage() {
       await moderateListing(
         listing.id,
         action,
-        action === "REJECT" ? "Does not meet marketplace standards" : undefined,
+        action === "REJECT" ? t("admin.moderate.rejectReasonDefault") : undefined,
       );
       push(
         action === "APPROVE"
@@ -209,7 +214,8 @@ export default function PendingListingsPage() {
                     <Icon name="psychology" className="text-lg text-error" />
                     <div>
                       <p className="font-sans text-label-md text-on-error-container">
-                        AI Flag: {listing.flags[0].flag_type.replace(/_/g, " ")}
+                        {t("admin.moderation.aiFlagLabel")}
+                        {listing.flags[0].flag_type.replace(/_/g, " ")}
                       </p>
                       <p className="text-[11px] leading-relaxed text-on-surface-variant">
                         {listing.flags[0].message}
@@ -262,7 +268,7 @@ export default function PendingListingsPage() {
                 </div>
                 <p className="text-center font-sans text-[10px] uppercase text-outline">
                   {t("admin.moderation.submitted")}{" "}
-                  {relativeTime(listing.created_at)}
+                  {relativeTime(listing.created_at, t)}
                 </p>
               </div>
             </article>
