@@ -106,6 +106,13 @@ enum OtpPurpose {
   PHONE_CHANGE
 }
 
+enum NotificationType {
+  LISTING_EXPIRING
+  SAVED_SEARCH_MATCH
+  VERIFICATION_APPROVED
+  VERIFICATION_REJECTED
+}
+
 // ---------------------------------------------------------------------------
 // Models
 // ---------------------------------------------------------------------------
@@ -426,15 +433,16 @@ model AdminActionLog {
 }
 
 model Notification {
-  id         String    @id @default(uuid()) @db.Uuid
-  user_id    String    @db.Uuid
-  type       String
+  id         String           @id @default(uuid()) @db.Uuid
+  user_id    String           @db.Uuid
+  type       NotificationType
   title      String
-  body       String    @db.Text
+  body       String           @db.Text
+  link_url   String?
   read_at    DateTime?
-  created_at DateTime  @default(now())
+  created_at DateTime         @default(now())
 
   user User @relation(fields: [user_id], references: [id])
 
-  @@index([user_id, created_at])
+  @@index([user_id, read_at])
 }
