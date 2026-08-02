@@ -128,6 +128,47 @@ export const MY_LISTINGS_PATH = "/properties?seller_id=me";
 /** Favorites — GET/POST/DELETE /favorites */
 export const FAVORITES_PATH = "/favorites";
 
+/** Notifications — GET /notifications, PATCH …/read, PATCH …/read-all */
+export const NOTIFICATIONS_PATH = "/notifications";
+
+export type NotificationType =
+  | "LISTING_EXPIRING"
+  | "SAVED_SEARCH_MATCH"
+  | "VERIFICATION_APPROVED"
+  | "VERIFICATION_REJECTED";
+
+export type AppNotification = {
+  id: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  link_url: string | null;
+  read_at: string | null;
+  created_at: string;
+};
+
+export type NotificationsResult = {
+  items: AppNotification[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+export async function markNotificationRead(
+  notificationId: string,
+): Promise<{ id: string; read_at: string }> {
+  return apiPatch(`${NOTIFICATIONS_PATH}/${notificationId}/read`, {});
+}
+
+export async function markAllNotificationsRead(): Promise<{
+  updatedCount: number;
+}> {
+  return apiPatch(`${NOTIFICATIONS_PATH}/read-all`, {});
+}
+
 export async function apiDelete<T>(path: string): Promise<T> {
   const res = await fetch(toUrl(path), {
     method: "DELETE",

@@ -12,6 +12,8 @@ import {
   apiFetcher,
   FAVORITES_PATH,
   MY_LISTINGS_PATH,
+  NOTIFICATIONS_PATH,
+  type NotificationsResult,
 } from "@/lib/api";
 import {
   MOCK_ADMIN_ANALYTICS,
@@ -77,6 +79,19 @@ export function useFavorites() {
     shouldRetryOnError: false,
     fallbackData: { favorites: MOCK_FAVORITES },
   });
+}
+
+/** Polls every 60s and on window focus. Pass false when signed out. */
+export function useNotifications(enabled: boolean) {
+  return useSWR<NotificationsResult>(
+    enabled ? `${NOTIFICATIONS_PATH}?page=1&limit=20` : null,
+    apiAuthFetcher,
+    {
+      shouldRetryOnError: false,
+      refreshInterval: 60_000,
+      revalidateOnFocus: true,
+    },
+  );
 }
 
 export function useMessageThreads() {
