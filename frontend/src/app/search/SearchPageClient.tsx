@@ -11,10 +11,11 @@ export default function SearchPage() {
   const searchParams = useSearchParams();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-visible">
       <PropertySearchPanel
         initialKeyword={searchParams.get("keyword") ?? ""}
         initialPropertyType={searchParams.get("property_type") ?? "all"}
+        initialCityId={searchParams.get("city_id")}
         initialMinPrice={searchParams.get("min_price")}
         initialMaxPrice={searchParams.get("max_price")}
         initialBedrooms={searchParams.get("bedrooms")}

@@ -46,7 +46,8 @@ export default function RootLayout({
         <LanguageProvider>
           <ToastProvider>
             <Header />
-            <main>{children}</main>
+            {/* overflow-visible: sticky search chrome needs an unbroken ancestor chain */}
+            <main className="overflow-visible">{children}</main>
             <Footer />
           </ToastProvider>
         </LanguageProvider>

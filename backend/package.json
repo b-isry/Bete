@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --inspect=0.0.0.0:9229 --respawn --transpile-only src/server.ts",
     "build": "tsc",
+    "render-build": "npm install && npx prisma generate && npm run build && npx prisma migrate deploy",
     "start": "node dist/server.js",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -42,6 +43,7 @@
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.0",
     "node-cron": "^4.6.0",
+    "openai": "^6.49.0",
     "winston": "^3.17.0",
     "zod": "^3.24.2"
   },

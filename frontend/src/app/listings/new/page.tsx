@@ -23,7 +23,6 @@ import {
   type PropertyCreatePayload,
 } from "@/lib/api";
 import { useCategories, useCities } from "@/lib/hooks";
-import { mockAiDescription } from "@/lib/mocks";
 
 export default function NewListingPage() {
   const { t, locale } = useLanguage();
@@ -70,22 +69,26 @@ export default function NewListingPage() {
   async function onWriteForMe() {
     setAiBusy(true);
     try {
+      const selectedCity = cities.find((c) => String(c.id) === cityId);
       const result = await aiWriteDescription({
-        title: title || "Property",
-        location_text: locationText || "Addis Ababa",
+        title: title.trim() || undefined,
+        location_text: locationText.trim() || undefined,
         property_type: propertyType,
+        deal_type: dealType,
+        price: price.trim() || undefined,
+        bedrooms: bedrooms.trim() ? Number(bedrooms) : undefined,
+        bathrooms: bathrooms.trim() ? Number(bathrooms) : undefined,
+        area_sqm: areaSqm.trim() || undefined,
+        city_name: selectedCity?.name,
       });
       setDescription(result.description);
       push(t("listings.new.aiDone"), "success");
-    } catch {
-      setDescription(
-        mockAiDescription({
-          title: title || "Property",
-          location_text: locationText || "Addis Ababa",
-          property_type: propertyType,
-        }),
-      );
-      push(t("listings.new.aiFallback"), "info");
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : t("listings.new.aiError");
+      push(message, "error");
     } finally {
       setAiBusy(false);
     }
@@ -194,7 +197,14 @@ export default function NewListingPage() {
                   void onWriteForMe();
                 }}
               >
-                <Icon name="auto_awesome" />
+                {aiBusy ? (
+                  <span
+                    className="inline-block h-4 w-4 animate-spin border-2 border-current border-t-transparent"
+                    aria-hidden
+                  />
+                ) : (
+                  <Icon name="auto_awesome" />
+                )}
                 {t("listings.new.writeForMe")}
               </Button>
             </div>

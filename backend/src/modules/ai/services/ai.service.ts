@@ -87,7 +87,9 @@ export async function parseSearchQuery(
       ],
     });
   } catch (err) {
-    logger.error('OpenAI parseSearchQuery failed', err);
+    logger.error(
+      `OpenAI parseSearchQuery failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
     throw new BadGatewayError('AI search parsing failed. Please try again.');
   }
 
@@ -105,8 +107,14 @@ export async function parseSearchQuery(
     const valid = cityCatalog.some((c) => c.id === filters.city_id);
     if (!valid) {
       // Drop hallucinated city ids rather than failing the whole request.
-      const { city_id: _dropped, ...rest } = filters;
-      return rest;
+      return {
+        property_type: filters.property_type,
+        min_price: filters.min_price,
+        max_price: filters.max_price,
+        bedrooms: filters.bedrooms,
+        bathrooms: filters.bathrooms,
+        keyword: filters.keyword,
+      };
     }
   }
 
@@ -167,7 +175,9 @@ export async function generateDescription(
       ],
     });
   } catch (err) {
-    logger.error('OpenAI generateDescription failed', err);
+    logger.error(
+      `OpenAI generateDescription failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
     throw new BadGatewayError('AI description generation failed. Please try again.');
   }
 

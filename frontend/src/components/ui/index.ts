@@ -63,7 +63,7 @@ export {
   type PriceRangeSliderProps,
   type PriceRange,
 } from "./PriceRangeSlider";
-export { AIFinderBox, type AIFinderBoxProps } from "./AIFinderBox";
+export { AIFinderBox, type AIFinderBoxProps, type AiParseResult } from "./AIFinderBox";
 export { ListingCard, type ListingCardProps } from "./ListingCard";
 export { MapEmbed, type MapEmbedProps } from "./MapEmbed";
 export { ScoreRing, type ScoreRingProps } from "./ScoreRing";

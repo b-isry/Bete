@@ -28,6 +28,7 @@ export type PropertySearchPanelProps = {
   /** Optional URL-driven defaults (used by /search). */
   initialKeyword?: string;
   initialPropertyType?: string;
+  initialCityId?: string | null;
   initialMinPrice?: string | null;
   initialMaxPrice?: string | null;
   initialBedrooms?: string | null;
@@ -45,6 +46,7 @@ export function PropertySearchPanel({
   sellerUsername,
   initialKeyword = "",
   initialPropertyType = "all",
+  initialCityId = null,
   initialMinPrice = null,
   initialMaxPrice = null,
   initialBedrooms = null,
@@ -57,7 +59,7 @@ export function PropertySearchPanel({
   const cities = citiesData?.items ?? [];
 
   const [dealType, setDealType] = useState<"SALE" | "RENT" | "all">("SALE");
-  const [cityId, setCityId] = useState("all");
+  const [cityId, setCityId] = useState(initialCityId ?? "all");
   const [keyword, setKeyword] = useState(initialKeyword);
   const [category, setCategory] = useState(initialPropertyType);
   const [bedrooms, setBedrooms] = useState(initialBedrooms ?? "all");
@@ -122,7 +124,7 @@ export function PropertySearchPanel({
   return (
     <div className={className}>
       {!compactHeader ? (
-        <div className="sticky top-[var(--header-height)] z-40 border-b border-outline-variant/30 bg-surface px-6 py-4 sm:px-10 lg:px-16">
+        <div className="md:sticky md:top-[var(--header-height)] z-30 border-b border-outline-variant/30 bg-surface px-6 py-4 sm:px-10 lg:px-16">
           <div className="mx-auto flex max-w-7xl items-center gap-4">
             <div className="flex flex-1 items-center gap-3 border border-outline-variant/50 bg-surface-container-low px-4">
               <Icon name="explore" className="text-outline" />

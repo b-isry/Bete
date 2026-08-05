@@ -3,32 +3,100 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import useSWRMutation from "swr/mutation";
-import { AI_PARSE_PATH, apiPost } from "@/lib/api";
-import { mockAiParse, type AiParseResult } from "@/lib/mocks";
+import {
+  AI_PARSE_PATH,
+  aiParseQuery,
+  ApiError,
+  type AiParseFilters,
+} from "@/lib/api";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "./Button";
 import { Chip } from "./Chip";
 import { Icon } from "./Icon";
 import { cn } from "./cn";
 
+export type AiParseResult = AiParseFilters & {
+  chips: string[];
+  summary: string;
+};
+
 export type AIFinderBoxProps = {
   onSubmit?: (query: string, parsed: AiParseResult) => void;
-  /** When true, navigate to /search after parse */
+  /** When true, navigate to /search after parse (default). */
   navigateOnSubmit?: boolean;
   placeholder?: string;
   className?: string;
 };
 
+function formatPriceChip(value: number): string {
+  if (value >= 1_000_000) {
+    const millions = value / 1_000_000;
+    const label =
+      Number.isInteger(millions) ? String(millions) : millions.toFixed(1);
+    return `${label}M ETB`;
+  }
+  return `${value.toLocaleString("en-ET")} ETB`;
+}
+
+export function buildAiParseResult(filters: AiParseFilters): AiParseResult {
+  const chips: string[] = [];
+  if (filters.property_type) chips.push(filters.property_type);
+  if (filters.city_id != null) chips.push(`City #${filters.city_id}`);
+  if (filters.bedrooms != null) chips.push(`${filters.bedrooms} Bedrooms`);
+  if (filters.bathrooms != null) chips.push(`${filters.bathrooms} Bathrooms`);
+  if (filters.min_price != null) {
+    chips.push(`From ${formatPriceChip(filters.min_price)}`);
+  }
+  if (filters.max_price != null) {
+    chips.push(`Under ${formatPriceChip(filters.max_price)}`);
+  }
+  if (filters.keyword) chips.push(filters.keyword);
+  if (chips.length === 0) chips.push("Natural language query");
+
+  const parts: string[] = [];
+  if (filters.property_type) parts.push(filters.property_type.toLowerCase());
+  if (filters.bedrooms != null) parts.push(`${filters.bedrooms}-bedroom`);
+  if (filters.city_id != null) parts.push(`in city ${filters.city_id}`);
+  if (filters.max_price != null) {
+    parts.push(`up to ${formatPriceChip(filters.max_price)}`);
+  } else if (filters.min_price != null) {
+    parts.push(`from ${formatPriceChip(filters.min_price)}`);
+  }
+
+  return {
+    ...filters,
+    chips,
+    summary:
+      parts.length > 0
+        ? `Looking for ${parts.join(" ")}.`
+        : "Parsed your search. Refine filters on the results page if needed.",
+  };
+}
+
+function filtersToSearchParams(filters: AiParseFilters): URLSearchParams {
+  const params = new URLSearchParams();
+  if (filters.keyword) params.set("keyword", filters.keyword);
+  if (filters.property_type) params.set("property_type", filters.property_type);
+  if (filters.city_id != null) params.set("city_id", String(filters.city_id));
+  if (filters.min_price != null) {
+    params.set("min_price", String(filters.min_price));
+  }
+  if (filters.max_price != null) {
+    params.set("max_price", String(filters.max_price));
+  }
+  if (filters.bedrooms != null) params.set("bedrooms", String(filters.bedrooms));
+  if (filters.bathrooms != null) {
+    params.set("bathrooms", String(filters.bathrooms));
+  }
+  return params;
+}
+
 async function parseQuery(
   _key: string,
   { arg }: { arg: string },
 ): Promise<AiParseResult> {
-  try {
-    return await apiPost<AiParseResult>(AI_PARSE_PATH, { query: arg });
-  } catch {
-    // Endpoint not shipped yet — local heuristic fallback (kept intentionally).
-    return mockAiParse(arg);
-  }
+  const filters = await aiParseQuery(arg);
+  return buildAiParseResult(filters);
 }
 
 /**
@@ -37,7 +105,7 @@ async function parseQuery(
  */
 export function AIFinderBox({
   onSubmit,
-  navigateOnSubmit = false,
+  navigateOnSubmit = true,
   placeholder,
   className,
 }: AIFinderBoxProps) {
@@ -45,6 +113,7 @@ export function AIFinderBox({
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [parsed, setParsed] = useState<AiParseResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { trigger, isMutating } = useSWRMutation(AI_PARSE_PATH, parseQuery);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -54,26 +123,20 @@ export function AIFinderBox({
       return;
     }
 
-    const result = await trigger(trimmed);
-    setParsed(result);
-    onSubmit?.(trimmed, result);
+    setError(null);
+    try {
+      const result = await trigger(trimmed);
+      setParsed(result);
+      onSubmit?.(trimmed, result);
 
-    if (navigateOnSubmit) {
-      const params = new URLSearchParams();
-      params.set("keyword", result.keyword);
-      if (result.filters?.property_type) {
-        params.set("property_type", result.filters.property_type);
+      if (navigateOnSubmit) {
+        const params = filtersToSearchParams(result);
+        router.push(`/search?${params.toString()}`);
       }
-      if (result.filters?.min_price) {
-        params.set("min_price", result.filters.min_price);
-      }
-      if (result.filters?.max_price) {
-        params.set("max_price", result.filters.max_price);
-      }
-      if (result.filters?.bedrooms) {
-        params.set("bedrooms", String(result.filters.bedrooms));
-      }
-      router.push(`/search?${params.toString()}`);
+    } catch (err) {
+      const message =
+        err instanceof ApiError ? err.message : t("aiFinder.error");
+      setError(message);
     }
   }
 
@@ -91,7 +154,8 @@ export function AIFinderBox({
             onChange={(event) => setQuery(event.target.value)}
             rows={2}
             placeholder={placeholder ?? t("aiFinder.placeholder")}
-            className="w-full resize-none bg-transparent pb-4 pr-14 font-serif text-headline-sm italic text-on-surface placeholder:text-outline focus:outline-none md:text-headline-md"
+            disabled={isMutating}
+            className="w-full resize-none bg-transparent pb-4 pr-14 font-serif text-headline-sm italic text-on-surface placeholder:text-outline focus:outline-none disabled:opacity-60 md:text-headline-md"
           />
           <Button
             type="submit"
@@ -100,15 +164,27 @@ export function AIFinderBox({
             className="absolute bottom-3 right-0 h-10 w-10 px-0 text-primary-container hover:text-primary"
             disabled={!query.trim() || isMutating}
           >
-            <Icon name="arrow_forward" className="text-headline-sm leading-none" />
+            {isMutating ? (
+              <span
+                className="inline-block h-5 w-5 animate-spin border-2 border-primary border-t-transparent"
+                aria-hidden
+              />
+            ) : (
+              <Icon name="arrow_forward" className="text-headline-sm leading-none" />
+            )}
           </Button>
         </div>
         <p className="mt-4 font-sans text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60">
-          {t("aiFinder.hint")}
+          {isMutating ? t("aiFinder.parsing") : t("aiFinder.hint")}
         </p>
+        {error ? (
+          <p className="mt-3 font-body text-body-md text-error" role="alert">
+            {error}
+          </p>
+        ) : null}
       </form>
 
-      {parsed ? (
+      {parsed && !navigateOnSubmit ? (
         <div className="mt-10 border border-outline-variant bg-surface-container p-8">
           <div className="mb-6 flex items-center gap-3">
             <Icon name="auto_awesome" className="text-secondary" />
