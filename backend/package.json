@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --inspect=0.0.0.0:9229 --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "render-build": "npm install && npx prisma generate && npm run build && npx prisma migrate deploy",
+    "render-build": "npm install --include=dev && npx prisma generate && npm run build && npx prisma migrate deploy",
     "start": "node dist/server.js",
     "test": "jest",
     "test:watch": "jest --watch",
