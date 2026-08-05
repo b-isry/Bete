@@ -15,6 +15,7 @@ import {
   Icon,
   ImageDropzone,
   Input,
+  MockDataNotice,
   Skeleton,
   useToast,
   type ImageDropzoneItem,
@@ -31,9 +32,6 @@ import { useAuthMe } from "@/lib/hooks";
 const OTP_WINDOW_MS = 15 * 60 * 1000;
 const OTP_MAX_PER_WINDOW = 3;
 const BETWEEN_SEND_MS = Math.floor(OTP_WINDOW_MS / OTP_MAX_PER_WINDOW);
-/** Placeholder CDN URL until ImageDropzone wires real storage (same as listings/new). */
-const PLACEHOLDER_DOC_URL =
-  "https://images.unsplash.com/photo-1568667256549-094345857637?w=800&q=80";
 
 function formatCountdown(ms: number): string {
   const totalSec = Math.max(0, Math.ceil(ms / 1000));
@@ -46,7 +44,7 @@ export default function VerificationWizardPage() {
   const { t } = useLanguage();
   const router = useRouter();
   const { push } = useToast();
-  const { data, isLoading, mutate } = useAuthMe("SELLER");
+  const { data, isLoading, mutate, isMockFallback } = useAuthMe("SELLER");
   const user = data?.user;
 
   const [step, setStep] = useState<1 | 2>(1);
@@ -172,14 +170,22 @@ export default function VerificationWizardPage() {
 
   async function onSubmitDocument(e: FormEvent) {
     e.preventDefault();
-    if (documents.length === 0) {
-      push(t("dashboard.verification.needDocument"), "error");
+    const document = documents.find(
+      (doc) => doc.status === "done" && doc.key,
+    );
+    if (!document) {
+      push(
+        documents.some((doc) => doc.status === "uploading")
+          ? t("upload.waitForUploads")
+          : t("dashboard.verification.needDocument"),
+        "error",
+      );
       return;
     }
-    const raw = documents[0].image_url;
-    const id_document_url = raw.startsWith("blob:")
-      ? PLACEHOLDER_DOC_URL
-      : raw;
+
+    // ID documents stay private: the DB stores the object key, and the admin
+    // queue resolves it to a short-lived presigned URL at read time.
+    const id_document_url = document.key as string;
 
     setDocBusy(true);
     try {
@@ -208,6 +214,7 @@ export default function VerificationWizardPage() {
 
   return (
     <DashboardShell role="SELLER" title={t("dashboard.verification.title")}>
+      <MockDataNotice endpoints={isMockFallback ? ["/auth/me"] : []} />
       <p className="mb-2 font-sans text-label-sm uppercase tracking-[0.2em] text-secondary">
         {t("dashboard.verification.eyebrow")}
       </p>
@@ -336,7 +343,7 @@ export default function VerificationWizardPage() {
             <ImageDropzone
               value={documents}
               onChange={setDocuments}
-              max={1}
+              category="ID_DOCUMENT"
               label={t("dashboard.verification.docLabel")}
               hint={t("dashboard.verification.docHint")}
             />

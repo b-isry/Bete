@@ -7,13 +7,16 @@ import {
   DashboardShell,
   Icon,
   ListingCard,
+  MockDataNotice,
   ScoreRing,
   StatCard,
   StatusPill,
 } from "@/components/ui";
 import { VerificationStatusCard } from "@/components/dashboard/VerificationStatusCard";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { MY_LISTINGS_PATH } from "@/lib/api";
 import { useAuthMe, useMyListings, useTopSellers } from "@/lib/hooks";
+import { activeMockEndpoints } from "@/lib/mock-fallback";
 import { BuyerDashboard } from "./BuyerDashboard";
 
 /**
@@ -22,7 +25,6 @@ import { BuyerDashboard } from "./BuyerDashboard";
  *        (listings path placeholder — mock fallback) for per-listing stats.
  */
 export default function DashboardPage() {
-  const { t } = useLanguage();
   const { data: meData } = useAuthMe("SELLER");
   const user = meData?.user;
   const role = user?.role ?? "USER";
@@ -36,9 +38,9 @@ export default function DashboardPage() {
 
 function SellerDashboard() {
   const { t } = useLanguage();
-  const { data: meData } = useAuthMe("SELLER");
+  const { data: meData, isMockFallback: authMock } = useAuthMe("SELLER");
   const { data: top } = useTopSellers();
-  const { data: listingsData } = useMyListings();
+  const { data: listingsData, isMockFallback: listingsMock } = useMyListings();
 
   const user = meData?.user;
   const ownRank = top?.sellers.find(
@@ -51,6 +53,10 @@ function SellerDashboard() {
   const totalViews = listings.reduce((sum, l) => sum + l.view_count, 0);
   const totalContacts = listings.reduce((sum, l) => sum + l.contact_count, 0);
   const score = ownRank?.score ?? 85;
+  const mockEndpoints = activeMockEndpoints(
+    ["/auth/me", authMock],
+    [MY_LISTINGS_PATH, listingsMock],
+  );
 
   return (
     <DashboardShell
@@ -74,6 +80,7 @@ function SellerDashboard() {
         </>
       }
     >
+      <MockDataNotice endpoints={mockEndpoints} />
       <p className="mb-8 font-sans text-label-sm uppercase tracking-widest text-secondary">
         {t("dashboard.seller.eyebrow")}
         {ownRank ? ` · #${ownRank.rank} · ${ownRank.stat_line}` : ""}

@@ -10,10 +10,13 @@ import {
   EmptyState,
   Icon,
   ListingCard,
+  MockDataNotice,
   StatusPill,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { FAVORITES_PATH } from "@/lib/api";
 import { useAuthMe, useFavorites } from "@/lib/hooks";
+import { activeMockEndpoints } from "@/lib/mock-fallback";
 
 /**
  * P8 — Buyer profile dashboard (`bete_user_profile_dashboard`)
@@ -22,10 +25,14 @@ import { useAuthMe, useFavorites } from "@/lib/hooks";
  */
 export function BuyerDashboard() {
   const { t } = useLanguage();
-  const { data: meData } = useAuthMe("USER");
-  const { data: favData } = useFavorites();
+  const { data: meData, isMockFallback: authMock } = useAuthMe("USER");
+  const { data: favData, isMockFallback: favMock } = useFavorites();
   const user = meData?.user;
   const favorites = favData?.favorites ?? [];
+  const mockEndpoints = activeMockEndpoints(
+    ["/auth/me", authMock],
+    [FAVORITES_PATH, favMock],
+  );
   const memberSince = user?.created_at
     ? new Date(user.created_at).toLocaleDateString("en-ET", {
         month: "long",
@@ -40,6 +47,7 @@ export function BuyerDashboard() {
 
   return (
     <DashboardShell role="USER">
+      <MockDataNotice endpoints={mockEndpoints} />
       <header className="mb-10 border-b border-outline-variant/30 pb-10">
         <div className="flex flex-col items-start gap-8 md:flex-row md:items-center">
           <Avatar

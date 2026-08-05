@@ -308,7 +308,7 @@
       "verifyFailed": "ኮድ ምርግጋጽ ኣይተኻእለን።",
       "docIntro": "ንጹር ስእሊ ናይ ሃገራዊ መንነት ወይ ፓስፖርትኩም ስቐሉ።",
       "docLabel": "ናይ መንነት ሰነድ",
-      "docHint": "ሓደ ስእሊ። JPEG ወይ PNG።",
+      "docHint": "ሓደ ፋይል። JPEG፣ PNG፣ WebP ወይ PDF፣ ክሳብ 10ሜባ።",
       "needDocument": "ስእሊ ናይ መንነት ሰነድኩም ወስኹ።",
       "submitReview": "ንግምገማ ኣእቱ",
       "submitSuccess": "ንግምገማ ቀሪቡ።",
@@ -588,6 +588,38 @@
       "nextStepsDocs": "ንመረጋገጺ ናይ መንነት ሰነድ ወይ ፍቓድ ንግዲ ስቐሉ።"
     }
   },
+  "location": {
+    "label": "ኣከባቢ",
+    "hint": "ኣድራሻ ድለ፣ ደሓር ፒን ናብ ልክዕ ቦታ ጎትት።",
+    "searchLabel": "ኣድራሻ ድለ",
+    "searchPlaceholder": "ኣብነት፡ ቦለ መንገዲ፣ ኣዲስ ኣበባ",
+    "searching": "ይደሊ ኣሎ…",
+    "noResults": "ዝሰማማዕ ቦታ ኣይተረኽበን።",
+    "searchFailed": "ምድላይ ኣድራሻ ኣይሰርሕን። ኣብ ክንድኡ ፒን ጎትት።",
+    "addressLabel": "ኣብ ዝርዝር ዝረአ ኣድራሻ",
+    "dragHint": "ፒን ጎትት ወይ ካርታ ጠውቕ።",
+    "coordinates": "ፒን",
+    "needPin": "ኣከባቢ ንምውሳን ፒን ኣብ ካርታ ኣንብር።",
+    "needAddress": "ኣብ ዝርዝር ዝረአ ኣድራሻ ኣእቱ።",
+    "suggestionPrompt": "ኣድራሻ ናብ “{address}” ይቕየር?",
+    "suggestionAccept": "እዚ ተጠቐም",
+    "suggestionDismiss": "ናተይ ይጽናሕ"
+  },
+  "upload": {
+    "uploading": "ይስቀል ኣሎ",
+    "done": "ተሰቒሉ",
+    "failed": "ምስቓል ኣይተዓወተን",
+    "retry": "ደጊምካ ፈትን",
+    "remove": "ኣውጽእ",
+    "waitForUploads": "ምስቓል ክሳብ ዝውዳእ ተጸበ።",
+    "chooseDocument": "ሰነድ ምረጽ",
+    "documentPrompt": "ናይ መንነት ሰነድካ ናብዚ ጎትት፣ ወይ ፋይል ምረጽ (PDF ወይ ምስሊ፣ ካብ {max} ንታሕቲ)",
+    "attach": "ፋይል ኣላግብ",
+    "attachNeedsThread": "ፋይል ቅድሚ ምልጣፍ ዝርርብ ክፈት።",
+    "attachmentReady": "ንምስዳድ ተዘጋጅዩ",
+    "attachmentAlt": "መላግቦ መልእኽቲ",
+    "attachmentUnavailable": "መላግቦ ኣይርከብን"
+  },
   "listings": {
     "new": {
       "eyebrow": "ሽጥ ወይ ኣካረ",
@@ -606,7 +638,7 @@
       "error": "ንብረት ምፍጣር ኣይተኻእለን።",
       "submit": "ንግምገማ ኣእቱ",
       "pendingNote": "ኩነታት ክሳብ ዝግምገም PENDING ክኸውን እዩ።",
-      "photosHint": "ክሳብ 10 ስእልታት። JPEG ወይ PNG።",
+      "photosHint": "ክሳብ 10 ስእልታት። JPEG፣ PNG ወይ WebP፣ ነፍሲ ወከፍ ክሳብ 8ሜባ።",
       "fields": {
         "title": "ኣርእስቲ",
         "description": "መግለጺ",

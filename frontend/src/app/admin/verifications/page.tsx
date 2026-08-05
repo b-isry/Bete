@@ -7,6 +7,7 @@ import {
   Chip,
   EmptyState,
   Icon,
+  MockDataNotice,
   ScoreRing,
   StatCard,
   StatusPill,
@@ -14,7 +15,7 @@ import {
   useToast,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { verifySeller } from "@/lib/api";
+import { ADMIN_PENDING_VERIFICATIONS_PATH, verifySeller } from "@/lib/api";
 import { usePendingVerifications } from "@/lib/hooks";
 import type { PendingVerification } from "@/lib/mocks";
 
@@ -34,7 +35,7 @@ function relativeTime(iso: string, t: (key: string) => string): string {
 export default function VerificationsPage() {
   const { t } = useLanguage();
   const { push } = useToast();
-  const { data, mutate } = usePendingVerifications();
+  const { data, mutate, isMockFallback } = usePendingVerifications();
   const items = data?.items ?? [];
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -67,6 +68,7 @@ export default function VerificationsPage() {
         (current) =>
           current
             ? {
+                ...current,
                 items: current.items.filter((i) => i.id !== selected.id),
               }
             : current,
@@ -80,6 +82,13 @@ export default function VerificationsPage() {
 
   return (
     <AdminShell hideSearch title={t("admin.verify.title")}>
+      <MockDataNotice
+        endpoints={
+          isMockFallback
+            ? [`${ADMIN_PENDING_VERIFICATIONS_PATH}?page=1&limit=20`]
+            : []
+        }
+      />
       <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:max-w-xl">
         <StatCard
           tone="secondary"

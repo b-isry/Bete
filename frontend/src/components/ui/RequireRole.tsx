@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAuthMe } from "@/lib/hooks";
 import { EmptyState } from "./EmptyState";
+import { MockDataNotice } from "./MockDataNotice";
 import { Skeleton } from "./Skeleton";
 
 export type RequireRoleProps = {
@@ -26,7 +27,7 @@ export function RequireRole({
   const router = useRouter();
   const preferred =
     role === "ADMIN" ? "ADMIN" : role === "SELLER" ? "SELLER" : "USER";
-  const { data, isLoading } = useAuthMe(preferred);
+  const { data, isLoading, isMockFallback } = useAuthMe(preferred);
   const userRole = data?.user.role;
 
   if (isLoading && !data) {
@@ -58,5 +59,14 @@ export function RequireRole({
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {isMockFallback ? (
+        <div className="mx-auto max-w-6xl px-4 pt-4 md:px-8">
+          <MockDataNotice endpoints={["/auth/me"]} />
+        </div>
+      ) : null}
+      {children}
+    </>
+  );
 }

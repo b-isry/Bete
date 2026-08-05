@@ -9,6 +9,7 @@ import {
   EmptyState,
   Icon,
   Input,
+  MockDataNotice,
   ThreadList,
   useToast,
   type ThreadListItem,
@@ -16,6 +17,7 @@ import {
 import { useLanguage } from "@/i18n/LanguageContext";
 import { sendMessage } from "@/lib/api";
 import { useAuthMe, useMessageThreads, useThreadMessages } from "@/lib/hooks";
+import { activeMockEndpoints } from "@/lib/mock-fallback";
 
 const FAQ = [
   { id: "listing", q: "support.faq.listing.q", a: "support.faq.listing.a" },
@@ -35,8 +37,12 @@ const FAQ = [
 export default function SupportPage() {
   const { t } = useLanguage();
   const { push } = useToast();
-  const { data: meData } = useAuthMe("USER");
-  const { data: threadsData, mutate: mutateThreads } = useMessageThreads();
+  const { data: meData, isMockFallback: authMock } = useAuthMe("USER");
+  const {
+    data: threadsData,
+    mutate: mutateThreads,
+    isMockFallback: threadsMock,
+  } = useMessageThreads();
   const meId = meData?.user.id ?? "me";
   const supportThreads = (threadsData?.threads ?? []).filter(
     (th) => th.thread_type === "SUPPORT",
@@ -46,9 +52,20 @@ export default function SupportPage() {
   const [sending, setSending] = useState(false);
 
   const selectedId = activeId ?? supportThreads[0]?.id ?? null;
-  const { data: messagesData, mutate: mutateMessages } =
-    useThreadMessages(selectedId);
+  const {
+    data: messagesData,
+    mutate: mutateMessages,
+    isMockFallback: messagesMock,
+  } = useThreadMessages(selectedId);
   const messages = messagesData?.messages ?? [];
+  const mockEndpoints = activeMockEndpoints(
+    ["/auth/me", authMock],
+    ["/messages/threads", threadsMock],
+    [
+      selectedId ? `/messages/thread/${selectedId}` : "/messages/thread/:id",
+      messagesMock,
+    ],
+  );
 
   const threadItems: ThreadListItem[] = useMemo(
     () =>
@@ -91,6 +108,7 @@ export default function SupportPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 md:px-8">
+      <MockDataNotice endpoints={mockEndpoints} />
       <header className="mb-10">
         <p className="mb-2 font-sans text-label-sm uppercase tracking-[0.2em] text-secondary">
           {t("support.eyebrow")}

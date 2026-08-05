@@ -1,21 +1,25 @@
 "use client";
 
-import Link from "next/link";
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState } from "react";
 import {
-  Button,
   ChatBubble,
   DashboardShell,
   EmptyState,
   Icon,
-  Input,
+  MockDataNotice,
   ThreadList,
   useToast,
   type ThreadListItem,
 } from "@/components/ui";
+import { MessageAttachment } from "@/components/messages/MessageAttachment";
+import {
+  MessageComposer,
+  type ComposerPayload,
+} from "@/components/messages/MessageComposer";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { sendMessage } from "@/lib/api";
 import { useAuthMe, useMessageThreads, useThreadMessages } from "@/lib/hooks";
+import { activeMockEndpoints } from "@/lib/mock-fallback";
 
 /**
  * P10 — Messages (`bete_messages`)
@@ -32,20 +36,30 @@ function counterpartName(
 export default function MessagesPage() {
   const { t } = useLanguage();
   const { push } = useToast();
-  const { data: meData } = useAuthMe("USER");
-  const { data: threadsData, mutate: mutateThreads } = useMessageThreads();
+  const { data: meData, isMockFallback: authMock } = useAuthMe("USER");
+  const { data: threadsData, mutate: mutateThreads, isMockFallback: threadsMock } =
+    useMessageThreads();
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [draft, setDraft] = useState("");
-  const [sending, setSending] = useState(false);
 
   const meId = meData?.user.id ?? "me";
   const threads = threadsData?.threads ?? [];
   const inboxThreads = threads.filter((th) => th.thread_type !== "SUPPORT");
 
   const selectedId = activeId ?? inboxThreads[0]?.id ?? null;
-  const { data: messagesData, mutate: mutateMessages } =
-    useThreadMessages(selectedId);
+  const {
+    data: messagesData,
+    mutate: mutateMessages,
+    isMockFallback: messagesMock,
+  } = useThreadMessages(selectedId);
   const messages = messagesData?.messages ?? [];
+  const mockEndpoints = activeMockEndpoints(
+    ["/auth/me", authMock],
+    ["/messages/threads", threadsMock],
+    [
+      selectedId ? `/messages/thread/${selectedId}` : "/messages/thread/:id",
+      messagesMock,
+    ],
+  );
 
   const threadFallback = t("dashboard.messages.thread");
 
@@ -81,24 +95,20 @@ export default function MessagesPage() {
 
   const activeThread = inboxThreads.find((th) => th.id === selectedId);
 
-  async function onSend(e: FormEvent) {
-    e.preventDefault();
-    const text = draft.trim();
-    if (!text || !selectedId) return;
-    setSending(true);
+  async function onSend(payload: ComposerPayload) {
+    if (!selectedId) return;
     try {
-      await sendMessage({ thread_id: selectedId, message_text: text });
-      setDraft("");
+      await sendMessage({ thread_id: selectedId, ...payload });
       await Promise.all([mutateMessages(), mutateThreads()]);
     } catch {
       push(t("dashboard.messages.sendFailed"), "error");
-    } finally {
-      setSending(false);
+      throw new Error("send failed");
     }
   }
 
   return (
     <DashboardShell role="USER" title={t("dashboard.messages.title")}>
+      <MockDataNotice endpoints={mockEndpoints} />
       <p className="mb-6 font-body text-body-md text-on-surface-variant">
         {t("dashboard.messages.subtitle")}
       </p>
@@ -148,33 +158,22 @@ export default function MessagesPage() {
                   })}
                 >
                   {msg.message_text}
+                  {msg.media_url ? (
+                    <MessageAttachment
+                      url={msg.media_url}
+                      messageType={msg.message_type}
+                    />
+                  ) : null}
                 </ChatBubble>
               ))}
             </div>
 
-            <form
-              className="flex gap-2 border-t border-outline-variant p-4"
-              onSubmit={(e) => {
-                void onSend(e);
-              }}
-            >
-              <Input
-                variant="stroke"
-                className="flex-1"
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder={t("dashboard.messages.placeholder")}
-              />
-              <Button
-                type="submit"
-                variant="primary"
-                className="gap-2"
-                disabled={sending || !draft.trim()}
-              >
-                <Icon name="send" />
-                {t("dashboard.messages.send")}
-              </Button>
-            </form>
+            <MessageComposer
+              className="border-t border-outline-variant p-4"
+              threadId={selectedId}
+              placeholder={t("dashboard.messages.placeholder")}
+              onSend={onSend}
+            />
           </div>
         </div>
       )}

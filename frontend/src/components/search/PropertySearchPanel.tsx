@@ -16,6 +16,7 @@ import {
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { apiFetcher, buildSearchUrl } from "@/lib/api";
+import { useCities } from "@/lib/hooks";
 import {
   MOCK_SEARCH_RESULT,
   type PropertySearchResult,
@@ -51,10 +52,12 @@ export function PropertySearchPanel({
   compactHeader = false,
   className,
 }: PropertySearchPanelProps) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const { data: citiesData } = useCities(locale);
+  const cities = citiesData?.items ?? [];
 
   const [dealType, setDealType] = useState<"SALE" | "RENT" | "all">("SALE");
-  const [city, setCity] = useState("all");
+  const [cityId, setCityId] = useState("all");
   const [keyword, setKeyword] = useState(initialKeyword);
   const [category, setCategory] = useState(initialPropertyType);
   const [bedrooms, setBedrooms] = useState(initialBedrooms ?? "all");
@@ -65,13 +68,6 @@ export function PropertySearchPanel({
     max: initialMaxPrice ? Number(initialMaxPrice) : null,
   });
 
-  const effectiveKeyword = useMemo(() => {
-    const parts = [keyword.trim(), city !== "all" ? city : ""]
-      .filter(Boolean)
-      .join(" ");
-    return parts || undefined;
-  }, [keyword, city]);
-
   const searchPath = useMemo(
     () =>
       buildSearchUrl({
@@ -79,24 +75,28 @@ export function PropertySearchPanel({
         max_price: priceRange.max,
         deal_type: dealType === "all" ? undefined : dealType,
         property_type: category === "all" ? undefined : category,
-        keyword: effectiveKeyword,
+        keyword: keyword.trim() || undefined,
+        city_id: cityId === "all" ? undefined : cityId,
         bedrooms: bedrooms === "all" ? undefined : bedrooms,
         bathrooms: bathrooms === "all" ? undefined : bathrooms,
         seller_username: sellerUsername,
         page,
         limit: 12,
         sort_by: "newest",
+        locale,
       }),
     [
       priceRange.min,
       priceRange.max,
       dealType,
       category,
-      effectiveKeyword,
+      keyword,
+      cityId,
       bedrooms,
       bathrooms,
       sellerUsername,
       page,
+      locale,
     ],
   );
 
@@ -206,17 +206,19 @@ export function PropertySearchPanel({
             </span>
             <Select
               variant="underline"
-              value={city}
+              value={cityId}
               onChange={(e) => {
-                setCity(e.target.value);
+                setCityId(e.target.value);
                 setPage(1);
               }}
               className="w-full"
             >
               <option value="all">{t("filters.allCities")}</option>
-              <option value="Addis Ababa">{t("cities.addisAbaba")}</option>
-              <option value="Bahir Dar">{t("cities.bahirDar")}</option>
-              <option value="Harar">{t("cities.harar")}</option>
+              {cities.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
             </Select>
           </label>
 

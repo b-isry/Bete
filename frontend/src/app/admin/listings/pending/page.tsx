@@ -9,12 +9,13 @@ import {
   EmptyState,
   Icon,
   Input,
+  MockDataNotice,
   StatCard,
   StatusPill,
   useToast,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { moderateListing } from "@/lib/api";
+import { ADMIN_PENDING_LISTINGS_PATH, moderateListing } from "@/lib/api";
 import { usePendingListings } from "@/lib/hooks";
 import { PLACEHOLDER_IMAGE, type PendingListing } from "@/lib/mocks";
 
@@ -35,7 +36,7 @@ function relativeTime(iso: string, t: (key: string) => string): string {
 export default function PendingListingsPage() {
   const { t } = useLanguage();
   const { push } = useToast();
-  const { data, mutate, isLoading } = usePendingListings(1);
+  const { data, mutate, isLoading, isMockFallback } = usePendingListings(1);
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<FilterTab>("pending");
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -102,6 +103,13 @@ export default function PendingListingsPage() {
       title={t("admin.moderation.title")}
       searchPlaceholder={t("admin.moderation.search")}
     >
+      <MockDataNotice
+        endpoints={
+          isMockFallback
+            ? [`${ADMIN_PENDING_LISTINGS_PATH}?page=1&limit=20`]
+            : []
+        }
+      />
       <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           label={t("admin.moderation.pending")}

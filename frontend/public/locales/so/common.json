@@ -308,7 +308,7 @@
       "verifyFailed": "Koodhka lama xaqiijin karin.",
       "docIntro": "Soo geli sawir cad oo aqoonsigaaga qaranka ama baasaboorkaaga ah.",
       "docLabel": "Dukumentiga Aqoonsiga",
-      "docHint": "Hal sawir. JPEG ama PNG.",
+      "docHint": "Hal fayl. JPEG, PNG, WebP ama PDF, ilaa 10MB.",
       "needDocument": "Ku dar sawirka dukumentiga aqoonsigaaga.",
       "submitReview": "U gudbi dib u eegis",
       "submitSuccess": "Waxaa loo gudbiyay dib-u-eegis.",
@@ -588,6 +588,38 @@
       "nextStepsDocs": "Soo geli dukumenti aqoonsi ama shati ganacsi si loo xaqiijiyo."
     }
   },
+  "location": {
+    "label": "Goobta",
+    "hint": "Raadi cinwaanka, ka dibna jiid calaamadda meesha saxda ah.",
+    "searchLabel": "Raadi cinwaan",
+    "searchPlaceholder": "tusaale: Bole Road, Addis Ababa",
+    "searching": "Waa la raadinayaa…",
+    "noResults": "Meel u dhiganta lama helin.",
+    "searchFailed": "Raadinta cinwaanka lama heli karo. Halkii jiid calaamadda.",
+    "addressLabel": "Cinwaanka lagu muujinayo liiska",
+    "dragHint": "Jiid calaamadda ama taabo maabka.",
+    "coordinates": "Calaamad",
+    "needPin": "Dhig calaamadda maabka si aad goobta u cayimo.",
+    "needAddress": "Ku dar cinwaanka lagu muujinayo liiska.",
+    "suggestionPrompt": "Cinwaanka loo beddelo “{address}”?",
+    "suggestionAccept": "Isticmaal kan",
+    "suggestionDismiss": "Kayga ka tag"
+  },
+  "upload": {
+    "uploading": "Waa la soo gelinayaa",
+    "done": "La soo geliyay",
+    "failed": "Soo gelinta way fashilantay",
+    "retry": "Isku day mar kale",
+    "remove": "Ka saar",
+    "waitForUploads": "Sug inta soo gelinta dhammaanayso.",
+    "chooseDocument": "Dooro dukumenti",
+    "documentPrompt": "Jiid dukumentiga aqoonsigaaga halkan, ama dooro fayl (PDF ama sawir, ugu badnaan {max})",
+    "attach": "Ku lifaaq fayl",
+    "attachNeedsThread": "Fur wada sheekaysi ka hor inta aadan fayl ku lifaaqin.",
+    "attachmentReady": "Diyaar u yahay in la diro",
+    "attachmentAlt": "Lifaaqa fariinta",
+    "attachmentUnavailable": "Lifaaqa lama heli karo"
+  },
   "listings": {
     "new": {
       "eyebrow": "Iibi ama Kiraysii",
@@ -606,7 +638,7 @@
       "error": "Xayeysiinka lama abuuri karin.",
       "submit": "U Gudbi Dib-u-eegis",
       "pendingNote": "Xaaladdu waxay ahaan doontaa PENDING ilaa la kormeeriyo.",
-      "photosHint": "Ilaa 10 sawir. JPEG ama PNG.",
+      "photosHint": "Ilaa 10 sawir. JPEG, PNG ama WebP, mid kastaa ilaa 8MB.",
       "fields": {
         "title": "Cinwaanka",
         "description": "Sharaxaad",

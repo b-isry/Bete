@@ -478,6 +478,8 @@ export type ThreadMessage = {
   id: string;
   message_text: string | null;
   message_type: string;
+  /** Presigned GET URL when the stored value was a private object key. */
+  media_url?: string | null;
   created_at: string;
   sender: { id: string; name: string; username: string; role: string };
 };
@@ -643,6 +645,7 @@ export type PendingListing = PropertySearchItem & {
     id: string;
     name: string;
     username: string | null;
+    phone: string;
     verification_status: string;
   };
 };
@@ -729,6 +732,7 @@ export const MOCK_PENDING_LISTINGS: PendingListing[] = MOCK_SEARCH_ITEMS.slice(
       index
     ],
     username: ["eleanor", "julian", "aiko", "marcus"][index],
+    phone: `+25191100000${index + 1}`,
     verification_status: index % 2 === 0 ? "VERIFIED" : "PENDING",
   },
 }));

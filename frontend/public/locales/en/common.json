@@ -306,7 +306,7 @@
       "verifyFailed": "Could not verify the code.",
       "docIntro": "Upload a clear photo of your national ID or passport.",
       "docLabel": "ID document",
-      "docHint": "One image. JPEG or PNG.",
+      "docHint": "One file. JPEG, PNG, WebP or PDF, up to 10MB.",
       "needDocument": "Add your ID document photo.",
       "submitReview": "Submit for review",
       "submitSuccess": "Submitted for review.",
@@ -586,6 +586,38 @@
       "nextStepsDocs": "Upload an ID document or business license for verification."
     }
   },
+  "location": {
+    "label": "Location",
+    "hint": "Search for the address, then drag the pin to the exact spot.",
+    "searchLabel": "Search address",
+    "searchPlaceholder": "e.g. Bole Road, Addis Ababa",
+    "searching": "Searching…",
+    "noResults": "No matching places.",
+    "searchFailed": "Address search is unavailable. Drag the pin instead.",
+    "addressLabel": "Address shown on the listing",
+    "dragHint": "Drag the pin or tap the map to move it.",
+    "coordinates": "Pin",
+    "needPin": "Drop the pin on the map to set the location.",
+    "needAddress": "Add the address shown on the listing.",
+    "suggestionPrompt": "Update the address to “{address}”?",
+    "suggestionAccept": "Use this",
+    "suggestionDismiss": "Keep mine"
+  },
+  "upload": {
+    "uploading": "Uploading",
+    "done": "Uploaded",
+    "failed": "Upload failed",
+    "retry": "Retry",
+    "remove": "Remove file",
+    "chooseDocument": "Choose document",
+    "documentPrompt": "Drag your ID document here, or choose a file — PDF or image, up to {max}",
+    "waitForUploads": "Wait for the uploads to finish.",
+    "attach": "Attach file",
+    "attachNeedsThread": "Open a conversation to attach a file.",
+    "attachmentReady": "Ready to send",
+    "attachmentAlt": "Message attachment",
+    "attachmentUnavailable": "Attachment unavailable"
+  },
   "listings": {
     "new": {
       "eyebrow": "Sell or rent",
@@ -604,7 +636,7 @@
       "error": "Could not create listing.",
       "submit": "Submit for review",
       "pendingNote": "Status will be PENDING until moderated.",
-      "photosHint": "Up to 10 images. JPEG or PNG.",
+      "photosHint": "Up to 10 images. JPEG, PNG or WebP, up to 8MB each.",
       "fields": {
         "title": "Title",
         "description": "Description",

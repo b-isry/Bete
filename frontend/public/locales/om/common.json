@@ -308,7 +308,7 @@
       "verifyFailed": "Koodicha mirkaneessuun hin danda'amne.",
       "docIntro": "Suuraa ID biyyaalessaa ykn paaspoortii keessan ifa ta'e fe'aa.",
       "docLabel": "Sanada ID",
-      "docHint": "Suuraa tokko. JPEG ykn PNG.",
+      "docHint": "Faayilii tokko. JPEG, PNG, WebP ykn PDF, hamma 10MB.",
       "needDocument": "Suuraa sanada ID keessanii dabalaa.",
       "submitReview": "Gamaaggamaaf galchi",
       "submitSuccess": "Gamaaggamaaf galafameera.",
@@ -588,6 +588,38 @@
       "nextStepsDocs": "Mirkaneessaaf sanada ID ykn hayyama daldalaa fe'aa."
     }
   },
+  "location": {
+    "label": "Bakka",
+    "hint": "Teessoo barbaadi, sana booda pinii bakka sirrii irratti harkisi.",
+    "searchLabel": "Teessoo barbaadi",
+    "searchPlaceholder": "fkn. Bole Road, Finfinnee",
+    "searching": "Barbaadaa jira…",
+    "noResults": "Bakki walsimu hin argamne.",
+    "searchFailed": "Barbaacha teessoo hin argamu. Kanaa mannaa pinii harkisi.",
+    "addressLabel": "Teessoo tarreeffama irratti mul'atu",
+    "dragHint": "Pinii harkisi ykn kaartaa tuqi.",
+    "coordinates": "Pinii",
+    "needPin": "Bakka murteessuuf pinii kaartaa irra kaa'i.",
+    "needAddress": "Teessoo tarreeffama irratti mul'atu galchi.",
+    "suggestionPrompt": "Teessoo gara “{address}” jijjiiruu?",
+    "suggestionAccept": "Kana fayyadami",
+    "suggestionDismiss": "Kiyya haa turu"
+  },
+  "upload": {
+    "uploading": "Fe'aa jira",
+    "done": "Fe'ameera",
+    "failed": "Fe'uun hin milkaa'ne",
+    "retry": "Irra deebi'ii yaali",
+    "remove": "Faayilii haqi",
+    "chooseDocument": "Sanada filadhu",
+    "documentPrompt": "Sanada ID kee asitti harkisi ykn faayilii filadhu — PDF ykn suuraa, hanga {max}",
+    "waitForUploads": "Fe'uun akka xumuramu eegi.",
+    "attach": "Faayilii maxxansi",
+    "attachNeedsThread": "Faayilii maxxansuuf haasaa bani.",
+    "attachmentReady": "Ergamuuf qophii",
+    "attachmentAlt": "Maxxansa ergaa",
+    "attachmentUnavailable": "Maxxansi hin argamu"
+  },
   "listings": {
     "new": {
       "eyebrow": "Gurguri ykn Kireessi",
@@ -606,7 +638,7 @@
       "error": "Beeksisa uumuu hin danda'amne.",
       "submit": "Gamaaggamaaf Galchi",
       "pendingNote": "Haalli hanga ilaalamuutti \"Eegaa jira\" ta'a.",
-      "photosHint": "Hanga suuraa 10. JPEG ykn PNG.",
+      "photosHint": "Hanga suuraa 10. JPEG, PNG ykn WebP, tokkoon tokkoon isaanii hamma 8MB.",
       "fields": {
         "title": "Mata Duree",
         "description": "Ibsa",

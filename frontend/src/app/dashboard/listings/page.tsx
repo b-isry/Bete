@@ -10,12 +10,14 @@ import {
   EmptyState,
   Icon,
   Input,
+  MockDataNotice,
   StatusPill,
   useToast,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { renewListing } from "@/lib/api";
+import { MY_LISTINGS_PATH, renewListing } from "@/lib/api";
 import { useAuthMe, useMyListings } from "@/lib/hooks";
+import { activeMockEndpoints } from "@/lib/mock-fallback";
 import { PLACEHOLDER_IMAGE, type SellerListing } from "@/lib/mocks";
 
 /**
@@ -27,10 +29,14 @@ import { PLACEHOLDER_IMAGE, type SellerListing } from "@/lib/mocks";
 export default function SellerListingsPage() {
   const { t } = useLanguage();
   const { push } = useToast();
-  const { data: meData } = useAuthMe("SELLER");
-  const { data, mutate } = useMyListings();
+  const { data: meData, isMockFallback: authMock } = useAuthMe("SELLER");
+  const { data, mutate, isMockFallback: listingsMock } = useMyListings();
   const [query, setQuery] = useState("");
   const [renewingId, setRenewingId] = useState<string | null>(null);
+  const mockEndpoints = activeMockEndpoints(
+    ["/auth/me", authMock],
+    [MY_LISTINGS_PATH, listingsMock],
+  );
 
   const listings = data?.items ?? [];
   const filtered = useMemo(() => {
@@ -75,6 +81,7 @@ export default function SellerListingsPage() {
         </Link>
       }
     >
+      <MockDataNotice endpoints={mockEndpoints} />
       <p className="mb-6 font-body text-body-md text-on-surface-variant">
         {t("dashboard.listings.subtitle").replace(
           "{name}",

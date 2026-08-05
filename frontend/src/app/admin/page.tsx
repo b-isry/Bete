@@ -8,6 +8,7 @@ import {
   Button,
   Chip,
   Icon,
+  MockDataNotice,
   SparkBars,
   StatCard,
   StatusPill,
@@ -20,7 +21,7 @@ import {
   useToast,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { moderateListing } from "@/lib/api";
+import { ADMIN_PENDING_LISTINGS_PATH, moderateListing } from "@/lib/api";
 import {
   useAdminOverview,
   useAdminReports,
@@ -48,7 +49,8 @@ export default function AdminOverviewPage() {
   const { t } = useLanguage();
   const { push } = useToast();
   const { data: overview } = useAdminOverview();
-  const { data: pendingData, mutate } = usePendingListings(1);
+  const { data: pendingData, mutate, isMockFallback: pendingMock } =
+    usePendingListings(1);
   const { data: reports } = useAdminReports(1);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -100,6 +102,11 @@ export default function AdminOverviewPage() {
 
   return (
     <AdminShell>
+      <MockDataNotice
+        endpoints={
+          pendingMock ? [ADMIN_PENDING_LISTINGS_PATH + "?page=1&limit=20"] : []
+        }
+      />
       <div className="mb-10 max-w-3xl">
         <h2 className="mb-2 font-serif text-headline-md text-primary">
           {t("admin.overview.title")}

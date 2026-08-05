@@ -308,7 +308,7 @@
       "verifyFailed": "ኮዱን ማረጋገጥ አልተቻለም።",
       "docIntro": "የብሔራዊ መታወቂያዎን ወይም ፓስፖርትዎን ግልጽ ፎቶ ይስቀሉ።",
       "docLabel": "የመታወቂያ ሰነድ",
-      "docHint": "አንድ ምስል። JPEG ወይም PNG።",
+      "docHint": "አንድ ፋይል። JPEG፣ PNG፣ WebP ወይም PDF፣ እስከ 10ሜባ።",
       "needDocument": "የመታወቂያ ሰነድዎን ፎቶ ያክሉ።",
       "submitReview": "ለግምገማ አስገባ",
       "submitSuccess": "ለግምገማ ገብቷል።",
@@ -588,6 +588,38 @@
       "nextStepsDocs": "ለማረጋገጫ የመታወቂያ ሰነድ ወይም የንግድ ፈቃድ ይስቀሉ።"
     }
   },
+  "location": {
+    "label": "አካባቢ",
+    "hint": "አድራሻውን ይፈልጉ፣ ከዚያ ፒኑን ወደ ትክክለኛው ቦታ ይጎትቱ።",
+    "searchLabel": "አድራሻ ፍለጋ",
+    "searchPlaceholder": "ለምሳሌ ቦሌ መንገድ፣ አዲስ አበባ",
+    "searching": "በመፈለግ ላይ…",
+    "noResults": "ተመሳሳይ ቦታ አልተገኘም።",
+    "searchFailed": "የአድራሻ ፍለጋ አይሰራም። በምትኩ ፒኑን ይጎትቱ።",
+    "addressLabel": "በዝርዝሩ ላይ የሚታየው አድራሻ",
+    "dragHint": "ፒኑን ይጎትቱ ወይም ካርታውን ይንኩ።",
+    "coordinates": "ፒን",
+    "needPin": "አካባቢውን ለማዘጋጀት ፒኑን በካርታው ላይ ያድርጉ።",
+    "needAddress": "በዝርዝሩ ላይ የሚታየውን አድራሻ ያክሉ።",
+    "suggestionPrompt": "አድራሻውን ወደ “{address}” ይቀይሩ?",
+    "suggestionAccept": "እኚህን ተጠቀም",
+    "suggestionDismiss": "የኔን አቆይ"
+  },
+  "upload": {
+    "uploading": "በመስቀል ላይ",
+    "done": "ተሰቅሏል",
+    "failed": "መስቀል አልተሳካም",
+    "retry": "እንደገና ይሞክሩ",
+    "remove": "ፋይል አስወግድ",
+    "chooseDocument": "ሰነድ ይምረጡ",
+    "documentPrompt": "የመታወቂያ ሰነድዎን ወደዚህ ይጎትቱ ወይም ፋይል ይምረጡ — PDF ወይም ምስል፣ እስከ {max}",
+    "waitForUploads": "መስቀሉ እስኪጨርስ ይጠብቁ።",
+    "attach": "ፋይል አያይዝ",
+    "attachNeedsThread": "ፋይል ለማያያዝ ውይይት ይክፈቱ።",
+    "attachmentReady": "ለመላክ ተዘጋጅቷል",
+    "attachmentAlt": "የመልእክት አባሪ",
+    "attachmentUnavailable": "አባሪው አይገኝም"
+  },
   "listings": {
     "new": {
       "eyebrow": "ሽጥ ወይም አከራይ",
@@ -606,7 +638,7 @@
       "error": "ማስታወቂያ መፍጠር አልተቻለም።",
       "submit": "ለግምገማ አስገባ",
       "pendingNote": "ሁኔታው እስኪመረመር ድረስ በመጠባበቅ ላይ ይሆናል።",
-      "photosHint": "እስከ 10 ምስሎች። JPEG ወይም PNG።",
+      "photosHint": "እስከ 10 ምስሎች። JPEG፣ PNG ወይም WebP፣ እያንዳንዳቸው እስከ 8ሜባ።",
       "fields": {
         "title": "ርዕስ",
         "description": "መግለጫ",

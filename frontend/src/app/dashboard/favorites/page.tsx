@@ -8,11 +8,13 @@ import {
   EmptyState,
   Icon,
   ListingCard,
+  MockDataNotice,
   Tabs,
   TabsList,
   TabsTrigger,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { FAVORITES_PATH } from "@/lib/api";
 import { useFavorites } from "@/lib/hooks";
 
 type Collection = "all" | "HOUSE" | "APARTMENT" | "LAND";
@@ -24,7 +26,7 @@ type Collection = "all" | "HOUSE" | "APARTMENT" | "LAND";
  */
 export default function FavoritesPage() {
   const { t } = useLanguage();
-  const { data } = useFavorites();
+  const { data, isMockFallback } = useFavorites();
   const [collection, setCollection] = useState<Collection>("all");
   const favorites = data?.favorites ?? [];
 
@@ -46,6 +48,9 @@ export default function FavoritesPage() {
         </Link>
       }
     >
+      <MockDataNotice
+        endpoints={isMockFallback ? [FAVORITES_PATH] : []}
+      />
       <p className="mb-8 font-body text-body-md text-on-surface-variant">
         {t("dashboard.favorites.subtitle")}
       </p>
