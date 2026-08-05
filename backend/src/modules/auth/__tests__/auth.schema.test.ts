@@ -111,6 +111,15 @@ describe('SubmitVerificationSchema', () => {
     });
     expect(result.business_license_url).toContain('license.pdf');
   });
+
+  it('accepts private object keys for id documents', () => {
+    const result = SubmitVerificationSchema.parse({
+      id_document_url: 'private/id_document/user-id/file.pdf',
+    });
+    expect(result.id_document_url).toBe(
+      'private/id_document/user-id/file.pdf',
+    );
+  });
 });
 
 describe('RequestOtpSchema', () => {

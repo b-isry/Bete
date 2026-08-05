@@ -14,6 +14,7 @@ import {
   NotFoundError,
 } from '../../../errors/app-error';
 import { notify } from '../../notifications/services/notification.service';
+import * as storageService from '../../storage/services/storage.service';
 import {
   ModerateListingInput,
   VerifySellerInput,
@@ -327,39 +328,54 @@ export async function listPendingVerifications(page: number, limit: number) {
   ]);
 
   return {
-    items: rows.map((row) => {
-      const docs = [row.id_document_url, row.business_license_url].filter(
-        Boolean,
-      ).length;
-      const trustFromDocs = docs * 20;
-      const trustFromPhone = row.phone_verified_at ? 15 : 0;
-      const trustFromScore = row.sellerStats
-        ? Math.min(40, Math.round(row.sellerStats.score))
-        : 0;
-      const trustScore = Math.min(
-        99,
-        Math.max(40, trustFromDocs + trustFromPhone + trustFromScore),
-      );
+    items: await Promise.all(
+      rows.map(async (row) => {
+        const docs = [row.id_document_url, row.business_license_url].filter(
+          Boolean,
+        ).length;
+        const trustFromDocs = docs * 20;
+        const trustFromPhone = row.phone_verified_at ? 15 : 0;
+        const trustFromScore = row.sellerStats
+          ? Math.min(40, Math.round(row.sellerStats.score))
+          : 0;
+        const trustScore = Math.min(
+          99,
+          Math.max(40, trustFromDocs + trustFromPhone + trustFromScore),
+        );
 
-      return {
-        id: row.id,
-        name: row.name,
-        username: row.username,
-        phone: row.phone,
-        email: row.email,
-        verification_status: row.verification_status,
-        created_at: row.created_at.toISOString(),
-        doc_count: Math.max(docs, 1),
-        trust_score: trustScore,
-        location_text: 'Ethiopia',
-        account_type:
-          row._count.properties >= 5 ? 'Agency' : 'Individual seller',
-        bio:
-          row._count.properties > 0
-            ? `Seller with ${row._count.properties} listing(s) awaiting verification.`
-            : 'Seller account awaiting document verification.',
-      };
-    }),
+        let idDocumentUrl = row.id_document_url;
+        if (idDocumentUrl?.startsWith('private/')) {
+          idDocumentUrl = await storageService.getPresignedReadUrl(idDocumentUrl);
+        }
+
+        let businessLicenseUrl = row.business_license_url;
+        if (businessLicenseUrl?.startsWith('private/')) {
+          businessLicenseUrl =
+            await storageService.getPresignedReadUrl(businessLicenseUrl);
+        }
+
+        return {
+          id: row.id,
+          name: row.name,
+          username: row.username,
+          phone: row.phone,
+          email: row.email,
+          verification_status: row.verification_status,
+          created_at: row.created_at.toISOString(),
+          id_document_url: idDocumentUrl,
+          business_license_url: businessLicenseUrl,
+          doc_count: Math.max(docs, 1),
+          trust_score: trustScore,
+          location_text: 'Ethiopia',
+          account_type:
+            row._count.properties >= 5 ? 'Agency' : 'Individual seller',
+          bio:
+            row._count.properties > 0
+              ? `Seller with ${row._count.properties} listing(s) awaiting verification.`
+              : 'Seller account awaiting document verification.',
+        };
+      }),
+    ),
     pagination: {
       page,
       limit,

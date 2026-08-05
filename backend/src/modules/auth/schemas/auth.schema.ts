@@ -61,9 +61,24 @@ export const LoginSchema = z
 
 export type LoginInput = z.infer<typeof LoginSchema>;
 
+/** Accepts an absolute URL or an S3 object key (public/… or private/…). */
+const storedObjectRef = z
+  .string()
+  .min(1)
+  .refine(
+    (value) =>
+      value.startsWith('private/') ||
+      value.startsWith('public/') ||
+      z.string().url().safeParse(value).success,
+    {
+      message:
+        'Must be a valid URL or an object key starting with public/ or private/',
+    },
+  );
+
 export const SubmitVerificationSchema = z.object({
-  id_document_url: z.string().url('id_document_url must be a valid URL'),
-  business_license_url: z.string().url('business_license_url must be a valid URL').optional(),
+  id_document_url: storedObjectRef,
+  business_license_url: storedObjectRef.optional(),
 });
 
 export type SubmitVerificationInput = z.infer<typeof SubmitVerificationSchema>;
