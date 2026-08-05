@@ -9,7 +9,20 @@ export const SendMessageSchema = z
     thread_type: z.enum(['LISTING', 'SUPPORT']).optional(),
     message_type: z.nativeEnum(MessageType).optional().default(MessageType.TEXT),
     message_text: z.string().trim().max(5000).optional(),
-    media_url: z.string().url().optional(),
+    media_url: z
+      .string()
+      .min(1)
+      .refine(
+        (value) =>
+          value.startsWith('private/') ||
+          value.startsWith('public/') ||
+          z.string().url().safeParse(value).success,
+        {
+          message:
+            'media_url must be a valid URL or an object key starting with public/ or private/',
+        },
+      )
+      .optional(),
   })
   .superRefine((data, ctx) => {
     if (!data.thread_id) {

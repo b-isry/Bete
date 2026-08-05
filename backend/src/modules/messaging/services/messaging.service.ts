@@ -1,5 +1,4 @@
 import {
-  MessageType,
   ThreadType,
   UserRole,
 } from '@prisma/client';
@@ -9,6 +8,7 @@ import {
   ForbiddenError,
   NotFoundError,
 } from '../../../errors/app-error';
+import * as storageService from '../../storage/services/storage.service';
 import { SendMessageInput } from '../schemas/messaging.schema';
 
 async function assertCanAccessThread(
@@ -395,8 +395,22 @@ export async function getThreadMessages(
     data: { last_read_at: new Date() },
   });
 
+  const resolvedMessages = await Promise.all(
+    messages.map(async (message) => {
+      if (message.media_url?.startsWith('private/')) {
+        return {
+          ...message,
+          media_url: await storageService.getPresignedReadUrl(
+            message.media_url,
+          ),
+        };
+      }
+      return message;
+    }),
+  );
+
   return {
-    messages,
+    messages: resolvedMessages,
     pagination: {
       page,
       limit,
