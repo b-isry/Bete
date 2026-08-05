@@ -56,3 +56,10 @@ export class TooManyRequestsError extends AppError {
     super(message, 429, 'TOO_MANY_REQUESTS', details);
   }
 }
+
+/** An upstream third-party dependency failed or returned an unusable response. */
+export class BadGatewayError extends AppError {
+  constructor(message = 'Upstream service error', details?: unknown) {
+    super(message, 502, 'BAD_GATEWAY', details);
+  }
+}

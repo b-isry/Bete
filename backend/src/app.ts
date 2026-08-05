@@ -16,12 +16,15 @@ import {
   sellersRouter,
 } from './modules/analytics/routes/analytics.routes';
 import { authRouter } from './modules/auth/routes/auth.routes';
+import { catalogRouter } from './modules/catalog/routes/catalog.routes';
+import { geocodingRouter } from './modules/geocoding/routes/geocoding.routes';
 import { messagingRouter } from './modules/messaging/routes/messaging.routes';
 import { favoritesRouter } from './modules/favorites/routes/favorites.routes';
 import { notificationsRouter } from './modules/notifications/routes/notifications.routes';
 import { propertyRouter } from './modules/properties/routes/property.routes';
 import { propertySearchRouter } from './modules/properties/routes/property-search.routes';
 import { sellerDirectoryRouter } from './modules/sellers/routes/seller-directory.routes';
+import { storageRouter } from './modules/storage/routes/storage.routes';
 import { sendSuccess } from './utils/response';
 
 export function createApp(): Application {
@@ -47,6 +50,9 @@ export function createApp(): Application {
   });
 
   app.use('/api/v1/auth', authRateLimiter, authRouter);
+  app.use('/api/v1/uploads', storageRouter);
+  app.use('/api/v1/geocode', geocodingRouter);
+  app.use('/api/v1', catalogRouter);
   // /top must stay ahead of /:username
   app.use('/api/v1/sellers', sellersRouter);
   app.use('/api/v1/sellers', sellerDirectoryRouter);
