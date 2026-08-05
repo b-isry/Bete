@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Button,
@@ -14,6 +14,7 @@ import {
   useToast,
   type ImageDropzoneItem,
 } from "@/components/ui";
+import { LocationPicker } from "@/components/property/LocationPicker";
 import { useLanguage } from "@/i18n/LanguageContext";
 import {
   aiWriteDescription,
@@ -21,12 +22,18 @@ import {
   createProperty,
   type PropertyCreatePayload,
 } from "@/lib/api";
-import { MOCK_ADMIN_CATEGORIES, MOCK_CITIES, mockAiDescription } from "@/lib/mocks";
+import { useCategories, useCities } from "@/lib/hooks";
+import { mockAiDescription } from "@/lib/mocks";
 
 export default function NewListingPage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const router = useRouter();
   const { push } = useToast();
+
+  const { data: citiesData } = useCities(locale);
+  const { data: categoriesData } = useCategories(locale);
+  const cities = citiesData?.items ?? [];
+  const categories = categoriesData?.items ?? [];
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -39,15 +46,26 @@ export default function NewListingPage() {
   const [bedrooms, setBedrooms] = useState("");
   const [bathrooms, setBathrooms] = useState("");
   const [locationText, setLocationText] = useState("");
-  const [cityId, setCityId] = useState(String(MOCK_CITIES[0].id));
-  const [categoryId, setCategoryId] = useState(
-    String(MOCK_ADMIN_CATEGORIES[0].id),
+  const [cityId, setCityId] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    null,
   );
-  const [lat, setLat] = useState("9.03");
-  const [lng, setLng] = useState("38.74");
   const [images, setImages] = useState<ImageDropzoneItem[]>([]);
   const [busy, setBusy] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
+
+  useEffect(() => {
+    if (!cityId && cities[0]) {
+      setCityId(String(cities[0].id));
+    }
+  }, [cities, cityId]);
+
+  useEffect(() => {
+    if (!categoryId && categories[0]) {
+      setCategoryId(String(categories[0].id));
+    }
+  }, [categories, categoryId]);
 
   async function onWriteForMe() {
     setAiBusy(true);
@@ -75,8 +93,27 @@ export default function NewListingPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (images.length === 0) {
+    const uploaded = images.filter(
+      (img) => img.status === "done" && img.image_url && img.image_hash,
+    );
+    if (uploaded.length === 0) {
       push(t("listings.new.needImages"), "error");
+      return;
+    }
+    if (images.some((img) => img.status === "uploading")) {
+      push(t("upload.waitForUploads"), "error");
+      return;
+    }
+    if (!coords) {
+      push(t("location.needPin"), "error");
+      return;
+    }
+    if (!locationText.trim()) {
+      push(t("location.needAddress"), "error");
+      return;
+    }
+    if (!cityId || !categoryId) {
+      push(t("listings.new.error"), "error");
       return;
     }
 
@@ -87,15 +124,13 @@ export default function NewListingPage() {
       property_type: propertyType,
       price: price.trim(),
       location_text: locationText.trim(),
-      lat: Number(lat),
-      lng: Number(lng),
+      lat: coords.lat,
+      lng: coords.lng,
       city_id: Number(cityId),
       category_id: Number(categoryId),
-      images: images.map((img) => ({
-        image_url: img.image_url.startsWith("blob:")
-          ? "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80"
-          : img.image_url,
-        image_hash: img.image_hash,
+      images: uploaded.map((img) => ({
+        image_url: img.image_url as string,
+        image_hash: img.image_hash as string,
       })),
     };
 
@@ -272,18 +307,18 @@ export default function NewListingPage() {
             </label>
           </div>
 
-          <label className="block">
-            <span className="mb-4 block font-sans text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60">
-              {t("listings.new.fields.location")}
-            </span>
-            <Input
-              variant="underline"
-              value={locationText}
-              onChange={(e) => setLocationText(e.target.value)}
-              placeholder="Bole, Addis Ababa"
-              required
-            />
-          </label>
+          <LocationPicker
+            value={{
+              lat: coords?.lat ?? null,
+              lng: coords?.lng ?? null,
+              location_text: locationText,
+            }}
+            onChange={(next) => {
+              setCoords({ lat: next.lat, lng: next.lng });
+              setLocationText(next.location_text);
+            }}
+            label={t("listings.new.fields.location")}
+          />
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <label className="block">
@@ -295,8 +330,10 @@ export default function NewListingPage() {
                 className="w-full"
                 value={cityId}
                 onChange={(e) => setCityId(e.target.value)}
+                required
+                disabled={cities.length === 0}
               >
-                {MOCK_CITIES.map((city) => (
+                {cities.map((city) => (
                   <option key={city.id} value={city.id}>
                     {city.name}
                   </option>
@@ -313,43 +350,22 @@ export default function NewListingPage() {
                 className="w-full"
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
+                required
+                disabled={categories.length === 0}
               >
-                {MOCK_ADMIN_CATEGORIES.map((cat) => (
+                {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
                   </option>
                 ))}
               </Select>
             </label>
-
-            <label className="block">
-              <span className="mb-4 block font-sans text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60">
-                {t("listings.new.fields.lat")}
-              </span>
-              <Input
-                variant="underline"
-                value={lat}
-                onChange={(e) => setLat(e.target.value)}
-                required
-              />
-            </label>
-
-            <label className="block">
-              <span className="mb-4 block font-sans text-label-sm uppercase tracking-widest text-on-surface-variant opacity-60">
-                {t("listings.new.fields.lng")}
-              </span>
-              <Input
-                variant="underline"
-                value={lng}
-                onChange={(e) => setLng(e.target.value)}
-                required
-              />
-            </label>
           </div>
 
           <ImageDropzone
             value={images}
             onChange={setImages}
+            category="PROPERTY_IMAGE"
             max={10}
             label={t("listings.new.fields.photos")}
             hint={t("listings.new.photosHint")}

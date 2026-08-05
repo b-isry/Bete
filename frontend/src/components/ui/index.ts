@@ -78,6 +78,10 @@ export {
   type AdminNavItem,
 } from "./AdminShell";
 export { RequireRole, type RequireRoleProps } from "./RequireRole";
+export {
+  MockDataNotice,
+  type MockDataNoticeProps,
+} from "./MockDataNotice";
 export { SparkBars, type SparkBarsProps } from "./SparkBars";
 export {
   ImageDropzone,

@@ -102,6 +102,66 @@ export async function apiPost<T>(
   return unwrap(res, body);
 }
 
+/**
+ * Geocoding proxy — public, server-side wrapper around Nominatim so the browser
+ * never calls OpenStreetMap directly (Fair Use Policy).
+ */
+export const GEOCODE_SEARCH_PATH = "/geocode/search";
+export const GEOCODE_REVERSE_PATH = "/geocode/reverse";
+
+export type GeocodeSearchResult = {
+  display_name: string;
+  lat: number;
+  lng: number;
+};
+
+export async function geocodeSearch(
+  query: string,
+  limit = 5,
+): Promise<GeocodeSearchResult[]> {
+  const search = new URLSearchParams({ q: query, limit: String(limit) });
+  const data = await apiFetcher<{ results: GeocodeSearchResult[] }>(
+    `${GEOCODE_SEARCH_PATH}?${search.toString()}`,
+  );
+  return data.results;
+}
+
+export async function geocodeReverse(
+  lat: number,
+  lng: number,
+): Promise<{ display_name: string }> {
+  const search = new URLSearchParams({ lat: String(lat), lng: String(lng) });
+  return apiFetcher(`${GEOCODE_REVERSE_PATH}?${search.toString()}`);
+}
+
+/** Presigned upload handshake — POST /uploads/presign (auth required). */
+export const UPLOADS_PRESIGN_PATH = "/uploads/presign";
+
+export type UploadCategory =
+  | "PROPERTY_IMAGE"
+  | "ID_DOCUMENT"
+  | "MESSAGE_MEDIA";
+
+export type PresignUploadPayload = {
+  category: UploadCategory;
+  contentType: string;
+  fileExtension: string;
+  thread_id?: string;
+};
+
+export type PresignUploadResult = {
+  uploadUrl: string;
+  key: string;
+  /** Null for private categories (ID_DOCUMENT, MESSAGE_MEDIA). */
+  publicUrl: string | null;
+};
+
+export async function presignUpload(
+  payload: PresignUploadPayload,
+): Promise<PresignUploadResult> {
+  return apiPost(UPLOADS_PRESIGN_PATH, payload);
+}
+
 export function buildSearchUrl(
   params: Record<string, string | number | null | undefined>,
 ): string {
@@ -116,8 +176,22 @@ export function buildSearchUrl(
   return `/properties/search${qs ? `?${qs}` : ""}`;
 }
 
-/** Placeholder until the AI query parser ships (P2). Tries POST then falls back locally. */
+/** AI natural-language search parser — POST /ai/parse-query */
 export const AI_PARSE_PATH = "/ai/parse-query";
+
+export type AiParseFilters = {
+  city_id?: number;
+  property_type?: "HOUSE" | "APARTMENT" | "LAND" | "COMMERCIAL";
+  min_price?: number;
+  max_price?: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  keyword?: string;
+};
+
+export async function aiParseQuery(query: string): Promise<AiParseFilters> {
+  return apiPost<AiParseFilters>(AI_PARSE_PATH, { query }, { auth: false });
+}
 
 /**
  * Intended seller-owned listings query (seller_id=me not shipped yet).
@@ -358,3 +432,19 @@ export async function submitVerificationRequest(payload: {
 
 export const ADMIN_USERS_PATH = "/admin/users";
 export const ADMIN_CATEGORIES_PATH = "/admin/categories";
+
+export const CITIES_PATH = "/cities";
+export const CATEGORIES_PATH = "/categories";
+
+export type CatalogCity = {
+  id: number;
+  slug: string;
+  region: string;
+  name: string;
+};
+
+export type CatalogCategory = {
+  id: number;
+  slug: string;
+  name: string;
+};

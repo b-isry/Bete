@@ -1,5 +1,22 @@
 "use client";
 
+/**
+ * SWR data hooks. See `frontend/MOCK_FALLBACKS.md` for the full inventory of
+ * MOCK_* fallbackData usage and which hooks surface `isMockFallback`.
+ */
+
+export {
+  useFileUpload,
+  formatMaxSize,
+  isAllowedFile,
+  type UseFileUpload,
+  type UseFileUploadState,
+  type UploadResult,
+  type UploadStatus,
+  type UploadErrorCode,
+} from "./useFileUpload";
+
+import { useEffect } from "react";
 import useSWR from "swr";
 import {
   ADMIN_ANALYTICS_PATH,
@@ -10,11 +27,22 @@ import {
   ADMIN_USERS_PATH,
   apiAuthFetcher,
   apiFetcher,
+  CATEGORIES_PATH,
+  CITIES_PATH,
   FAVORITES_PATH,
   MY_LISTINGS_PATH,
   NOTIFICATIONS_PATH,
+  type CatalogCategory,
+  type CatalogCity,
   type NotificationsResult,
 } from "@/lib/api";
+import { getAccessToken } from "@/lib/auth";
+import type { Locale } from "@/i18n/LanguageContext";
+import {
+  useSwrWithMockFallback,
+  warnMockFallback,
+  type MockAwareSWRResponse,
+} from "@/lib/mock-fallback";
 import {
   MOCK_ADMIN_ANALYTICS,
   MOCK_ADMIN_CATEGORIES,
@@ -47,7 +75,7 @@ import {
 
 export function useAuthMe(
   preferredRole: "USER" | "SELLER" | "ADMIN" = "USER",
-) {
+): MockAwareSWRResponse<{ user: AuthUser }> {
   const fallbackUser =
     preferredRole === "ADMIN"
       ? MOCK_AUTH_ADMIN
@@ -55,10 +83,22 @@ export function useAuthMe(
         ? MOCK_AUTH_SELLER
         : MOCK_AUTH_BUYER;
 
-  return useSWR<{ user: AuthUser }>("/auth/me", apiAuthFetcher, {
+  const swr = useSWR<{ user: AuthUser }>("/auth/me", apiAuthFetcher, {
     shouldRetryOnError: false,
     fallbackData: { user: fallbackUser },
   });
+  const isMockFallback = Boolean(swr.error);
+
+  useEffect(() => {
+    // Anonymous 401 on public chrome is expected — only warn when a session
+    // token exists and /auth/me still failed (mock identity masking a real miss).
+    if (!isMockFallback || !getAccessToken()) {
+      return;
+    }
+    warnMockFallback("/auth/me", swr.error);
+  }, [isMockFallback, swr.error]);
+
+  return { ...swr, isMockFallback };
 }
 
 export function useTopSellers() {
@@ -68,17 +108,25 @@ export function useTopSellers() {
 }
 
 export function useMyListings() {
-  return useSWR<{ items: SellerListing[] }>(MY_LISTINGS_PATH, apiAuthFetcher, {
-    shouldRetryOnError: false,
-    fallbackData: { items: MOCK_SELLER_LISTINGS },
-  });
+  return useSwrWithMockFallback<{ items: SellerListing[] }>(
+    MY_LISTINGS_PATH,
+    apiAuthFetcher,
+    {
+      shouldRetryOnError: false,
+      fallbackData: { items: MOCK_SELLER_LISTINGS },
+    },
+  );
 }
 
 export function useFavorites() {
-  return useSWR<{ favorites: FavoriteItem[] }>(FAVORITES_PATH, apiAuthFetcher, {
-    shouldRetryOnError: false,
-    fallbackData: { favorites: MOCK_FAVORITES },
-  });
+  return useSwrWithMockFallback<{ favorites: FavoriteItem[] }>(
+    FAVORITES_PATH,
+    apiAuthFetcher,
+    {
+      shouldRetryOnError: false,
+      fallbackData: { favorites: MOCK_FAVORITES },
+    },
+  );
 }
 
 /** Polls every 60s and on window focus. Pass false when signed out. */
@@ -95,7 +143,7 @@ export function useNotifications(enabled: boolean) {
 }
 
 export function useMessageThreads() {
-  return useSWR<{ threads: MessageThread[] }>(
+  return useSwrWithMockFallback<{ threads: MessageThread[] }>(
     "/messages/threads",
     apiAuthFetcher,
     {
@@ -106,7 +154,7 @@ export function useMessageThreads() {
 }
 
 export function useThreadMessages(threadId: string | null) {
-  return useSWR<{
+  return useSwrWithMockFallback<{
     messages: ThreadMessage[];
     pagination: {
       page: number;
@@ -131,7 +179,7 @@ export function useAdminOverview() {
 }
 
 export function usePendingListings(page = 1) {
-  return useSWR<{
+  return useSwrWithMockFallback<{
     items: PendingListing[];
     pagination: {
       page: number;
@@ -154,7 +202,7 @@ export function usePendingListings(page = 1) {
 }
 
 export function usePendingVerifications(page = 1) {
-  return useSWR<{
+  return useSwrWithMockFallback<{
     items: PendingVerification[];
     pagination: {
       page: number;
@@ -240,6 +288,28 @@ export function useAdminCategories() {
     {
       shouldRetryOnError: false,
       fallbackData: { items: MOCK_ADMIN_CATEGORIES },
+    },
+  );
+}
+
+export function useCities(locale: Locale) {
+  return useSWR<{ items: CatalogCity[] }>(
+    `${CITIES_PATH}?locale=${locale}`,
+    apiFetcher,
+    {
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
+    },
+  );
+}
+
+export function useCategories(locale: Locale) {
+  return useSWR<{ items: CatalogCategory[] }>(
+    `${CATEGORIES_PATH}?locale=${locale}`,
+    apiFetcher,
+    {
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
     },
   );
 }
