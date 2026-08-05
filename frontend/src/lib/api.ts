@@ -295,6 +295,18 @@ export async function sendMessage(
   });
 }
 
+export type ContactPayload = {
+  subject: string;
+  message: string;
+};
+
+/** POST /contact — opens a SUPPORT thread from the contact form (auth required). */
+export async function submitContact(
+  payload: ContactPayload,
+): Promise<{ thread_id: string }> {
+  return apiPost("/contact", payload);
+}
+
 export async function renewListing(propertyId: string): Promise<unknown> {
   return apiPost(`/properties/${propertyId}/renew`, {});
 }
@@ -403,14 +415,25 @@ export async function createProperty(
   return apiPost("/properties", payload);
 }
 
-/** Placeholder AI copywriter for listing descriptions. */
+/** AI copywriter for listing descriptions — POST /ai/write-description (SELLER). */
 export const AI_WRITE_PATH = "/ai/write-description";
 
-export async function aiWriteDescription(input: {
-  title: string;
-  location_text: string;
-  property_type: string;
-}): Promise<{ description: string }> {
+export type AiWriteDescriptionInput = {
+  title?: string;
+  location_text?: string;
+  property_type?: string;
+  deal_type?: "SALE" | "RENT";
+  price?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  area_sqm?: string;
+  city_name?: string;
+  features?: string;
+};
+
+export async function aiWriteDescription(
+  input: AiWriteDescriptionInput,
+): Promise<{ description: string }> {
   return apiPost(AI_WRITE_PATH, input);
 }
 

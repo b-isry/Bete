@@ -106,6 +106,8 @@
     "placeholder": "Guri 3 qol oo ku yaal Bahir Dar oo ka yar 2 milyan oo birr",
     "submit": "Raadi",
     "hint": "Ku sharax hoyga ku habboon erayadaada.",
+    "parsing": "Raadintaada waa la falanqeynayaa…",
+    "error": "Waa lagu falanqeyn waayay raadintaada. Fadlan isku day mar kale.",
     "engine": "Matoorka Sirdoonka AI"
   },
   "listing": {
@@ -627,6 +629,7 @@
       "subtitle": "Xayeysiinada cusub waxay ku bilaabmaan PENDING ilaa maamule uu dib u eego.",
       "writeForMe": "Ii Qor",
       "aiDone": "Sharaxaadda waa la qoray.",
+      "aiError": "Waa lagu soo saari waayay sharaxaad. Fadlan isku day mar kale.",
       "aiFallback": "Waxaa la isticmaalay qorista maxalliga ah intii qoraaga AI aan la heli karin.",
       "needImages": "Ku dar ugu yaraan hal sawir.",
       "dropzone": {
@@ -697,9 +700,14 @@
     "contact": {
       "title": "Xiriir",
       "intro": "U qor kooxda Bete. Muranka xayeysiinta firfircoon, dooro waddooyinka Taageerada si aan diiwaan u hayno.",
+      "subject": "Mawduuc",
       "message": "Farriin",
       "submit": "Dir Farriinta",
-      "sent": "Farriinta waa la diiwaan geliyay — waan kula soo xiriiri doonaa marka sanduuqa xiriirku firfircoon noqdo."
+      "sending": "Waa la dirayaa…",
+      "sent": "Farriinta waa la diray — kooxdayadu waxay uga jawaabi doonaan Taageerada.",
+      "signInRequired": "Fadlan gal si aad ula xiriirto taageerada.",
+      "sendFailed": "Farriintaada lama diri karin. Isku day mar kale.",
+      "viewSupport": "Ka eeg Xarunta Taageerada"
     }
   }
 }

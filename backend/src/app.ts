@@ -15,9 +15,11 @@ import {
   propertyEventRouter,
   sellersRouter,
 } from './modules/analytics/routes/analytics.routes';
+import { aiRouter } from './modules/ai/routes/ai.routes';
 import { authRouter } from './modules/auth/routes/auth.routes';
 import { catalogRouter } from './modules/catalog/routes/catalog.routes';
 import { geocodingRouter } from './modules/geocoding/routes/geocoding.routes';
+import { contactRouter } from './modules/messaging/routes/contact.routes';
 import { messagingRouter } from './modules/messaging/routes/messaging.routes';
 import { favoritesRouter } from './modules/favorites/routes/favorites.routes';
 import { notificationsRouter } from './modules/notifications/routes/notifications.routes';
@@ -52,12 +54,14 @@ export function createApp(): Application {
   app.use('/api/v1/auth', authRateLimiter, authRouter);
   app.use('/api/v1/uploads', storageRouter);
   app.use('/api/v1/geocode', geocodingRouter);
+  app.use('/api/v1/ai', aiRouter);
   app.use('/api/v1', catalogRouter);
   // /top must stay ahead of /:username
   app.use('/api/v1/sellers', sellersRouter);
   app.use('/api/v1/sellers', sellerDirectoryRouter);
   app.use('/api/v1/admin', adminRouter);
   app.use('/api/v1/messages', messagingRouter);
+  app.use('/api/v1/contact', contactRouter);
   app.use('/api/v1/favorites', favoritesRouter);
   app.use('/api/v1/notifications', notificationsRouter);
   // Search + event + report routes before generic `/:id`

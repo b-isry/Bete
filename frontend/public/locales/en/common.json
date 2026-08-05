@@ -104,6 +104,8 @@
     "placeholder": "3-bedroom house in Bahir Dar under 2 million birr",
     "submit": "Search",
     "hint": "Describe your ideal living space in your own words.",
+    "parsing": "Parsing your search…",
+    "error": "Could not parse your search. Please try again.",
     "engine": "AI Intelligence Engine"
   },
   "listing": {
@@ -625,6 +627,7 @@
       "subtitle": "New listings start as PENDING until an admin reviews them.",
       "writeForMe": "Write it for me",
       "aiDone": "Description drafted.",
+      "aiError": "Could not generate a description. Please try again.",
       "aiFallback": "Used a local draft while the AI writer is unavailable.",
       "needImages": "Add at least one photo.",
       "dropzone": {
@@ -695,9 +698,14 @@
     "contact": {
       "title": "Contact",
       "intro": "Write to the Bete team. For active listing disputes, prefer Support threads so we keep a record.",
+      "subject": "Subject",
       "message": "Message",
       "submit": "Send message",
-      "sent": "Message noted — we will follow up when the contact inbox is live."
+      "sending": "Sending…",
+      "sent": "Message sent — our team will reply in Support.",
+      "signInRequired": "Please sign in to contact support.",
+      "sendFailed": "Could not send your message. Try again.",
+      "viewSupport": "View in Support Center"
     }
   }
 }

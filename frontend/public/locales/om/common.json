@@ -106,6 +106,8 @@
     "placeholder": "Mana ciisicha 3 kan Bahir Dar keessatti argamu birrii miliyoona 2 gadi",
     "submit": "Barbaadi",
     "hint": "Bakka jireenyaa barbaaddan jechoota keessaniin ibsaa.",
+    "parsing": "Barbaacha kee ni xiinxalaa jira…",
+    "error": "Barbaacha kee xiinxaluun hin danda'amne. Mee irra deebi'ii yaali.",
     "engine": "Injinii Ogummaa AI"
   },
   "listing": {
@@ -627,6 +629,7 @@
       "subtitle": "Beeksisonni haaraa hanga bulchaan isaan ilaaluutti \"Eegaa jira\" jedhamanii jalqabu.",
       "writeForMe": "Naaf Barreessi",
       "aiDone": "Ibsi barreeffameera.",
+      "aiError": "Ibsa uumuu hin dandeenye. Mee irra deebi'ii yaali.",
       "aiFallback": "Yeroo barreessaan AI hin argamne wixinee naannoo fayyadamameera.",
       "needImages": "Yoo xiqqaate suuraa tokko dabalaa.",
       "dropzone": {
@@ -697,9 +700,14 @@
     "contact": {
       "title": "Qunnamtii",
       "intro": "Garee Bete barreessaa. Wal-falmii beeksisaa hojiirra jiruuf, akka galmee qabaannuuf haasaa Deeggarsaa filadhaa.",
+      "subject": "Mata-duree",
       "message": "Ergaa",
       "submit": "Ergaa Ergi",
-      "sent": "Ergaan galmaa'eera — sanduuqni ergaa qunnamtii yeroo hojiirra ga'u isin qunnamna."
+      "sending": "Erguu irratti…",
+      "sent": "Ergaan ergameera — gareen keenya Deeggarsa keessatti deebii kenna.",
+      "signInRequired": "Deeggarsa qunnamuuf maaloo seeni.",
+      "sendFailed": "Ergaa kee erguu hin dandeenye. Irra deebi'ii yaali.",
+      "viewSupport": "Giddugaleessa Deeggarsaa keessatti ilaali"
     }
   }
 }

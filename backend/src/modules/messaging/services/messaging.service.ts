@@ -254,6 +254,44 @@ export async function sendMessage(
   return { message: result.message, thread_id: result.thread.id };
 }
 
+/**
+ * Contact form → SUPPORT thread. Combines subject into the first TEXT message
+ * because Thread has no subject column.
+ */
+export async function createContactThread(
+  userId: string,
+  subject: string,
+  message: string,
+) {
+  const messageText = `**${subject}**\n\n${message}`;
+
+  const result = await prisma.$transaction(async (tx) => {
+    const thread = await tx.thread.create({
+      data: {
+        thread_type: ThreadType.SUPPORT,
+        property_id: null,
+        assigned_admin_id: null,
+        participants: {
+          create: [{ user_id: userId }],
+        },
+      },
+    });
+
+    await tx.message.create({
+      data: {
+        thread_id: thread.id,
+        sender_id: userId,
+        message_type: 'TEXT',
+        message_text: messageText,
+      },
+    });
+
+    return thread;
+  });
+
+  return { thread_id: result.id };
+}
+
 export async function listThreads(userId: string, userRole: UserRole) {
   const participantThreads = await prisma.threadParticipant.findMany({
     where: { user_id: userId },
