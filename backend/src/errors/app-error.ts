@@ -57,6 +57,13 @@ export class TooManyRequestsError extends AppError {
   }
 }
 
+/** Feature or dependency is not available in this environment. */
+export class NotImplementedError extends AppError {
+  constructor(message = 'Not implemented', details?: unknown) {
+    super(message, 501, 'NOT_IMPLEMENTED', details);
+  }
+}
+
 /** An upstream third-party dependency failed or returned an unusable response. */
 export class BadGatewayError extends AppError {
   constructor(message = 'Upstream service error', details?: unknown) {

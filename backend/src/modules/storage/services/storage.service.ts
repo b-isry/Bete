@@ -6,8 +6,14 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { randomUUID } from 'crypto';
-import { storageConfig } from '../../../config/storage.config';
-import { BadRequestError } from '../../../errors/app-error';
+import {
+  isStorageConfigured,
+  storageConfig,
+} from '../../../config/storage.config';
+import {
+  BadRequestError,
+  NotImplementedError,
+} from '../../../errors/app-error';
 import { UploadCategory } from '../schemas/storage.schema';
 
 type CategoryConfig = {
@@ -51,30 +57,47 @@ export const CATEGORY_CONFIG: Record<UploadCategory, CategoryConfig> = {
 const UPLOAD_URL_EXPIRES_IN = 5 * 60; // 5 minutes
 const READ_URL_EXPIRES_IN = 10 * 60; // 10 minutes
 
-const clientOptions = {
-  region: storageConfig.region,
-  credentials: {
-    accessKeyId: storageConfig.accessKeyId,
-    secretAccessKey: storageConfig.secretAccessKey,
-  },
-  forcePathStyle: storageConfig.forcePathStyle,
-};
+const STORAGE_NOT_CONFIGURED_MESSAGE =
+  'Media storage is not configured for this environment.';
 
-/** Server-to-storage calls (delete, future reads) over the internal network. */
-const s3Client = new S3Client({
-  ...clientOptions,
-  endpoint: storageConfig.endpoint,
-});
+export const isConfigured = isStorageConfigured;
 
-/**
- * Signs URLs against the browser-reachable host. SigV4 covers the Host header,
- * so a URL signed for `minio:9000` fails when the browser sends it to
- * `localhost:9000` — sign with the public endpoint instead.
- */
-const presignClient = new S3Client({
-  ...clientOptions,
-  endpoint: storageConfig.publicEndpoint,
-});
+let s3Client: S3Client | null = null;
+let presignClient: S3Client | null = null;
+
+if (isConfigured) {
+  const clientOptions = {
+    region: storageConfig.region,
+    credentials: {
+      accessKeyId: storageConfig.accessKeyId,
+      secretAccessKey: storageConfig.secretAccessKey,
+    },
+    forcePathStyle: storageConfig.forcePathStyle,
+  };
+
+  /** Server-to-storage calls (delete, future reads) over the internal network. */
+  s3Client = new S3Client({
+    ...clientOptions,
+    endpoint: storageConfig.endpoint,
+  });
+
+  /**
+   * Signs URLs against the browser-reachable host. SigV4 covers the Host header,
+   * so a URL signed for `minio:9000` fails when the browser sends it to
+   * `localhost:9000` — sign with the public endpoint instead.
+   */
+  presignClient = new S3Client({
+    ...clientOptions,
+    endpoint: storageConfig.publicEndpoint,
+  });
+}
+
+function getClients(): { s3: S3Client; presign: S3Client } {
+  if (!isConfigured || !s3Client || !presignClient) {
+    throw new NotImplementedError(STORAGE_NOT_CONFIGURED_MESSAGE);
+  }
+  return { s3: s3Client, presign: presignClient };
+}
 
 export type PresignedUploadResult = {
   uploadUrl: string;
@@ -88,6 +111,7 @@ export async function createPresignedUploadUrl(
   contentType: string,
   fileExtension: string,
 ): Promise<PresignedUploadResult> {
+  const { presign } = getClients();
   const config = CATEGORY_CONFIG[category];
 
   if (!config.allowedContentTypes.includes(contentType)) {
@@ -105,7 +129,7 @@ export async function createPresignedUploadUrl(
     ContentType: contentType,
   });
 
-  const uploadUrl = await getSignedUrl(presignClient, command, {
+  const uploadUrl = await getSignedUrl(presign, command, {
     expiresIn: UPLOAD_URL_EXPIRES_IN,
   });
 
@@ -118,6 +142,8 @@ export async function createPresignedUploadUrl(
 }
 
 export async function getPresignedReadUrl(key: string): Promise<string> {
+  const { presign } = getClients();
+
   if (!key.startsWith('private/')) {
     throw new BadRequestError(
       'Presigned read URLs are only available for private object keys',
@@ -129,18 +155,20 @@ export async function getPresignedReadUrl(key: string): Promise<string> {
     Key: key,
   });
 
-  return getSignedUrl(presignClient, command, {
+  return getSignedUrl(presign, command, {
     expiresIn: READ_URL_EXPIRES_IN,
   });
 }
 
 export async function deleteObject(key: string): Promise<void> {
+  const { s3 } = getClients();
+
   const command = new DeleteObjectCommand({
     Bucket: storageConfig.bucket,
     Key: key,
   });
 
-  await s3Client.send(command);
+  await s3.send(command);
 }
 
 /**
