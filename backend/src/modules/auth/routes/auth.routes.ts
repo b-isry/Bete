@@ -5,10 +5,13 @@ import * as authController from '../controllers/auth.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { requireRole } from '../middlewares/rbac.middleware';
 import {
+  ConfirmPasswordResetSchema,
   LoginSchema,
   RegisterSchema,
   RequestOtpSchema,
+  RequestPasswordResetSchema,
   SubmitVerificationSchema,
+  UpdateSellerProfileSchema,
   VerifyOtpSchema,
 } from '../schemas/auth.schema';
 
@@ -26,12 +29,33 @@ authRouter.post(
   authController.login,
 );
 
+authRouter.post(
+  '/password-reset/request',
+  validateBody(RequestPasswordResetSchema),
+  authController.requestPasswordReset,
+);
+
+authRouter.post(
+  '/password-reset/confirm',
+  validateBody(ConfirmPasswordResetSchema),
+  authController.confirmPasswordReset,
+);
+
 authRouter.get('/me', authenticate, authController.me);
 
+authRouter.patch(
+  '/me',
+  authenticate,
+  requireRole(UserRole.SELLER),
+  validateBody(UpdateSellerProfileSchema),
+  authController.updateSellerProfile,
+);
+
+/** Seller onboarding + buyer→seller upgrade (same OTP + ID path). */
 authRouter.post(
   '/verify-request',
   authenticate,
-  requireRole(UserRole.SELLER),
+  requireRole(UserRole.SELLER, UserRole.USER),
   validateBody(SubmitVerificationSchema),
   authController.submitVerification,
 );
@@ -39,7 +63,7 @@ authRouter.post(
 authRouter.post(
   '/otp/request',
   authenticate,
-  requireRole(UserRole.SELLER),
+  requireRole(UserRole.SELLER, UserRole.USER),
   validateBody(RequestOtpSchema),
   authController.requestOtp,
 );
@@ -47,7 +71,7 @@ authRouter.post(
 authRouter.post(
   '/otp/verify',
   authenticate,
-  requireRole(UserRole.SELLER),
+  requireRole(UserRole.SELLER, UserRole.USER),
   validateBody(VerifyOtpSchema),
   authController.verifyOtp,
 );

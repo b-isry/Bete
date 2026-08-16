@@ -107,14 +107,8 @@ export async function listReportQueue(page: number, limit: number) {
     orderBy: { updated_at: 'desc' },
   });
 
-  const filtered = autoHidden.filter(
-    (property) =>
-      property.status === PropertyStatus.AUTO_HIDDEN ||
-      property._count.reports >= 3,
-  );
-
-  const total = filtered.length;
-  const items = filtered.slice(skip, skip + limit).map((property) => ({
+  const total = autoHidden.length;
+  const items = autoHidden.slice(skip, skip + limit).map((property) => ({
     ...property,
     price: property.price.toString(),
     area_sqm: property.area_sqm?.toString() ?? null,

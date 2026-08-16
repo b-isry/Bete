@@ -44,8 +44,11 @@ export default function VerificationWizardPage() {
   const { t } = useLanguage();
   const router = useRouter();
   const { push } = useToast();
-  const { data, isLoading, mutate, isMockFallback } = useAuthMe("SELLER");
+  const { data, isLoading, mutate, isMockFallback } = useAuthMe("USER", {
+    withFallback: false,
+  });
   const user = data?.user;
+  const shellRole = user?.role === "SELLER" ? "SELLER" : "USER";
 
   const [step, setStep] = useState<1 | 2>(1);
   const [codeSent, setCodeSent] = useState(false);
@@ -85,7 +88,7 @@ export default function VerificationWizardPage() {
       router.replace("/sign-in");
       return;
     }
-    if (user.role !== "SELLER") {
+    if (user.role !== "SELLER" && user.role !== "USER") {
       router.replace("/dashboard");
       return;
     }
@@ -206,14 +209,14 @@ export default function VerificationWizardPage() {
 
   if (!guardsReady || (isLoading && !user)) {
     return (
-      <DashboardShell role="SELLER" title={t("dashboard.verification.title")}>
+      <DashboardShell role={shellRole} title={t("dashboard.verification.title")}>
         <Skeleton className="h-64 w-full" />
       </DashboardShell>
     );
   }
 
   return (
-    <DashboardShell role="SELLER" title={t("dashboard.verification.title")}>
+    <DashboardShell role={shellRole} title={t("dashboard.verification.title")}>
       <MockDataNotice endpoints={isMockFallback ? ["/auth/me"] : []} />
       <p className="mb-2 font-sans text-label-sm uppercase tracking-[0.2em] text-secondary">
         {t("dashboard.verification.eyebrow")}

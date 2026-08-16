@@ -3,7 +3,10 @@ import { Router } from 'express';
 import { aiRateLimiter } from '../../../middlewares/rate-limiter';
 import { validateBody } from '../../../middlewares/validate.middleware';
 import { authenticate } from '../../auth/middlewares/auth.middleware';
-import { requireRole } from '../../auth/middlewares/rbac.middleware';
+import {
+  requireRole,
+  requireVerifiedSeller,
+} from '../../auth/middlewares/rbac.middleware';
 import * as aiController from '../controllers/ai.controller';
 import {
   ParseQueryBodySchema,
@@ -24,6 +27,7 @@ aiRouter.post(
   aiRateLimiter,
   authenticate,
   requireRole(UserRole.SELLER),
+  requireVerifiedSeller,
   validateBody(WriteDescriptionBodySchema),
   aiController.writeDescription,
 );

@@ -156,10 +156,14 @@ export async function moderateListing(
   }
 
   if (input.action === 'REJECT') {
+    const reason = input.rejection_reason?.trim() || 'Does not meet marketplace standards';
     const updated = await prisma.$transaction(async (tx) => {
       const rejected = await tx.property.update({
         where: { id: propertyId },
-        data: { status: PropertyStatus.REJECTED },
+        data: {
+          status: PropertyStatus.REJECTED,
+          rejection_reason: reason,
+        },
         include: {
           flags: true,
           images: { orderBy: { sort_order: 'asc' } },
@@ -172,12 +176,20 @@ export async function moderateListing(
           action: 'LISTING_REJECT',
           target_type: 'Property',
           target_id: propertyId,
-          note: input.rejection_reason,
+          note: reason,
         },
       });
 
       return rejected;
     });
+
+    await notify(
+      property.seller_id,
+      NotificationType.LISTING_REJECTED,
+      'Listing rejected',
+      `“${property.title}” was not approved. Reason: ${reason}`,
+      '/dashboard/listings',
+    );
 
     return {
       property: {
@@ -192,7 +204,10 @@ export async function moderateListing(
   const updated = await prisma.$transaction(async (tx) => {
     const approved = await tx.property.update({
       where: { id: propertyId },
-      data: { status: PropertyStatus.LIVE },
+      data: {
+        status: PropertyStatus.LIVE,
+        rejection_reason: null,
+      },
       include: {
         flags: true,
         images: { orderBy: { sort_order: 'asc' } },
@@ -279,6 +294,14 @@ export async function moderateListing(
     return approved;
   });
 
+  await notify(
+    property.seller_id,
+    NotificationType.LISTING_APPROVED,
+    'Listing approved',
+    `“${property.title}” is now LIVE on Bete. Buyers can find it in search.`,
+    `/properties/${propertyId}`,
+  );
+
   // After commit: alert users with matching saved searches
   await notifySavedSearchMatches({
     id: updated.id,
@@ -300,9 +323,9 @@ export async function moderateListing(
 export async function listPendingVerifications(page: number, limit: number) {
   const skip = (page - 1) * limit;
   const where = {
-    role: UserRole.SELLER,
     verification_status: VerificationStatus.PENDING,
     deleted_at: null,
+    id_document_url: { not: null },
   };
 
   const [total, rows] = await prisma.$transaction([
@@ -398,8 +421,12 @@ export async function verifySeller(
     throw new NotFoundError('User not found');
   }
 
-  if (user.role !== UserRole.SELLER) {
-    throw new BadRequestError('Verification only applies to SELLER accounts');
+  if (user.role !== UserRole.SELLER && user.role !== UserRole.USER) {
+    throw new BadRequestError('Verification only applies to buyer or seller accounts');
+  }
+
+  if (user.verification_status !== VerificationStatus.PENDING) {
+    throw new BadRequestError('Only PENDING verification requests can be moderated');
   }
 
   if (input.action === 'REJECT') {
@@ -453,6 +480,7 @@ export async function verifySeller(
     const verified = await tx.user.update({
       where: { id: userId },
       data: {
+        role: UserRole.SELLER,
         verification_status: VerificationStatus.VERIFIED,
         verified_at: new Date(),
         username,
@@ -473,7 +501,7 @@ export async function verifySeller(
         action: 'SELLER_VERIFY_APPROVE',
         target_type: 'User',
         target_id: userId,
-        note: `username=${username}`,
+        note: `username=${username}; role_was=${user.role}`,
       },
     });
 
@@ -489,4 +517,39 @@ export async function verifySeller(
   );
 
   return { user: updated };
+}
+
+export async function resolvePropertyFlag(flagId: string, adminId: string) {
+  const flag = await prisma.propertyFlag.findUnique({
+    where: { id: flagId },
+  });
+
+  if (!flag) {
+    throw new NotFoundError('Property flag not found');
+  }
+
+  if (flag.resolved) {
+    return { flag };
+  }
+
+  const updated = await prisma.$transaction(async (tx) => {
+    const resolved = await tx.propertyFlag.update({
+      where: { id: flagId },
+      data: { resolved: true },
+    });
+
+    await tx.adminActionLog.create({
+      data: {
+        admin_id: adminId,
+        action: 'FLAG_RESOLVE',
+        target_type: 'PropertyFlag',
+        target_id: flagId,
+        note: `property_id=${flag.property_id}; flag_type=${flag.flag_type}`,
+      },
+    });
+
+    return resolved;
+  });
+
+  return { flag: updated };
 }

@@ -7,8 +7,14 @@
   --header-height: 4rem;
 }
 
+html {
+  overflow-x: clip;
+}
+
 body {
   background-color: #fbf9f5;
+  overflow-x: clip;
+  min-width: 0;
 }
 
 .material-symbols-outlined {

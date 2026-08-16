@@ -8,6 +8,7 @@ jest.mock('../../../config/prisma', () => ({
   prisma: {
     property: {
       findFirst: jest.fn(),
+      count: jest.fn(),
     },
   },
 }));
@@ -17,7 +18,7 @@ jest.mock('../../analytics/services/event-tracker.service', () => ({
 }));
 
 const prismaMock = prisma as unknown as {
-  property: { findFirst: jest.Mock };
+  property: { findFirst: jest.Mock; count: jest.Mock };
 };
 
 const trackListingViewMock = eventTracker.trackListingView as jest.Mock;
@@ -53,6 +54,7 @@ function liveProperty() {
 describe('getPropertyById', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    prismaMock.property.count.mockResolvedValue(1);
   });
 
   it('increments view_count when trackListingView records a new view', async () => {
@@ -78,6 +80,23 @@ describe('getPropertyById', () => {
     expect(result.view_count).toBe(5);
   });
 
+  it('includes LIVE listing count for the seller portfolio link', async () => {
+    prismaMock.property.findFirst.mockResolvedValue(liveProperty());
+    prismaMock.property.count.mockResolvedValue(4);
+    trackListingViewMock.mockResolvedValue({ recorded: false });
+
+    const result = await getPropertyById(PROPERTY_ID, 'visitor-key-1');
+
+    expect(prismaMock.property.count).toHaveBeenCalledWith({
+      where: {
+        seller_id: 'seller-1',
+        status: 'LIVE',
+        deleted_at: null,
+      },
+    });
+    expect(result.seller.active_listing_count).toBe(4);
+  });
+
   it('throws NotFoundError for missing LIVE listings', async () => {
     prismaMock.property.findFirst.mockResolvedValue(null);
 
@@ -85,5 +104,6 @@ describe('getPropertyById', () => {
       getPropertyById(PROPERTY_ID, 'visitor-key-1'),
     ).rejects.toBeInstanceOf(NotFoundError);
     expect(trackListingViewMock).not.toHaveBeenCalled();
+    expect(prismaMock.property.count).not.toHaveBeenCalled();
   });
 });

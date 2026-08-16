@@ -1,4 +1,4 @@
-import { PropertyType } from '@prisma/client';
+import { DealType, PropertyType } from '@prisma/client';
 import { z } from 'zod';
 
 export const ParseQueryBodySchema = z.object({
@@ -30,6 +30,7 @@ export type WriteDescriptionBody = z.infer<typeof WriteDescriptionBodySchema>;
 export const ParsedSearchFiltersSchema = z.object({
   city_id: z.number().int().positive().optional(),
   property_type: z.nativeEnum(PropertyType).optional(),
+  deal_type: z.nativeEnum(DealType).optional(),
   min_price: z.number().nonnegative().optional(),
   max_price: z.number().nonnegative().optional(),
   bedrooms: z.number().int().nonnegative().optional(),

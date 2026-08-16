@@ -5,7 +5,6 @@ import type { ReactNode } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAuthMe } from "@/lib/hooks";
 import { EmptyState } from "./EmptyState";
-import { MockDataNotice } from "./MockDataNotice";
 import { Skeleton } from "./Skeleton";
 
 export type RequireRoleProps = {
@@ -16,7 +15,7 @@ export type RequireRoleProps = {
 
 /**
  * Client-side gate mirroring backend `requireRole(...)`.
- * Blocks non-matching roles. Design-time mock via useAuthMe preferredRole.
+ * Fail closed: never authorize from mock/fallback identity.
  */
 export function RequireRole({
   role,
@@ -27,10 +26,14 @@ export function RequireRole({
   const router = useRouter();
   const preferred =
     role === "ADMIN" ? "ADMIN" : role === "SELLER" ? "SELLER" : "USER";
-  const { data, isLoading, isMockFallback } = useAuthMe(preferred);
+  // No mock fallback — gating must wait on the real /auth/me response.
+  const { data, error, isLoading } = useAuthMe(preferred, {
+    withFallback: false,
+  });
   const userRole = data?.user.role;
+  const roleLabel = t(`auth.roleNames.${role}`);
 
-  if (isLoading && !data) {
+  if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-8">
         <Skeleton className="h-32 w-full max-w-md" />
@@ -38,20 +41,20 @@ export function RequireRole({
     );
   }
 
-  if (!userRole || userRole !== role) {
+  if (error || !userRole || userRole !== role) {
     return (
       <div className="mx-auto max-w-lg px-6 py-24">
         <EmptyState
           icon="lock"
-          title={t("admin.forbidden")}
-          description={t("admin.forbiddenHint")}
+          title={t("auth.forbidden").replace("{role}", roleLabel)}
+          description={t("auth.forbiddenHint").replace("{role}", roleLabel)}
           action={
             <button
               type="button"
               className="border border-outline px-4 py-2 font-sans text-label-md uppercase tracking-widest text-primary hover:bg-surface-container-low"
               onClick={() => router.push(fallbackHref)}
             >
-              {t("admin.backHome")}
+              {t("auth.forbiddenBack")}
             </button>
           }
         />
@@ -59,14 +62,5 @@ export function RequireRole({
     );
   }
 
-  return (
-    <>
-      {isMockFallback ? (
-        <div className="mx-auto max-w-6xl px-4 pt-4 md:px-8">
-          <MockDataNotice endpoints={["/auth/me"]} />
-        </div>
-      ) : null}
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

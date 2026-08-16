@@ -1,10 +1,11 @@
-import { FlagType, PropertyType } from '@prisma/client';
+import { DealType, FlagType, PropertyType } from '@prisma/client';
 import Decimal from 'decimal.js';
 import { prisma } from '../../../config/prisma';
 import { getAreaAveragePrice } from './price-check.service';
 
 export interface PreScreeningFlag {
   flag_type: FlagType;
+  message: string;
   detail: Record<string, unknown>;
 }
 
@@ -14,6 +15,7 @@ export interface PreScreeningInput {
   price: string;
   city_id: number;
   property_type: PropertyType;
+  deal_type: DealType;
   image_hashes: string[];
 }
 
@@ -38,6 +40,7 @@ export async function runPreScreeningChecks(
   const priceFlag = await checkPriceOutlier(
     data.city_id,
     data.property_type,
+    data.deal_type,
     data.price,
   );
   if (priceFlag) {
@@ -80,6 +83,7 @@ async function checkDuplicateImages(
     seenProperties.add(match.property_id);
     flags.push({
       flag_type: FlagType.DUPLICATE_PHOTO_MATCH,
+      message: `Photo matches an existing listing (${match.property_id.slice(0, 8)}…).`,
       detail: { matchedPropertyId: match.property_id },
     });
   }
@@ -90,9 +94,15 @@ async function checkDuplicateImages(
 async function checkPriceOutlier(
   cityId: number,
   propertyType: PropertyType,
+  dealType: DealType,
   price: string,
 ): Promise<PreScreeningFlag | null> {
-  const avgPrice = await getAreaAveragePrice(cityId, propertyType);
+  const avgPrice = await getAreaAveragePrice(
+    cityId,
+    propertyType,
+    undefined,
+    dealType,
+  );
   if (avgPrice === null || avgPrice.isZero()) {
     return null;
   }
@@ -101,11 +111,14 @@ async function checkPriceOutlier(
   const ratio = listingPrice.div(avgPrice);
 
   if (ratio.gt(PRICE_HIGH_MULTIPLIER) || ratio.lt(PRICE_LOW_MULTIPLIER)) {
+    const direction = ratio.gt(PRICE_HIGH_MULTIPLIER) ? 'above' : 'below';
     return {
       flag_type: FlagType.PRICE_OUTLIER_DETECTED,
+      message: `Listed price is far ${direction} the area average of ${avgPrice.toFixed(2)} ETB for ${dealType.toLowerCase()} ${propertyType.toLowerCase()} (ratio ${ratio.toFixed(2)}).`,
       detail: {
         avgPrice: avgPrice.toFixed(2),
         ratio: ratio.toFixed(4),
+        deal_type: dealType,
       },
     };
   }
@@ -125,6 +138,7 @@ function checkScamKeywords(
 
   return {
     flag_type: FlagType.SCAM_KEYWORD_DETECTED,
+    message: `Possible scam language detected: “${match[0]}”.`,
     detail: { matchedPhrase: match[0] },
   };
 }

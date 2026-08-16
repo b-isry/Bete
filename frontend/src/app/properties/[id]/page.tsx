@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
 import useSWR from "swr";
 import {
   Avatar,
@@ -10,25 +12,36 @@ import {
   EmptyState,
   Icon,
   MapEmbed,
+  Modal,
+  ModalBody,
+  Select,
   Skeleton,
   SkeletonText,
   StatusPill,
+  Textarea,
+  useToast,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
 import {
   apiFetcher,
+  createPropertyReport,
   trackPropertyEvent,
   type ContactChannel,
 } from "@/lib/api";
+import { getAccessToken } from "@/lib/auth";
 import { PLACEHOLDER_IMAGE } from "@/lib/mocks";
 
 type PropertySeller = {
+  id?: string;
   name?: string | null;
+  username?: string | null;
   phone: string | null;
   whatsapp_number: string | null;
   telegram_username: string | null;
   role: string;
   verification_status: string;
+  /** LIVE listings only — for public agency portfolio link. */
+  active_listing_count?: number;
 };
 
 type PropertyDetail = {
@@ -36,6 +49,8 @@ type PropertyDetail = {
   title: string;
   description: string;
   price: string;
+  deal_type?: "SALE" | "RENT";
+  property_type?: string;
   area_sqm: string | null;
   location_text: string;
   lat: number | null;
@@ -78,12 +93,15 @@ const MOCK_PROPERTY: PropertyDetail = {
     },
   ],
   seller: {
+    id: "mock-user-seller",
     name: "Heritage Group",
+    username: "heritage",
     phone: "+251911234567",
     whatsapp_number: "251911234567",
     telegram_username: "beteseller",
     role: "SELLER",
     verification_status: "VERIFIED",
+    active_listing_count: 3,
   },
 };
 
@@ -114,7 +132,13 @@ type PageProps = {
  */
 export default function PropertyDetailsPage({ params }: PageProps) {
   const { t } = useLanguage();
+  const router = useRouter();
+  const { push } = useToast();
   const isMockId = params.id.startsWith("mock");
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("SCAM");
+  const [reportNote, setReportNote] = useState("");
+  const [reportBusy, setReportBusy] = useState(false);
 
   const { data, error, isLoading } = useSWR<PropertyDetailResponse>(
     params.id ? `/properties/${params.id}` : null,
@@ -146,11 +170,44 @@ export default function PropertyDetailsPage({ params }: PageProps) {
     }
   }
 
+  function openReport() {
+    if (!getAccessToken()) {
+      push(t("property.report.loginRequired"), "error");
+      router.push("/sign-in");
+      return;
+    }
+    setReportOpen(true);
+  }
+
+  async function onSubmitReport(e: FormEvent) {
+    e.preventDefault();
+    if (isMockId) {
+      push(t("property.report.success"), "success");
+      setReportOpen(false);
+      return;
+    }
+    setReportBusy(true);
+    try {
+      await createPropertyReport(params.id, {
+        reason: reportReason,
+        note: reportNote.trim() || undefined,
+      });
+      push(t("property.report.success"), "success");
+      setReportOpen(false);
+      setReportNote("");
+      setReportReason("SCAM");
+    } catch {
+      push(t("property.report.error"), "error");
+    } finally {
+      setReportBusy(false);
+    }
+  }
+
   if (isLoading && !data && !error) {
     return (
-      <div className="mx-auto max-w-7xl space-y-6 px-6 py-24 sm:px-10 lg:px-16">
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
         <Skeleton className="h-4 w-32" />
-        <Skeleton className="h-12 w-3/4" />
+        <Skeleton className="h-10 w-3/4 sm:h-12" />
         <Skeleton className="aspect-[16/10] w-full" />
         <SkeletonText lines={4} />
       </div>
@@ -166,7 +223,7 @@ export default function PropertyDetailsPage({ params }: PageProps) {
 
   if (!property) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-24 sm:px-8">
+      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
         <EmptyState
           icon="home"
           title={t("property.notFoundTitle")}
@@ -197,28 +254,28 @@ export default function PropertyDetailsPage({ params }: PageProps) {
     compare?.comparisonText ?? t("property.priceCompareFallback");
 
   return (
-    <article className="mx-auto max-w-7xl px-6 pb-24 pt-10 sm:px-10 lg:px-16">
+    <article className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6 sm:pb-24 sm:pt-10 lg:px-16">
       <Link
         href="/search"
-        className="mb-8 inline-flex items-center gap-1 font-sans text-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary"
+        className="mb-6 inline-flex items-center gap-1 font-sans text-label-sm uppercase tracking-widest text-on-surface-variant hover:text-primary sm:mb-8"
       >
         <Icon name="arrow_back" className="text-base" />
         {t("property.backToSearch")}
       </Link>
 
-      <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12">
-        <div className="space-y-12 lg:col-span-8">
+      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
+        <div className="min-w-0 space-y-10 sm:space-y-12 lg:col-span-8">
           <header className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="flex items-center gap-2 font-sans text-label-sm font-bold uppercase tracking-widest text-secondary">
-                <Icon name="location_on" className="text-sm" />
-                {property.location_text}
+              <p className="flex min-w-0 items-center gap-2 font-sans text-label-sm font-bold uppercase tracking-widest text-secondary">
+                <Icon name="location_on" className="shrink-0 text-sm" />
+                <span className="break-words">{property.location_text}</span>
               </p>
               {verified ? (
                 <StatusPill kind="verification" status="VERIFIED" />
               ) : null}
             </div>
-            <h1 className="font-serif text-headline-md leading-tight text-primary md:text-display-lg-mobile">
+            <h1 className="break-words font-serif text-headline-sm leading-tight text-primary sm:text-headline-md lg:text-display-lg-mobile">
               {property.title}
             </h1>
           </header>
@@ -291,13 +348,13 @@ export default function PropertyDetailsPage({ params }: PageProps) {
           </section>
         </div>
 
-        <aside className="space-y-6 lg:sticky lg:top-24 lg:col-span-4">
-          <Card className="space-y-8">
-            <div className="space-y-2">
+        <aside className="min-w-0 space-y-6 lg:sticky lg:top-24 lg:col-span-4">
+          <Card className="min-w-0 space-y-6 overflow-hidden sm:space-y-8">
+            <div className="min-w-0 space-y-2">
               <p className="font-sans text-label-sm font-bold uppercase tracking-widest text-on-surface-variant">
                 {t("property.investmentPrice")}
               </p>
-              <p className="font-serif text-display-lg-mobile text-primary">
+              <p className="break-words font-serif text-headline-md text-primary sm:text-display-lg-mobile">
                 {formatEtb(
                   Number.isFinite(priceEtb) ? priceEtb : 0,
                   t("common.currencyEtb"),
@@ -311,15 +368,16 @@ export default function PropertyDetailsPage({ params }: PageProps) {
               ) : null}
             </div>
 
-            <div className="space-y-6 border-t border-outline-variant/10 pt-8">
-              <div className="flex items-center gap-4">
+            <div className="space-y-6 border-t border-outline-variant/10 pt-6 sm:pt-8">
+              <div className="flex min-w-0 items-center gap-4">
                 <Avatar
                   shape="square"
                   size="lg"
                   initials={(property.seller.name ?? "B").slice(0, 2)}
+                  className="shrink-0"
                 />
-                <div>
-                  <h4 className="font-sans text-label-md font-bold uppercase tracking-wider text-primary">
+                <div className="min-w-0">
+                  <h4 className="truncate font-sans text-label-md font-bold uppercase tracking-wider text-primary">
                     {property.seller.name ?? t("property.seller")}
                   </h4>
                   {verified ? (
@@ -330,8 +388,30 @@ export default function PropertyDetailsPage({ params }: PageProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div className="border border-outline-variant/10 bg-surface-container-low p-4">
+              {property.seller.username ? (
+                <Link
+                  href={`/sellers/${encodeURIComponent(property.seller.username)}`}
+                  className="block border border-outline-variant/30 bg-surface-container-low px-4 py-3 font-sans text-label-sm uppercase tracking-widest text-primary transition-colors hover:border-primary/40 hover:bg-surface-container"
+                >
+                  {(property.seller.active_listing_count ?? 0) === 1
+                    ? t("property.viewAgencyOne").replace(
+                        "{name}",
+                        property.seller.name ?? t("property.seller"),
+                      )
+                    : t("property.viewAgencyMany")
+                        .replace(
+                          "{count}",
+                          String(property.seller.active_listing_count ?? 0),
+                        )
+                        .replace(
+                          "{name}",
+                          property.seller.name ?? t("property.seller"),
+                        )}
+                </Link>
+              ) : null}
+
+              <div className="grid grid-cols-2 gap-3 text-center sm:gap-4">
+                <div className="border border-outline-variant/10 bg-surface-container-low p-3 sm:p-4">
                   <p className="font-sans text-label-sm font-bold uppercase tracking-widest text-on-surface-variant">
                     {t("property.views")}
                   </p>
@@ -339,7 +419,7 @@ export default function PropertyDetailsPage({ params }: PageProps) {
                     {formatCount(property.view_count)}
                   </p>
                 </div>
-                <div className="border border-outline-variant/10 bg-surface-container-low p-4">
+                <div className="border border-outline-variant/10 bg-surface-container-low p-3 sm:p-4">
                   <p className="font-sans text-label-sm font-bold uppercase tracking-widest text-on-surface-variant">
                     {t("property.contacts")}
                   </p>
@@ -363,7 +443,7 @@ export default function PropertyDetailsPage({ params }: PageProps) {
                     {t("property.call")}
                   </Button>
                 ) : null}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                   {phone ? (
                     <Button
                       href={`tel:${phone}`}
@@ -409,10 +489,89 @@ export default function PropertyDetailsPage({ params }: PageProps) {
                   ) : null}
                 </div>
               </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2"
+                onClick={openReport}
+              >
+                <Icon name="flag" className="text-lg" />
+                {t("property.report.button")}
+              </Button>
             </div>
           </Card>
         </aside>
       </div>
+
+      <Modal
+        open={reportOpen}
+        onClose={() => {
+          if (!reportBusy) setReportOpen(false);
+        }}
+        title={t("property.report.title")}
+      >
+        <ModalBody>
+          <form className="space-y-4" onSubmit={(e) => void onSubmitReport(e)}>
+            <p className="font-body text-body-md text-on-surface-variant">
+              {t("property.report.hint")}
+            </p>
+            <label className="block">
+              <span className="mb-2 block font-sans text-label-sm uppercase tracking-widest text-on-surface-variant">
+                {t("property.report.reason")}
+              </span>
+              <Select
+                variant="underline"
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                className="w-full"
+                required
+              >
+                {(
+                  [
+                    "FAKE",
+                    "ALREADY_SOLD",
+                    "WRONG_PRICE",
+                    "SCAM",
+                    "OFFENSIVE",
+                    "OTHER",
+                  ] as const
+                ).map((reason) => (
+                  <option key={reason} value={reason}>
+                    {t(`property.report.reasons.${reason}`)}
+                  </option>
+                ))}
+              </Select>
+            </label>
+            <label className="block">
+              <span className="mb-2 block font-sans text-label-sm uppercase tracking-widest text-on-surface-variant">
+                {t("property.report.note")}
+              </span>
+              <Textarea
+                value={reportNote}
+                onChange={(e) => setReportNote(e.target.value)}
+                placeholder={t("property.report.notePlaceholder")}
+                rows={4}
+              />
+            </label>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={reportBusy}
+                onClick={() => setReportOpen(false)}
+              >
+                {t("property.report.cancel")}
+              </Button>
+              <Button type="submit" variant="primary" disabled={reportBusy}>
+                {reportBusy
+                  ? t("property.report.submitting")
+                  : t("property.report.submit")}
+              </Button>
+            </div>
+          </form>
+        </ModalBody>
+      </Modal>
     </article>
   );
 }

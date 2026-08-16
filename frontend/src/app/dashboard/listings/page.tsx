@@ -11,32 +11,28 @@ import {
   Icon,
   Input,
   MockDataNotice,
+  Skeleton,
   StatusPill,
   useToast,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { MY_LISTINGS_PATH, renewListing } from "@/lib/api";
+import { renewListing } from "@/lib/api";
 import { useAuthMe, useMyListings } from "@/lib/hooks";
 import { activeMockEndpoints } from "@/lib/mock-fallback";
 import { PLACEHOLDER_IMAGE, type SellerListing } from "@/lib/mocks";
 
 /**
- * P6 — Seller listing workspace (`bete_seller_workspace_dashboard`)
- * Wired: GET /properties?seller_id=me (placeholder until shipped — mock fallback),
- *        POST /properties/:id/renew. Boost: toast only (Prisma Boost, no HTTP yet).
- * Radius: all surfaces use sharp tokens (0px) — stitch CDN rounded configs ignored.
+ * Seller listing workspace — GET /properties/mine, POST /properties/:id/renew.
+ * Boost: toast only (Prisma Boost, no HTTP yet).
  */
 export default function SellerListingsPage() {
   const { t } = useLanguage();
   const { push } = useToast();
   const { data: meData, isMockFallback: authMock } = useAuthMe("SELLER");
-  const { data, mutate, isMockFallback: listingsMock } = useMyListings();
+  const { data, error, isLoading, mutate } = useMyListings();
   const [query, setQuery] = useState("");
   const [renewingId, setRenewingId] = useState<string | null>(null);
-  const mockEndpoints = activeMockEndpoints(
-    ["/auth/me", authMock],
-    [MY_LISTINGS_PATH, listingsMock],
-  );
+  const mockEndpoints = activeMockEndpoints(["/auth/me", authMock]);
 
   const listings = data?.items ?? [];
   const filtered = useMemo(() => {
@@ -56,7 +52,6 @@ export default function SellerListingsPage() {
       push(t("dashboard.listings.renewSuccess"), "success");
       await mutate();
     } catch {
-      // Endpoint may 401 without JWT — keep mock UX note.
       push(t("dashboard.listings.renewFallback"), "info");
     } finally {
       setRenewingId(null);
@@ -64,7 +59,6 @@ export default function SellerListingsPage() {
   }
 
   function onBoost() {
-    // Boost API not shipped yet (Prisma Boost model only).
     push(t("dashboard.listings.boostPending"), "info");
   }
 
@@ -95,14 +89,41 @@ export default function SellerListingsPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("dashboard.listings.searchPlaceholder")}
+          disabled={isLoading || Boolean(error)}
         />
       </div>
 
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <div className="space-y-4">
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
+        </div>
+      ) : error ? (
+        <EmptyState
+          icon="error"
+          title={t("dashboard.listings.loadError")}
+          description={t("dashboard.listings.loadErrorHint")}
+        />
+      ) : listings.length === 0 ? (
         <EmptyState
           icon="inventory_2"
           title={t("dashboard.listings.empty")}
           description={t("dashboard.listings.emptyHint")}
+          action={
+            <Link href="/listings/new">
+              <Button variant="primary" className="gap-2">
+                <Icon name="add" />
+                {t("dashboard.seller.newListing")}
+              </Button>
+            </Link>
+          }
+        />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          icon="search"
+          title={t("dashboard.listings.filterEmpty")}
+          description={t("dashboard.listings.filterEmptyHint")}
         />
       ) : (
         <div className="space-y-4">
@@ -127,13 +148,15 @@ export default function SellerListingsPage() {
                   <div className="mb-1 flex flex-wrap items-center gap-2">
                     <Link
                       href={`/properties/${listing.id}`}
-                      className="font-serif text-lg text-primary hover:underline"
+                      className="min-w-0 truncate font-serif text-lg text-primary hover:underline"
                     >
                       {listing.title}
                     </Link>
                     <StatusPill kind="property" status={listing.status} />
                     {listing.is_featured ? (
-                      <StatusPill kind="verification" status="VERIFIED" />
+                      <span className="border border-secondary/40 bg-secondary-container px-2 py-0.5 font-sans text-label-sm uppercase tracking-widest text-on-secondary-container">
+                        {t("dashboard.listings.featured")}
+                      </span>
                     ) : null}
                   </div>
                   <p className="font-sans text-label-sm uppercase tracking-widest text-on-surface-variant">
@@ -147,6 +170,12 @@ export default function SellerListingsPage() {
                     {listing.contact_count}{" "}
                     {t("property.contacts").toLowerCase()}
                   </p>
+                  {listing.status === "REJECTED" && listing.rejection_reason ? (
+                    <p className="mt-2 font-body text-body-sm text-error">
+                      {t("dashboard.listings.rejectionReason")}:{" "}
+                      {listing.rejection_reason}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button

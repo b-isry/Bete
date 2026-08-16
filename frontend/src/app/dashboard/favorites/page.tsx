@@ -85,7 +85,7 @@ export default function FavoritesPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((fav) => {
             const price = Number(fav.property.price);
             const pps = fav.property.price_per_sqm
@@ -108,6 +108,12 @@ export default function FavoritesPage() {
                 location={fav.property.location_text}
                 bedrooms={fav.property.bedrooms}
                 bathrooms={fav.property.bathrooms}
+                dealType={
+                  fav.property.deal_type === "SALE" ||
+                  fav.property.deal_type === "RENT"
+                    ? fav.property.deal_type
+                    : null
+                }
                 verified={
                   fav.property.seller?.verification_status === "VERIFIED"
                 }

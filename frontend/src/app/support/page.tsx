@@ -113,10 +113,10 @@ export default function SupportPage() {
         <p className="mb-2 font-sans text-label-sm uppercase tracking-[0.2em] text-secondary">
           {t("support.eyebrow")}
         </p>
-        <h1 className="font-serif text-display-lg-mobile text-primary">
+        <h1 className="break-words font-serif text-headline-sm text-primary sm:text-headline-md md:text-display-lg-mobile">
           {t("support.title")}
         </h1>
-        <p className="mt-3 max-w-2xl font-body text-body-lg text-on-surface-variant">
+        <p className="mt-3 max-w-2xl font-body text-body-md text-on-surface-variant sm:text-body-lg">
           {t("support.subtitle")}
         </p>
       </header>

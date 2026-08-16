@@ -26,6 +26,12 @@ const NAV_ITEMS: DashboardNavItem[] = [
     href: "/dashboard/verification",
     labelKey: "dashboard.nav.verification",
     icon: "verified_user",
+    roles: ["USER", "SELLER"],
+  },
+  {
+    href: "/dashboard/profile",
+    labelKey: "dashboard.nav.profile",
+    icon: "manage_accounts",
     roles: ["SELLER"],
   },
   {
@@ -64,7 +70,7 @@ export function DashboardShell({
   return (
     <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col gap-0 bg-background lg:flex-row">
       <aside className="shrink-0 border-b border-outline-variant bg-surface lg:w-64 lg:border-b-0 lg:border-r">
-        <div className="px-6 py-6">
+        <div className="px-4 py-5 sm:px-6 sm:py-6">
           <p className="font-sans text-label-sm uppercase tracking-widest text-secondary">
             {t("dashboard.workspace")}
           </p>
@@ -83,10 +89,10 @@ export function DashboardShell({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "inline-flex items-center gap-3 px-4 py-3 font-sans text-label-md transition-colors",
+                  "inline-flex shrink-0 items-center gap-3 whitespace-nowrap px-4 py-3 font-sans text-label-md transition-colors",
                   active
-                    ? "border-l-4 border-primary-fixed-dim bg-surface-container-low text-primary lg:border-l-4"
-                    : "border-l-4 border-transparent text-on-surface-variant hover:bg-surface-container-low hover:text-primary",
+                    ? "border-b-2 border-primary-fixed-dim bg-surface-container-low text-primary lg:border-b-0 lg:border-l-4 lg:border-primary-fixed-dim"
+                    : "border-b-2 border-transparent text-on-surface-variant hover:bg-surface-container-low hover:text-primary lg:border-b-0 lg:border-l-4 lg:border-transparent",
                 )}
               >
                 <Icon name={item.icon} className="text-lg" />
@@ -97,11 +103,11 @@ export function DashboardShell({
         </nav>
       </aside>
 
-      <div className="min-w-0 flex-1 px-6 py-8 sm:px-10">
+      <div className="min-w-0 flex-1 px-4 py-8 sm:px-6 lg:px-10">
         {(title || actions) && (
-          <header className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <header className="mb-8 flex flex-col justify-between gap-4 sm:mb-10 lg:flex-row lg:items-end">
             {title ? (
-              <h1 className="font-serif text-headline-md text-on-surface md:text-display-lg-mobile">
+              <h1 className="min-w-0 break-words font-serif text-headline-sm text-on-surface sm:text-headline-md lg:text-display-lg-mobile">
                 {title}
               </h1>
             ) : (

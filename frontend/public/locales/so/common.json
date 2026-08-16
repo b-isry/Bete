@@ -163,6 +163,7 @@
     "locationPlaceholder": "Addis Ababa, Bole…",
     "findProperty": "Raadi Hanti",
     "transaction": "Macaamil",
+    "allDeals": "Dhammaan",
     "buy": "Iibso",
     "rent": "Kiraayso",
     "beds": "Qolal",
@@ -172,6 +173,8 @@
   "property": {
     "backToSearch": "Ku noqo raadinta",
     "verifiedSeller": "Iibiye La Xaqiijiyay",
+    "viewAgencyOne": "Eeg 1 hanti {name}",
+    "viewAgencyMany": "Eeg dhammaan {count} hanti ee {name}",
     "priceCompare": "Sida qiimahani u eg yahay",
     "priceCompareFallback": "Isbarbardhigga qiimaha aagaan wuxuu ka muuqan doonaa marka ay jiraan iib ku filan oo deriska ah.",
     "description": "Sharaxaad",
@@ -188,7 +191,29 @@
     "notFoundDescription": "Xayeysiinkani wuxuu noqon karaa mid aan online ahayn ama ID-giisu waa qalad.",
     "loading": "Hantida waa la soo rarayaa…",
     "mapLoading": "Khariidadda waa la soo rarayaa",
-    "galleryA11y": "Sawirrada Hantida"
+    "galleryA11y": "Sawirrada Hantida",
+    "report": {
+      "button": "Warbixi xayeysiinta",
+      "title": "Warbixi xayeysiintaan",
+      "hint": "Noo sheeg waxa khaldan. Kooxdayadu waxay eegtaa warbixin kasta.",
+      "reason": "Sabab",
+      "note": "Faahfaahin (ikhtiyaar)",
+      "notePlaceholder": "La wadaag macluumaad kormeerayaasha ka caawiya…",
+      "cancel": "Jooji",
+      "submit": "Gudbi warbixinta",
+      "submitting": "Waa la gudbinayaa…",
+      "success": "Warbixinta waa la gudbiyay. Waad ku mahadsan tahay inaad Bete ka dhigtay mid ammaan ah.",
+      "error": "Warbixinta lama gudbin karin. Isku day mar kale.",
+      "loginRequired": "Soo gal si aad u warbixiso xayeysiin.",
+      "reasons": {
+        "FAKE": "Xayeysiin been ah ama marin habaabin",
+        "ALREADY_SOLD": "Hore loo iibiyay ama la kireeyay",
+        "WRONG_PRICE": "Qiimo khaldan",
+        "SCAM": "Shaki khiyaano",
+        "OFFENSIVE": "Waxyaabo xun",
+        "OTHER": "Wax kale"
+      }
+    }
   },
   "cities": {
     "addisAbaba": "Addis Ababa",
@@ -224,6 +249,8 @@
       "active": "Xayeysiinada Firfircoon",
       "manageListings": "Maamul Xayeysiinada",
       "portfolio": "Portfolio-gaaga",
+      "byDealType": "Nooca heshiiska",
+      "byPropertyType": "Nooca hantida",
       "defaultName": "Iibiye"
     },
     "listings": {
@@ -232,8 +259,12 @@
       "searchPlaceholder": "Raadi xayeysiinadaada…",
       "empty": "Wali xayeysiin ma jiro",
       "emptyHint": "Dhig hantidaada ugu horreysa si ay ugu muuqato raadinta.",
-      "renew": "Cusboonaysii",
-      "boost": "Kordhi",
+      "filterEmpty": "Ma jiro xayeysiin ku habboon raadintaada",
+      "filterEmptyHint": "Isku day cinwaan ama eray goob kale.",
+      "loadError": "Waa la soo rarri waayay xayeysiinadaada",
+      "loadErrorHint": "Hubi isku xirkaaga oo isku day mar kale. Haddii aad ka baxday, gal sidii iibiye.",
+      "featured": "La soo bandhigay",
+      "renew": "Cusboonaysii",      "boost": "Kordhi",
       "renewSuccess": "Xayeysiinku wuxuu u cusboonaaday 30 maalmood.",
       "renewFallback": "Cusboonaysiinta ayaa si maxalli ah loogu diray — gal marka API-gu la heli karo.",
       "boostPending": "Kordhinta waxay heli doontaa marka lacag-bixinta dallacsiinta la bilaabo."
@@ -465,10 +496,18 @@
       "reported": "La Warbixiyay",
       "empty": "Safku waa nadiif",
       "emptyHint": "Xayeysiin PENDING ah oo la mid ah shaandhadan ma jiro.",
+      "reportedEmpty": "Warbixin bulsho ma jirto",
+      "reportedEmptyHint": "Warbixinaha iibsadaha ayaa halkan ka muuqan doona.",
+      "pendingReports": "warbixin oo sugaya",
       "cleanPass": "Baaritaan AI oo Nadiif ah",
       "cleanHint": "Wax aan caadi ahayn lama helin. Sawirrada iyo xogtu waa is waafaqsan yihiin.",
       "submitted": "La Gudbiyay",
-      "aiFlagLabel": "Calaamadda AI: "
+      "aiFlagLabel": "Calaamadda AI: ",
+      "flagNoMessage": "Faahfaahin dheeraad ah lama bixin.",
+      "viewListing": "Eeg xayeysiinta",
+      "resolveFlag": "Iska saar calaamadda",
+      "flagResolved": "Calaamaddu waa la xaliyay.",
+      "flagResolveFallback": "Calaamaddu waa la cusbooneysiiyay — ADMIN ahaan soo gal marka API diyaar yahay."
     },
     "analytics": {
       "title": "Falanqaynta & Dakhliga",
@@ -588,6 +627,14 @@
       "nextStepsIntro": "Kadib diiwaan gelinta, dhamaystir kuwan dashboard-kaaga:",
       "nextStepsOtp": "Xaqiiji telefoonkaaga koodh mar-hal ah (OTP).",
       "nextStepsDocs": "Soo geli dukumenti aqoonsi ama shati ganacsi si loo xaqiijiyo."
+    },
+    "forbidden": "Waxaa loo baahan yahay marin {role}",
+    "forbiddenHint": "Sii wad adigoo galaya akoon {role}.",
+    "forbiddenBack": "Ku noqo bogga horumar",
+    "roleNames": {
+      "ADMIN": "Maamule",
+      "SELLER": "Iibiye",
+      "USER": "Iibsadaha"
     }
   },
   "location": {

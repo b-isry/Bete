@@ -30,6 +30,14 @@ export const PropertyIdParamsSchema = z.object({
 
 export type PropertyIdParams = z.infer<typeof PropertyIdParamsSchema>;
 
+/** Pagination for authenticated seller "my listings" (all statuses). */
+export const PropertyMineQuerySchema = z.object({
+  page: z.coerce.number().int().positive().optional().default(1),
+  limit: z.coerce.number().int().positive().max(100).optional().default(20),
+});
+
+export type PropertyMineQuery = z.infer<typeof PropertyMineQuerySchema>;
+
 export const PriceCompareQuerySchema = z.object({
   locale: z.nativeEnum(Locale).optional(),
 });

@@ -182,6 +182,7 @@ export const AI_PARSE_PATH = "/ai/parse-query";
 export type AiParseFilters = {
   city_id?: number;
   property_type?: "HOUSE" | "APARTMENT" | "LAND" | "COMMERCIAL";
+  deal_type?: "SALE" | "RENT";
   min_price?: number;
   max_price?: number;
   bedrooms?: number;
@@ -194,19 +195,89 @@ export async function aiParseQuery(query: string): Promise<AiParseFilters> {
 }
 
 /**
- * Intended seller-owned listings query (seller_id=me not shipped yet).
- * Frontend tries this, then falls back to mocks.
+ * Seller-owned listings (all statuses). Authenticated seller only.
  */
-export const MY_LISTINGS_PATH = "/properties?seller_id=me";
+export const MY_LISTINGS_PATH = "/properties/mine";
 
 /** Favorites — GET/POST/DELETE /favorites */
 export const FAVORITES_PATH = "/favorites";
+
+/** Saved searches — GET/POST/DELETE /saved-searches */
+export const SAVED_SEARCHES_PATH = "/saved-searches";
+
+export type SavedSearchFilters = {
+  deal_type?: "SALE" | "RENT" | "all";
+  keyword?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  sort_by?: string;
+};
+
+export type SavedSearchItem = {
+  id: string;
+  name: string;
+  min_price: string | null;
+  max_price: string | null;
+  city_id: number | null;
+  city_slug: string | null;
+  property_type: string | null;
+  filters: SavedSearchFilters;
+  alerts_enabled: boolean;
+  created_at: string;
+};
+
+export type CreateSavedSearchPayload = {
+  name: string;
+  min_price?: string | null;
+  max_price?: string | null;
+  city_id?: number | null;
+  property_type?: "HOUSE" | "APARTMENT" | "LAND" | "COMMERCIAL" | null;
+  alerts_enabled?: boolean;
+  filters?: SavedSearchFilters;
+};
+
+export async function listSavedSearches(): Promise<{ items: SavedSearchItem[] }> {
+  return apiAuthFetcher(`${SAVED_SEARCHES_PATH}`);
+}
+
+export async function createSavedSearch(
+  payload: CreateSavedSearchPayload,
+): Promise<SavedSearchItem> {
+  return apiPost(SAVED_SEARCHES_PATH, payload);
+}
+
+export async function deleteSavedSearch(id: string): Promise<unknown> {
+  return apiDelete(`${SAVED_SEARCHES_PATH}/${id}`);
+}
+
+/** Build /search?... from a saved search for re-run. */
+export function savedSearchToSearchHref(item: SavedSearchItem): string {
+  const params = new URLSearchParams();
+  if (item.filters.keyword) params.set("keyword", item.filters.keyword);
+  if (item.property_type) params.set("property_type", item.property_type);
+  if (item.filters.deal_type && item.filters.deal_type !== "all") {
+    params.set("deal_type", item.filters.deal_type);
+  }
+  if (item.city_id != null) params.set("city_id", String(item.city_id));
+  if (item.min_price) params.set("min_price", item.min_price);
+  if (item.max_price) params.set("max_price", item.max_price);
+  if (item.filters.bedrooms != null) {
+    params.set("bedrooms", String(item.filters.bedrooms));
+  }
+  if (item.filters.bathrooms != null) {
+    params.set("bathrooms", String(item.filters.bathrooms));
+  }
+  const qs = params.toString();
+  return qs ? `/search?${qs}` : "/search";
+}
 
 /** Notifications — GET /notifications, PATCH …/read, PATCH …/read-all */
 export const NOTIFICATIONS_PATH = "/notifications";
 
 export type NotificationType =
   | "LISTING_EXPIRING"
+  | "LISTING_APPROVED"
+  | "LISTING_REJECTED"
   | "SAVED_SEARCH_MATCH"
   | "VERIFICATION_APPROVED"
   | "VERIFICATION_REJECTED";
@@ -364,6 +435,24 @@ export async function resolveReport(
   return apiPatch(`/admin/reports/${reportId}/resolve`, { status });
 }
 
+export async function resolvePropertyFlag(flagId: string): Promise<unknown> {
+  return apiPatch(`/admin/flags/${flagId}/resolve`, {});
+}
+
+export async function resolveSupportThread(
+  threadId: string,
+  resolved = true,
+): Promise<unknown> {
+  return apiPatch(`/messages/thread/${threadId}/resolve`, { resolved });
+}
+
+export async function createPropertyReport(
+  propertyId: string,
+  payload: { reason: string; note?: string },
+): Promise<unknown> {
+  return apiPost(`/properties/${propertyId}/reports`, payload);
+}
+
 export type LoginPayload = {
   phone?: string;
   email?: string;
@@ -386,10 +475,45 @@ export async function login(
   return apiPost("/auth/login", payload, { auth: false });
 }
 
+export async function requestPasswordReset(
+  email: string,
+): Promise<{ message: string }> {
+  return apiPost("/auth/password-reset/request", { email }, { auth: false });
+}
+
+export async function confirmPasswordReset(
+  token: string,
+  password: string,
+): Promise<{ reset: true }> {
+  return apiPost(
+    "/auth/password-reset/confirm",
+    { token, password },
+    { auth: false },
+  );
+}
+
 export async function register(
   payload: RegisterPayload,
 ): Promise<{ token: string; user: { id: string; role: string } }> {
   return apiPost("/auth/register", payload, { auth: false });
+}
+
+export type UpdateSellerProfilePayload = {
+  name?: string;
+  bio?: string | null;
+  logo_url?: string | null;
+  cover_image_url?: string | null;
+  email?: string | null;
+  whatsapp_number?: string | null;
+  telegram_username?: string | null;
+  facebook_url?: string | null;
+  primary_city_id?: number | null;
+};
+
+export async function updateSellerProfile(
+  payload: UpdateSellerProfilePayload,
+): Promise<{ user: Record<string, unknown> }> {
+  return apiPatch("/auth/me", payload);
 }
 
 export type PropertyCreatePayload = {

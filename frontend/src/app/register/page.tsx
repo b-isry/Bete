@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useId, useState } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import {
   AuthRoleToggle,
   type AuthRoleChoice,
@@ -19,12 +19,15 @@ import {
 import { useLanguage } from "@/i18n/LanguageContext";
 import { ApiError, register } from "@/lib/api";
 import { setAccessToken } from "@/lib/auth";
-import { MOCK_CITIES } from "@/lib/mocks";
+import { useCities } from "@/lib/hooks";
+import { useEffect } from "react";
 
 export default function RegisterPage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const router = useRouter();
   const { push } = useToast();
+  const { data: citiesData } = useCities(locale);
+  const cities = citiesData?.items ?? [];
   const ids = {
     name: useId(),
     phone: useId(),
@@ -37,13 +40,17 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [primaryCityId, setPrimaryCityId] = useState(
-    String(MOCK_CITIES[0]?.id ?? ""),
-  );
+  const [primaryCityId, setPrimaryCityId] = useState("");
   const [bio, setBio] = useState("");
   const [role, setRole] = useState<AuthRoleChoice>("USER");
   const [busy, setBusy] = useState(false);
   const isSeller = role === "SELLER";
+
+  useEffect(() => {
+    if (!primaryCityId && cities[0]) {
+      setPrimaryCityId(String(cities[0].id));
+    }
+  }, [cities, primaryCityId]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -141,7 +148,7 @@ export default function RegisterPage() {
                   onChange={(e) => setPrimaryCityId(e.target.value)}
                   required
                 >
-                  {MOCK_CITIES.map((city) => (
+                  {cities.map((city) => (
                     <option key={city.id} value={city.id}>
                       {city.name}
                     </option>

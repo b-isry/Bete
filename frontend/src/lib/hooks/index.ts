@@ -32,9 +32,11 @@ import {
   FAVORITES_PATH,
   MY_LISTINGS_PATH,
   NOTIFICATIONS_PATH,
+  SAVED_SEARCHES_PATH,
   type CatalogCategory,
   type CatalogCity,
   type NotificationsResult,
+  type SavedSearchItem,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth";
 import type { Locale } from "@/i18n/LanguageContext";
@@ -55,7 +57,6 @@ import {
   MOCK_FAVORITES,
   MOCK_PENDING_LISTINGS,
   MOCK_PENDING_VERIFICATIONS,
-  MOCK_SELLER_LISTINGS,
   MOCK_THREADS,
   MOCK_THREAD_MESSAGES,
   type AdminAnalytics,
@@ -75,7 +76,9 @@ import {
 
 export function useAuthMe(
   preferredRole: "USER" | "SELLER" | "ADMIN" = "USER",
+  options?: { withFallback?: boolean },
 ): MockAwareSWRResponse<{ user: AuthUser }> {
+  const withFallback = options?.withFallback !== false;
   const fallbackUser =
     preferredRole === "ADMIN"
       ? MOCK_AUTH_ADMIN
@@ -85,9 +88,9 @@ export function useAuthMe(
 
   const swr = useSWR<{ user: AuthUser }>("/auth/me", apiAuthFetcher, {
     shouldRetryOnError: false,
-    fallbackData: { user: fallbackUser },
+    ...(withFallback ? { fallbackData: { user: fallbackUser } } : {}),
   });
-  const isMockFallback = Boolean(swr.error);
+  const isMockFallback = withFallback ? Boolean(swr.error) : false;
 
   useEffect(() => {
     // Anonymous 401 on public chrome is expected — only warn when a session
@@ -108,12 +111,11 @@ export function useTopSellers() {
 }
 
 export function useMyListings() {
-  return useSwrWithMockFallback<{ items: SellerListing[] }>(
-    MY_LISTINGS_PATH,
+  return useSWR<{ items: SellerListing[] }>(
+    `${MY_LISTINGS_PATH}?limit=100`,
     apiAuthFetcher,
     {
       shouldRetryOnError: false,
-      fallbackData: { items: MOCK_SELLER_LISTINGS },
     },
   );
 }
@@ -125,6 +127,16 @@ export function useFavorites() {
     {
       shouldRetryOnError: false,
       fallbackData: { favorites: MOCK_FAVORITES },
+    },
+  );
+}
+
+export function useSavedSearches() {
+  return useSWR<{ items: SavedSearchItem[] }>(
+    SAVED_SEARCHES_PATH,
+    apiAuthFetcher,
+    {
+      shouldRetryOnError: false,
     },
   );
 }

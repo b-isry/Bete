@@ -6,10 +6,14 @@ import {
   LoginInput,
   RegisterInput,
   SubmitVerificationInput,
+  UpdateSellerProfileInput,
   VerifyOtpInput,
+  ConfirmPasswordResetInput,
+  RequestPasswordResetInput,
 } from '../schemas/auth.schema';
 import * as authService from '../services/auth.service';
 import * as otpService from '../services/otp.service';
+import * as passwordResetService from '../services/password-reset.service';
 
 export async function register(
   req: Request,
@@ -47,6 +51,25 @@ export async function me(
       throw new UnauthorizedError('Authentication required');
     }
     const user = await authService.getProfile(req.user.id);
+    sendSuccess(res, { user });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateSellerProfile(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    if (!req.user) {
+      throw new UnauthorizedError('Authentication required');
+    }
+    const user = await authService.updateSellerProfile(
+      req.user.id,
+      req.body as UpdateSellerProfileInput,
+    );
     sendSuccess(res, { user });
   } catch (err) {
     next(err);
@@ -105,6 +128,36 @@ export async function verifyOtp(
       req.user.id,
       OtpPurpose.SELLER_VERIFICATION,
       code,
+    );
+    sendSuccess(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function requestPasswordReset(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const result = await passwordResetService.requestPasswordReset(
+      req.body as RequestPasswordResetInput,
+    );
+    sendSuccess(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function confirmPasswordReset(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const result = await passwordResetService.confirmPasswordReset(
+      req.body as ConfirmPasswordResetInput,
     );
     sendSuccess(res, result);
   } catch (err) {

@@ -68,7 +68,7 @@ export function TabsList({
     <div
       role="tablist"
       className={cn(
-        "flex gap-1 border-b border-outline-variant",
+        "flex gap-1 overflow-x-auto border-b border-outline-variant",
         className,
       )}
       {...props}
@@ -100,7 +100,7 @@ export function TabsTrigger({
       aria-controls={`${baseId}-panel-${value}`}
       onClick={() => setValue(value)}
       className={cn(
-        "rounded-none px-4 py-3 font-sans text-label-md uppercase tracking-widest transition-colors",
+        "shrink-0 whitespace-nowrap rounded-none px-3 py-3 font-sans text-label-md uppercase tracking-widest transition-colors sm:px-4",
         selected
           ? "border-b-2 border-primary text-primary"
           : "text-on-surface-variant hover:text-primary",

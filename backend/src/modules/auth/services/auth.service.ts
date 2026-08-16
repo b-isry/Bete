@@ -13,6 +13,7 @@ import {
   LoginInput,
   RegisterInput,
   SubmitVerificationInput,
+  UpdateSellerProfileInput,
 } from '../schemas/auth.schema';
 
 const BCRYPT_ROUNDS = 10;
@@ -26,6 +27,10 @@ const userProfileSelect = {
   whatsapp_number: true,
   telegram_username: true,
   facebook_url: true,
+  bio: true,
+  logo_url: true,
+  cover_image_url: true,
+  primary_city_id: true,
   role: true,
   verification_status: true,
   id_document_url: true,
@@ -161,8 +166,8 @@ export async function submitVerification(
     throw new UnauthorizedError('User not found');
   }
 
-  if (user.role !== UserRole.SELLER) {
-    throw new ForbiddenError('Verification is only available for sellers');
+  if (user.role !== UserRole.SELLER && user.role !== UserRole.USER) {
+    throw new ForbiddenError('Verification is only available for buyers and sellers');
   }
 
   if (user.phone_verified_at === null) {
@@ -193,4 +198,71 @@ export async function getProfile(userId: string): Promise<UserProfile> {
   }
 
   return user;
+}
+
+export async function updateSellerProfile(
+  userId: string,
+  data: UpdateSellerProfileInput,
+): Promise<UserProfile> {
+  const user = await prisma.user.findFirst({
+    where: { id: userId, deleted_at: null },
+  });
+
+  if (!user) {
+    throw new UnauthorizedError('User not found');
+  }
+
+  if (user.role !== UserRole.SELLER) {
+    throw new ForbiddenError('Only sellers can update an agency profile');
+  }
+
+  if (data.primary_city_id != null) {
+    const city = await prisma.city.findUnique({
+      where: { id: data.primary_city_id },
+      select: { id: true },
+    });
+    if (!city) {
+      throw new BadRequestError('Invalid primary_city_id');
+    }
+  }
+
+  if (data.email !== undefined && data.email !== null) {
+    const clash = await prisma.user.findFirst({
+      where: {
+        deleted_at: null,
+        email: data.email,
+        NOT: { id: userId },
+      },
+      select: { id: true },
+    });
+    if (clash) {
+      throw new ConflictError('A user with this email already exists');
+    }
+  }
+
+  return prisma.user.update({
+    where: { id: userId },
+    data: {
+      ...(data.name !== undefined ? { name: data.name } : {}),
+      ...(data.bio !== undefined ? { bio: data.bio } : {}),
+      ...(data.logo_url !== undefined ? { logo_url: data.logo_url } : {}),
+      ...(data.cover_image_url !== undefined
+        ? { cover_image_url: data.cover_image_url }
+        : {}),
+      ...(data.email !== undefined ? { email: data.email } : {}),
+      ...(data.whatsapp_number !== undefined
+        ? { whatsapp_number: data.whatsapp_number }
+        : {}),
+      ...(data.telegram_username !== undefined
+        ? { telegram_username: data.telegram_username }
+        : {}),
+      ...(data.facebook_url !== undefined
+        ? { facebook_url: data.facebook_url }
+        : {}),
+      ...(data.primary_city_id !== undefined
+        ? { primary_city_id: data.primary_city_id }
+        : {}),
+    },
+    select: userProfileSelect,
+  });
 }

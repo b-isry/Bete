@@ -380,6 +380,7 @@ export async function listThreads(userId: string, userRole: UserRole) {
         participants: thread.participants.map((p) => p.user),
         last_message: lastMessage,
         unread_count: unreadCount,
+        resolved_at: thread.resolved_at,
         updated_at: thread.updated_at,
         created_at: thread.created_at,
       };
@@ -456,4 +457,50 @@ export async function getThreadMessages(
       totalPages: total === 0 ? 0 : Math.ceil(total / limit),
     },
   };
+}
+
+/**
+ * Admin marks a SUPPORT thread as handled (or reopens by clearing resolved_at).
+ */
+export async function resolveSupportThread(
+  threadId: string,
+  adminId: string,
+  resolved: boolean,
+) {
+  const thread = await prisma.thread.findUnique({
+    where: { id: threadId },
+  });
+
+  if (!thread) {
+    throw new NotFoundError('Thread not found');
+  }
+
+  if (thread.thread_type !== ThreadType.SUPPORT) {
+    throw new BadRequestError('Only SUPPORT threads can be resolved');
+  }
+
+  await prisma.threadParticipant.upsert({
+    where: {
+      thread_id_user_id: { thread_id: threadId, user_id: adminId },
+    },
+    create: { thread_id: threadId, user_id: adminId },
+    update: {},
+  });
+
+  const updated = await prisma.thread.update({
+    where: { id: threadId },
+    data: {
+      resolved_at: resolved ? new Date() : null,
+      assigned_admin_id: thread.assigned_admin_id ?? adminId,
+    },
+    select: {
+      id: true,
+      thread_type: true,
+      resolved_at: true,
+      assigned_admin_id: true,
+      updated_at: true,
+    },
+  });
+
+  return { thread: updated };
 }

@@ -50,6 +50,7 @@ export async function priceCompare(
         id: true,
         city_id: true,
         property_type: true,
+        deal_type: true,
         price: true,
         area_sqm: true,
         title: true,
@@ -77,6 +78,7 @@ export async function priceCompare(
         : undefined,
       locale,
       property.id,
+      property.deal_type,
     );
 
     sendSuccess(res, {

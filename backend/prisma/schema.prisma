@@ -108,6 +108,8 @@ enum OtpPurpose {
 
 enum NotificationType {
   LISTING_EXPIRING
+  LISTING_APPROVED
+  LISTING_REJECTED
   SAVED_SEARCH_MATCH
   VERIFICATION_APPROVED
   VERIFICATION_REJECTED
@@ -155,9 +157,24 @@ model User {
   boosts             Boost[]
   adminActions       AdminActionLog[]
   notifications      Notification[]
+  passwordResetTokens PasswordResetToken[]
 
   @@index([role, verification_status])
   @@index([primary_city_id])
+}
+
+model PasswordResetToken {
+  id          String    @id @default(uuid()) @db.Uuid
+  user_id     String    @db.Uuid
+  token_hash  String
+  expires_at  DateTime
+  consumed_at DateTime?
+  created_at  DateTime  @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([token_hash])
 }
 
 model OtpCode {
@@ -221,11 +238,13 @@ model Property {
   location_text  String
   lat            Float?
   lng            Float?
-  status         PropertyStatus @default(PENDING)
-  view_count     Int            @default(0)
-  contact_count  Int            @default(0)
-  is_featured    Boolean        @default(false)
-  featured_until DateTime?
+  status            PropertyStatus @default(PENDING)
+  /** Set when admin rejects; cleared on approve. */
+  rejection_reason  String?        @db.Text
+  view_count        Int            @default(0)
+  contact_count     Int            @default(0)
+  is_featured       Boolean        @default(false)
+  featured_until    DateTime?
   reminder_sent_at DateTime?
   deleted_at     DateTime?
   created_at     DateTime       @default(now())
@@ -256,6 +275,8 @@ model PropertyFlag {
   id          String   @id @default(uuid()) @db.Uuid
   property_id String   @db.Uuid
   flag_type   FlagType
+  /** Human-readable reason for admins (AI or buyer-facing copy). */
+  message     String   @db.Text
   detail      Json?
   resolved    Boolean  @default(false)
   created_at  DateTime @default(now())
@@ -324,6 +345,8 @@ model Thread {
   thread_type       ThreadType
   property_id       String?    @db.Uuid
   assigned_admin_id String?    @db.Uuid
+  /** Set when an admin marks a SUPPORT thread as handled. */
+  resolved_at       DateTime?
   created_at        DateTime   @default(now())
   updated_at        DateTime   @updatedAt
 
@@ -376,6 +399,8 @@ model Favorite {
 model SavedSearch {
   id             String        @id @default(uuid()) @db.Uuid
   user_id        String        @db.Uuid
+  /** Buyer-facing label for this saved filter set. */
+  name           String
   min_price      Decimal?      @db.Decimal(12, 2)
   max_price      Decimal?      @db.Decimal(12, 2)
   city_id        Int?
@@ -386,6 +411,8 @@ model SavedSearch {
 
   user User  @relation(fields: [user_id], references: [id])
   city City? @relation(fields: [city_id], references: [id])
+
+  @@index([user_id])
 }
 
 model Report {

@@ -69,3 +69,9 @@ export const ThreadMessagesQuerySchema = z.object({
 });
 
 export type ThreadMessagesQuery = z.infer<typeof ThreadMessagesQuerySchema>;
+
+export const ResolveThreadSchema = z.object({
+  resolved: z.boolean().optional().default(true),
+});
+
+export type ResolveThreadInput = z.infer<typeof ResolveThreadSchema>;

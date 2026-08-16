@@ -163,6 +163,7 @@
     "locationPlaceholder": "ኣዲስ ኣበባ፣ ቦሌ…",
     "findProperty": "ንብረት ርኸብ",
     "transaction": "ልውውጥ",
+    "allDeals": "ኩሎም",
     "buy": "ግዛእ",
     "rent": "ተኻረ",
     "beds": "ክፍሊ ደቀሱ",
@@ -172,6 +173,8 @@
   "property": {
     "backToSearch": "ናብ ድለያ ተመለስ",
     "verifiedSeller": "ተረጋጋጺ ሻጣይ",
+    "viewAgencyOne": "ካብ {name} 1 ንብረት ርአዩ",
+    "viewAgencyMany": "ካብ {name} ኩሎም {count} ንብረታት ርአዩ",
     "priceCompare": "እዚ ዋጋ ከመይ ይነጻጸር",
     "priceCompareFallback": "ንዚ ከባቢ እኹል ናይ ጎረቤት ሽያጣት ምስ ዝህሉ ናይ ዋጋ ንጽጽር ኣብዚ ክርአ እዩ።",
     "description": "መግለጺ",
@@ -188,7 +191,29 @@
     "notFoundDescription": "እዚ ንብረት ካብ መስመር ወጻኢ ክኸውን ወይ መለለዪኡ ጌጋ ክኸውን ይኽእል።",
     "loading": "ንብረት ይጽዕን ኣሎ…",
     "mapLoading": "ካርታ ይጽዕን ኣሎ",
-    "galleryA11y": "ስእልታት ንብረት"
+    "galleryA11y": "ስእልታት ንብረት",
+    "report": {
+      "button": "ኣወጃ ሪፖርት ግበር",
+      "title": "ነዚ ኣወጃ ሪፖርት ግበር",
+      "hint": "እንታይ ከም ዝጌገየ ንገረና። ጋንታና ንነፍሲ ወከፍ ሪፖርት ይምርምር።",
+      "reason": "ምኽንያት",
+      "note": "ዝርዝር (ኣማራጺ)",
+      "notePlaceholder": "ንተቖጻጻርቲ ዝሕግዝ ኩነታት ኣካፍል…",
+      "cancel": "ሰርዝ",
+      "submit": "ሪፖርት ኣእትው",
+      "submitting": "ይኣትው ኣሎ…",
+      "success": "ሪፖርት ኣተወ። ቤቴ ንምሕላው ስለ ዝሓገዝካ ነመስግን።",
+      "error": "ሪፖርት ክኣቱ ኣይከኣለን። እንደገና ፈትን።",
+      "loginRequired": "ኣወጃ ንምሪፖርት እተው።",
+      "reasons": {
+        "FAKE": "ሓሶት ወይ ዘስሕት ኣወጃ",
+        "ALREADY_SOLD": "ቅድሚ ሕጂ ዝተሸጠ ወይ ዝተኻረየ",
+        "WRONG_PRICE": "ዘይቅኑዕ ዋጋ",
+        "SCAM": "ናይ ምጭባር ጥርጣረ",
+        "OFFENSIVE": "ጸያፍ ትሕዝቶ",
+        "OTHER": "ካልእ"
+      }
+    }
   },
   "cities": {
     "addisAbaba": "ኣዲስ ኣበባ",
@@ -224,6 +249,8 @@
       "active": "ንጡፋት ንብረታት",
       "manageListings": "ንብረታት ኣመሓድር",
       "portfolio": "ፖርትፎሊዮኹም",
+      "byDealType": "ብዓይነት ውዕል",
+      "byPropertyType": "ብዓይነት ንብረት",
       "defaultName": "ሻጣይ"
     },
     "listings": {
@@ -232,8 +259,12 @@
       "searchPlaceholder": "ንብረታትኩም ድለዩ…",
       "empty": "ክሳብ ሕጂ ንብረት የለን",
       "emptyHint": "ኣብ ድለያ ንኽርአ ናይ መጀመርታ ንብረትኩም ልጥፉ።",
-      "renew": "ሓድስ",
-      "boost": "ኣበርትዕ",
+      "filterEmpty": "ምስ ድለይኹም ዝሰማማዕ ንብረት የለን",
+      "filterEmptyHint": "ካልእ ኣርእስቲ ወይ ናይ ቦታ ቃል ፈትኑ።",
+      "loadError": "ንብረታትኩም ምጽዓን ኣይተኻእለን",
+      "loadErrorHint": "ርክብኩም ኣረጋግጹ እሞ ደጊምኩም ፈትኑ። እንተወጺእኩም ከም ሸያጢ እቶ።",
+      "featured": "ፍሉይ",
+      "renew": "ሓድስ",      "boost": "ኣበርትዕ",
       "renewSuccess": "ንብረት ን30 መዓልቲ ተሓዲሱ።",
       "renewFallback": "ምሕዳስ ኣብ ከባቢ ተመዝጊቡ — API ምስ ተረኽበ እቶ።",
       "boostPending": "ምብርታዕ ናይ ምስፍሕፋሕ ክፍሊት ምስ ዝጅምር ክርከብ እዩ።"
@@ -465,10 +496,18 @@
       "reported": "ተጸብጺቡ",
       "empty": "ሰልፊ ጽሩይ እዩ",
       "emptyHint": "ንዚ ማጣሪያ ዝሰማማዕ PENDING ንብረት የለን።",
+      "reportedEmpty": "ናይ ማሕበረሰብ ሪፖርት የለን",
+      "reportedEmptyHint": "ናይ ዓደግቲ ሪፖርታት ኣብዚ ይረአ።",
+      "pendingReports": "ሪፖርታት ኣብ ምጽባይ",
       "cleanPass": "ጽሩይ ናይ AI ምርመራ",
       "cleanHint": "ዝተፈልየ ነገር ኣይተረኽበን። ስእልታትን ሓበሬታን ተሰማሚዖም ይርኣዩ።",
       "submitted": "ቀሪቡ",
-      "aiFlagLabel": "ናይ AI ምልክት: "
+      "aiFlagLabel": "ናይ AI ምልክት: ",
+      "flagNoMessage": "ተወሳኺ ዝርዝር ኣይተዋህበን።",
+      "viewListing": "ንብረት ርአ",
+      "resolveFlag": "ምልክት ኣእትው",
+      "flagResolved": "ምልክት ተፈቲሑ።",
+      "flagResolveFallback": "ምልክት ብኣከባቢ ተመሓይሹ — API ምስ ዝህሉ ከም ADMIN እተው።"
     },
     "analytics": {
       "title": "ትንተናን ኣታዊን",
@@ -588,6 +627,14 @@
       "nextStepsIntro": "ድሕሪ ምምዝጋብ፣ እዚኦም ካብ ዳሽቦርድኩም ወድኡ፦",
       "nextStepsOtp": "ተሌፎንኩም ብሓደ ግዜ ኮድ (OTP) ኣረጋግጹ።",
       "nextStepsDocs": "ንመረጋገጺ ናይ መንነት ሰነድ ወይ ፍቓድ ንግዲ ስቐሉ።"
+    },
+    "forbidden": "ናይ {role} ፍቓድ የድሊ",
+    "forbiddenHint": "ንኽትቅጽሉ ብ{role} መለያ እቶ።",
+    "forbiddenBack": "ናብ መበገሲ ተመለስ",
+    "roleNames": {
+      "ADMIN": "ኣመሓዳሪ",
+      "SELLER": "ሸያጢ",
+      "USER": "ዓዳጊ"
     }
   },
   "location": {

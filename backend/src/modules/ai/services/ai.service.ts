@@ -71,10 +71,11 @@ export async function parseSearchQuery(
             'Convert price mentions to numbers in Ethiopian Birr (ETB).',
             'Interpret phrases like "under 5 million" as max_price: 5000000.',
             'property_type must be one of: HOUSE, APARTMENT, LAND, COMMERCIAL when mentioned.',
+            'deal_type must be SALE or RENT when the user asks to buy/sale vs rent/lease.',
             'Put residual free-text (neighbourhood, amenities, style) into keyword.',
             'Omit fields you cannot confidently extract.',
             'Respond with JSON only matching:',
-            '{ "city_id"?: number, "property_type"?: "HOUSE"|"APARTMENT"|"LAND"|"COMMERCIAL", "min_price"?: number, "max_price"?: number, "bedrooms"?: number, "bathrooms"?: number, "keyword"?: string }',
+            '{ "city_id"?: number, "property_type"?: "HOUSE"|"APARTMENT"|"LAND"|"COMMERCIAL", "deal_type"?: "SALE"|"RENT", "min_price"?: number, "max_price"?: number, "bedrooms"?: number, "bathrooms"?: number, "keyword"?: string }',
           ].join(' '),
         },
         {
@@ -109,6 +110,7 @@ export async function parseSearchQuery(
       // Drop hallucinated city ids rather than failing the whole request.
       return {
         property_type: filters.property_type,
+        deal_type: filters.deal_type,
         min_price: filters.min_price,
         max_price: filters.max_price,
         bedrooms: filters.bedrooms,

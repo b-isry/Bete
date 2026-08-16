@@ -40,6 +40,7 @@ function formatPriceChip(value: number): string {
 
 export function buildAiParseResult(filters: AiParseFilters): AiParseResult {
   const chips: string[] = [];
+  if (filters.deal_type) chips.push(filters.deal_type);
   if (filters.property_type) chips.push(filters.property_type);
   if (filters.city_id != null) chips.push(`City #${filters.city_id}`);
   if (filters.bedrooms != null) chips.push(`${filters.bedrooms} Bedrooms`);
@@ -54,6 +55,8 @@ export function buildAiParseResult(filters: AiParseFilters): AiParseResult {
   if (chips.length === 0) chips.push("Natural language query");
 
   const parts: string[] = [];
+  if (filters.deal_type === "RENT") parts.push("rental");
+  else if (filters.deal_type === "SALE") parts.push("sale");
   if (filters.property_type) parts.push(filters.property_type.toLowerCase());
   if (filters.bedrooms != null) parts.push(`${filters.bedrooms}-bedroom`);
   if (filters.city_id != null) parts.push(`in city ${filters.city_id}`);
@@ -77,6 +80,7 @@ function filtersToSearchParams(filters: AiParseFilters): URLSearchParams {
   const params = new URLSearchParams();
   if (filters.keyword) params.set("keyword", filters.keyword);
   if (filters.property_type) params.set("property_type", filters.property_type);
+  if (filters.deal_type) params.set("deal_type", filters.deal_type);
   if (filters.city_id != null) params.set("city_id", String(filters.city_id));
   if (filters.min_price != null) {
     params.set("min_price", String(filters.min_price));
@@ -155,7 +159,7 @@ export function AIFinderBox({
             rows={2}
             placeholder={placeholder ?? t("aiFinder.placeholder")}
             disabled={isMutating}
-            className="w-full resize-none bg-transparent pb-4 pr-14 font-serif text-headline-sm italic text-on-surface placeholder:text-outline focus:outline-none disabled:opacity-60 md:text-headline-md"
+            className="w-full resize-none bg-transparent pb-4 pr-12 font-serif text-lg italic text-on-surface placeholder:text-outline focus:outline-none disabled:opacity-60 sm:pr-14 sm:text-headline-sm md:text-headline-md"
           />
           <Button
             type="submit"

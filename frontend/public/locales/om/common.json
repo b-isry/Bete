@@ -163,6 +163,7 @@
     "locationPlaceholder": "Addis Ababaa, Bole…",
     "findProperty": "Qabeenya Barbaadi",
     "transaction": "Daldala",
+    "allDeals": "Hunda",
     "buy": "Bitadhu",
     "rent": "Kireeffadhu",
     "beds": "Ciisicha",
@@ -172,6 +173,8 @@
   "property": {
     "backToSearch": "Gara barbaachaatti deebi'i",
     "verifiedSeller": "Gurgurtuu Mirkanaa'e",
+    "viewAgencyOne": "Qabeenya 1 {name} irraa ilaali",
+    "viewAgencyMany": "Qabeenya {count} hunda {name} irraa ilaali",
     "priceCompare": "Gatiin kun akkamitti akka wal biratti ilaalamu",
     "priceCompareFallback": "Gatiin naannoo kanaa erga gurgurtaan naannawaa gahaan jiraatee booda asitti mul'ata.",
     "description": "Ibsa",
@@ -188,7 +191,29 @@
     "notFoundDescription": "Beeksisni kun laayinii irraa gadi ta'uu ykn ID dogoggora ta'uu danda'a.",
     "loading": "Qabeenya fe'aa jira…",
     "mapLoading": "Kaartaa fe'aa jira",
-    "galleryA11y": "Suuraalee Qabeenyaa"
+    "galleryA11y": "Suuraalee Qabeenyaa",
+    "report": {
+      "button": "Beeksisa gabaasi",
+      "title": "Beeksisa kana gabaasi",
+      "hint": "Maal akka dogoggore nuuf himi. Gareen keenya gabaasa hunda sakatta'a.",
+      "reason": "Sababa",
+      "note": "Ibsa (filannoo)",
+      "notePlaceholder": "Haala to'attootaaf gargaaru qoodi…",
+      "cancel": "Dhiisi",
+      "submit": "Gabaasa galchi",
+      "submitting": "Galchaa jira…",
+      "success": "Gabaasni galeera. Bete nageenya isaa eeguuf nu gargaarteef galatoomi.",
+      "error": "Gabaasa galchuu hin dandeenye. Irra deebi'ii yaali.",
+      "loginRequired": "Beeksisa gabaasuuf seeni.",
+      "reasons": {
+        "FAKE": "Beeksisa sobaa ykn dogoggoraa",
+        "ALREADY_SOLD": "Duratti gurgurame ykn kireeffame",
+        "WRONG_PRICE": "Gatii dogoggoraa",
+        "SCAM": "Shakkii gowwoomsuu",
+        "OFFENSIVE": "Qabiyyee balaaleffataa",
+        "OTHER": "Kan biroo"
+      }
+    }
   },
   "cities": {
     "addisAbaba": "Finfinnee",
@@ -224,6 +249,8 @@
       "active": "Beeksisota Hojiirra Jiran",
       "manageListings": "Beeksisota Bulchi",
       "portfolio": "Poortifooliyoo Keessan",
+      "byDealType": "Akkaataa daldalaatiin",
+      "byPropertyType": "Gosa qabeenyaatiin",
       "defaultName": "Gurgurtuu"
     },
     "listings": {
@@ -232,8 +259,12 @@
       "searchPlaceholder": "Beeksisota keessan barbaadaa…",
       "empty": "Hanga ammaatti beeksisni hin jiru",
       "emptyHint": "Barbaacha keessatti akka mul'atuuf qabeenya keessan jalqabaa maxxansaa.",
-      "renew": "Haaromsi",
-      "boost": "Jajjabeessi",
+      "filterEmpty": "Barbaacha keessan wajjin kan walsimu beeksisni hin jiru",
+      "filterEmptyHint": "Mata duree ykn jecha bakkaa biraa yaalaa.",
+      "loadError": "Beeksisota keessan fe'uu hin dandeenye",
+      "loadErrorHint": "Quunnamtii keessan mirkaneessaa deebi'aa yaalaa. Yoo bahitan akka gurgurtaa seenaa.",
+      "featured": "Filatamaa",
+      "renew": "Haaromsi",      "boost": "Jajjabeessi",
       "renewSuccess": "Beeksisni guyyaa 30f haaromfameera.",
       "renewFallback": "Haaromsi naannoodhaan galmaa'eera — API yeroo argamu seeni.",
       "boostPending": "Jajjabeessuun kaffaltiin isaa yeroo eegalu ni argama."
@@ -465,10 +496,18 @@
       "reported": "Gabaafame",
       "empty": "Toorri qulqulluudha",
       "emptyHint": "Beeksisni PENDING gulaala kanaaf walsimu hin jiru.",
+      "reportedEmpty": "Gabaasni hawaasaa hin jiru",
+      "reportedEmptyHint": "Gabaasni bittootaa asitti mul'ata.",
+      "pendingReports": "gabaasa eegaa jiru",
       "cleanPass": "Sakatta'iinsa AI Qulqulluu",
       "cleanHint": "Wanti hin barbaachifne hin argamne. Suuraawwanii fi ragaan tokkummaan mul'atu.",
       "submitted": "Galfameera",
-      "aiFlagLabel": "Mallattoo AI: "
+      "aiFlagLabel": "Mallattoo AI: ",
+      "flagNoMessage": "Ibsi dabalataa hin kenamne.",
+      "viewListing": "Beeksisa ilaali",
+      "resolveFlag": "Mallattoo dhiisi",
+      "flagResolved": "Mallattoon furameera.",
+      "flagResolveFallback": "Mallattoon naannoo irratti fooyya'e — API yeroo jiru akka ADMIN seeni."
     },
     "analytics": {
       "title": "Xiinxala fi Galii",
@@ -588,6 +627,14 @@
       "nextStepsIntro": "Erga galmaa'aniin booda, kanneen armaan gadii daashboordii keessan irraa xumuraa:",
       "nextStepsOtp": "Bilbila keessan koodii yeroo tokkootiin (OTP) mirkaneessaa.",
       "nextStepsDocs": "Mirkaneessaaf sanada ID ykn hayyama daldalaa fe'aa."
+    },
+    "forbidden": "Seeninsi {role} barbaachisaadha",
+    "forbiddenHint": "Itti fufuuf akka {role} seenaa.",
+    "forbiddenBack": "Gara manaatti deebi'i",
+    "roleNames": {
+      "ADMIN": "Bulchaa",
+      "SELLER": "Gurgurtaa",
+      "USER": "Bitataa"
     }
   },
   "location": {

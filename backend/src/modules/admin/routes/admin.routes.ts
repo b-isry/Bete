@@ -58,6 +58,12 @@ adminRouter.patch(
 );
 
 adminRouter.patch(
+  '/flags/:id/resolve',
+  validateParams(IdParamSchema),
+  adminController.resolveFlag,
+);
+
+adminRouter.patch(
   '/users/:id/verify',
   validateParams(IdParamSchema),
   validateBody(VerifySellerSchema),

@@ -34,6 +34,7 @@ const NAV: AdminNavItem[] = [
     icon: "category",
   },
   { href: "/admin/reports", labelKey: "admin.nav.reports", icon: "assessment" },
+  { href: "/admin/support", labelKey: "admin.nav.support", icon: "support_agent" },
   { href: "/admin/analytics", labelKey: "admin.nav.analytics", icon: "analytics" },
 ];
 

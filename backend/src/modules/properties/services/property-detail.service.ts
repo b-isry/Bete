@@ -1,3 +1,4 @@
+import { PropertyStatus } from '@prisma/client';
 import { prisma } from '../../../config/prisma';
 import { NotFoundError } from '../../../errors/app-error';
 import { trackListingView } from '../../analytics/services/event-tracker.service';
@@ -32,12 +33,27 @@ export async function getPropertyById(propertyId: string, visitorKey: string) {
     throw new NotFoundError('Property not found');
   }
 
-  const { recorded } = await trackListingView(propertyId, visitorKey);
+  const [activeListingCount, viewResult] = await Promise.all([
+    prisma.property.count({
+      where: {
+        seller_id: property.seller.id,
+        status: PropertyStatus.LIVE,
+        deleted_at: null,
+      },
+    }),
+    trackListingView(propertyId, visitorKey),
+  ]);
+
+  const { recorded } = viewResult;
 
   return {
     ...property,
     view_count: recorded ? property.view_count + 1 : property.view_count,
     price: property.price.toString(),
     area_sqm: property.area_sqm?.toString() ?? null,
+    seller: {
+      ...property.seller,
+      active_listing_count: activeListingCount,
+    },
   };
 }

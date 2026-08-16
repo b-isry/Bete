@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { Suspense, useState, type FormEvent } from "react";
 import useSWR from "swr";
 import { PropertySearchPanel } from "@/components/search/PropertySearchPanel";
 import {
@@ -99,7 +99,6 @@ export default function SellerProfilePage() {
       ? seller.logo_url
       : undefined;
 
-  const verified = seller?.verification_status === "VERIFIED";
   const responseMinutes = seller?.stats.avg_response_time_minutes ?? null;
 
   function openInquiry() {
@@ -167,9 +166,9 @@ export default function SellerProfilePage() {
     return (
       <div className="min-h-screen">
         <Skeleton className="h-72 w-full" />
-        <div className="mx-auto max-w-7xl space-y-8 px-6 py-10 sm:px-10 lg:px-16">
+        <div className="mx-auto max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-16">
           <Skeleton className="h-24 w-2/3" />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Skeleton className="h-40 w-full" />
             <Skeleton className="h-40 w-full" />
             <Skeleton className="h-40 w-full" />
@@ -199,44 +198,43 @@ export default function SellerProfilePage() {
           <div className="absolute inset-0 bg-primary/35" />
         </div>
 
-        <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
-          <div className="relative -mt-16 flex flex-col gap-8 border border-outline-variant/50 bg-surface-container-lowest p-6 sm:-mt-20 sm:flex-row sm:items-end sm:p-8 md:-mt-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-16">
+          <div className="relative -mt-16 flex flex-col gap-6 border border-outline-variant/50 bg-surface-container-lowest p-4 sm:-mt-20 sm:gap-8 sm:p-6 md:-mt-24 md:flex-row md:items-end md:p-8">
             <Avatar
               size="lg"
               shape="square"
               src={logoSrc}
               initials={seller.name.slice(0, 2)}
-              className="h-28 w-28 border border-outline-variant sm:h-36 sm:w-36"
+              className="h-24 w-24 shrink-0 border border-outline-variant sm:h-28 sm:w-28 md:h-36 md:w-36"
             />
 
             <div className="min-w-0 flex-1 space-y-3">
-              <div className="flex flex-wrap items-center gap-3">
-                <h1 className="font-serif text-display-lg-mobile text-primary md:text-headline-md">
+              <div className="flex min-w-0 flex-wrap items-center gap-3">
+                <h1 className="min-w-0 break-words font-serif text-headline-sm text-primary sm:text-headline-md lg:text-display-lg-mobile">
                   {seller.name}
                 </h1>
-                <StatusPill
-                  kind="verification"
-                  status={verified ? "VERIFIED" : "UNVERIFIED"}
-                />
+                {seller.verification_status === "VERIFIED" ? (
+                  <StatusPill kind="verification" status="VERIFIED" />
+                ) : null}
               </div>
               {seller.username ? (
                 <p className="font-sans text-label-md uppercase tracking-widest text-on-surface-variant">
                   @{seller.username}
                 </p>
               ) : null}
-              <p className="max-w-3xl font-body text-body-lg text-on-surface">
+              <p className="max-w-3xl font-body text-body-md text-on-surface sm:text-body-lg">
                 {seller.bio?.trim() || t("sellers.defaultBio")}
               </p>
               <a
                 href={phoneHref}
-                className="inline-flex items-center gap-2 font-sans text-label-md font-medium text-primary hover:underline"
+                className="inline-flex min-w-0 items-center gap-2 font-sans text-label-md font-medium text-primary hover:underline"
               >
-                <Icon name="call" className="text-lg" />
-                {seller.phone}
+                <Icon name="call" className="shrink-0 text-lg" />
+                <span className="break-all">{seller.phone}</span>
               </a>
             </div>
 
-            <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[12rem]">
+            <div className="flex w-full flex-col gap-3 md:w-auto md:min-w-[12rem]">
               <Button
                 type="button"
                 variant="primary"
@@ -252,8 +250,8 @@ export default function SellerProfilePage() {
       </section>
 
       {/* Stats */}
-      <section className="mx-auto max-w-7xl px-6 py-10 sm:px-10 lg:px-16">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-16">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard
             label={t("sellers.statActiveListings")}
             value={String(seller.stats.active_listing_count)}
@@ -276,21 +274,25 @@ export default function SellerProfilePage() {
       </section>
 
       {/* Discover the Collection — same search implementation as /search */}
-      <section className="border-t border-outline-variant/20 bg-surface py-12">
-        <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
-          <div className="mb-10 max-w-2xl">
+      <section className="border-t border-outline-variant/20 bg-surface py-10 sm:py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-16">
+          <div className="mb-8 max-w-2xl sm:mb-10">
             <p className="mb-3 font-sans text-label-sm font-bold uppercase tracking-widest text-secondary">
               {t("sellers.collectionEyebrow")}
             </p>
-            <h2 className="font-serif text-headline-md text-primary md:text-display-lg-mobile">
+            <h2 className="font-serif text-headline-sm text-primary sm:text-headline-md lg:text-display-lg-mobile">
               {t("sellers.collectionTitle")}
             </h2>
           </div>
           {seller.username ? (
-            <PropertySearchPanel
-              sellerUsername={seller.username}
-              compactHeader
-            />
+            <Suspense
+              fallback={<Skeleton className="aspect-[4/3] w-full max-w-xl" />}
+            >
+              <PropertySearchPanel
+                sellerUsername={seller.username}
+                compactHeader
+              />
+            </Suspense>
           ) : (
             <EmptyState
               icon="home_work"

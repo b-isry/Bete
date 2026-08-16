@@ -53,6 +53,7 @@ export { EmptyState, type EmptyStateProps } from "./EmptyState";
 export { Skeleton, SkeletonText, type SkeletonProps } from "./Skeleton";
 export { StatCard, type StatCardProps, type StatCardTrend, type StatCardTone } from "./StatCard";
 export { ChatBubble, type ChatBubbleProps } from "./ChatBubble";
+export { SafeMarkdown } from "./SafeMarkdown";
 export {
   ThreadList,
   type ThreadListProps,

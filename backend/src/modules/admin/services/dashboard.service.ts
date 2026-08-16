@@ -55,9 +55,9 @@ export async function getPlatformOverview() {
     }),
     prisma.user.count({
       where: {
-        role: UserRole.SELLER,
         verification_status: VerificationStatus.PENDING,
         deleted_at: null,
+        id_document_url: { not: null },
       },
     }),
     prisma.report.count({

@@ -42,6 +42,8 @@ const prismaMock = prisma as unknown as {
   property: {
     findFirst: jest.Mock;
     update: jest.Mock;
+    count: jest.Mock;
+    findMany: jest.Mock;
   };
   listingEvent: {
     findFirst: jest.Mock;
@@ -210,6 +212,7 @@ describe('property lifecycle routes', () => {
           verification_status: 'VERIFIED',
         },
       });
+      prismaMock.property.count.mockResolvedValue(2);
 
       const tx = {
         listingEvent: {
@@ -229,7 +232,105 @@ describe('property lifecycle routes', () => {
       expect(res.status).toBe(200);
       expect(res.body.data.property.id).toBe(PROPERTY_ID);
       expect(res.body.data.property.view_count).toBe(6);
+      expect(res.body.data.property.seller.active_listing_count).toBe(2);
       expect(tx.listingEvent.create).toHaveBeenCalled();
+    });
+  });
+
+  describe('GET /api/v1/properties/mine', () => {
+    it('returns only the authenticated seller properties including non-LIVE', async () => {
+      prismaMock.user.findFirst.mockResolvedValue({
+        id: SELLER_ID,
+        role: UserRole.SELLER,
+        verification_status: VerificationStatus.VERIFIED,
+        deleted_at: null,
+      });
+      prismaMock.property.count.mockResolvedValue(1);
+      prismaMock.property.findMany.mockResolvedValue([
+        {
+          id: PROPERTY_ID,
+          title: 'Pending villa',
+          description: 'Awaiting review',
+          deal_type: 'SALE',
+          property_type: 'VILLA',
+          price: new Decimal('5000000'),
+          area_sqm: new Decimal('200'),
+          bedrooms: 4,
+          bathrooms: 3,
+          location_text: 'Bole',
+          city_id: 1,
+          category_id: 1,
+          lat: null,
+          lng: null,
+          is_featured: false,
+          featured_until: null,
+          view_count: 0,
+          contact_count: 0,
+          created_at: new Date('2026-01-01T00:00:00.000Z'),
+          status: PropertyStatus.PENDING,
+          images: [],
+          seller: {
+            id: SELLER_ID,
+            name: 'Abebe',
+            username: 'abebe',
+            phone: '0912345678',
+            verification_status: VerificationStatus.VERIFIED,
+          },
+        },
+      ]);
+      prismaMock.$transaction.mockImplementation(
+        async (ops: Promise<unknown>[]) => Promise.all(ops),
+      );
+
+      const res = await request(app)
+        .get('/api/v1/properties/mine')
+        .set('Authorization', `Bearer ${sellerToken()}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.items).toHaveLength(1);
+      expect(res.body.data.items[0].status).toBe('PENDING');
+      expect(res.body.data.pagination).toEqual({
+        page: 1,
+        limit: 20,
+        total: 1,
+        totalPages: 1,
+      });
+      expect(prismaMock.property.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { seller_id: SELLER_ID, deleted_at: null },
+        }),
+      );
+    });
+
+    it('rejects unauthenticated mine requests', async () => {
+      const res = await request(app).get('/api/v1/properties/mine');
+      expect(res.status).toBe(401);
+    });
+
+    it('rejects non-seller mine requests', async () => {
+      const buyerId = '770e8400-e29b-41d4-a716-446655440000';
+      prismaMock.user.findFirst.mockResolvedValue({
+        id: buyerId,
+        role: UserRole.USER,
+        verification_status: VerificationStatus.UNVERIFIED,
+        deleted_at: null,
+      });
+
+      const buyerToken = jwt.sign(
+        {
+          id: buyerId,
+          role: UserRole.USER,
+          verification_status: VerificationStatus.UNVERIFIED,
+        },
+        env.JWT_SECRET,
+      );
+
+      const res = await request(app)
+        .get('/api/v1/properties/mine')
+        .set('Authorization', `Bearer ${buyerToken}`);
+
+      expect(res.status).toBe(403);
     });
   });
 });

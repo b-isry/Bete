@@ -81,7 +81,7 @@ function HeroSegment({
   children: ReactNode;
 }) {
   return (
-    <div className="relative flex min-w-0 flex-1 flex-col justify-center gap-1 px-4 py-3 text-left md:px-5">
+    <div className="relative flex min-w-0 flex-1 flex-col justify-center gap-1 px-4 py-3 text-left lg:px-5">
       <span className="font-sans text-label-sm font-bold uppercase tracking-widest text-secondary">
         {label}
       </span>
@@ -179,7 +179,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero — agency discovery */}
-      <section className="relative min-h-[32rem] w-full overflow-hidden">
+      <section className="relative min-h-[28rem] w-full overflow-hidden sm:min-h-[32rem]">
         <Image
           src={HERO_IMAGE}
           alt=""
@@ -188,14 +188,14 @@ export default function HomePage() {
           className="object-cover"
           sizes="100vw"
         />
-        <div className="absolute inset-0 flex items-center justify-center bg-primary/40 px-4 py-10">
-          <div className="w-full max-w-6xl space-y-8 text-center">
-            <h1 className="font-serif text-display-lg-mobile text-on-primary drop-shadow md:text-display-lg">
+        <div className="absolute inset-0 flex items-center justify-center bg-primary/40 px-4 py-10 sm:px-6">
+          <div className="w-full max-w-6xl space-y-6 text-center sm:space-y-8">
+            <h1 className="font-serif text-headline-md text-on-primary drop-shadow sm:text-display-lg-mobile lg:text-display-lg">
               {t("home.heroTitle")}
             </h1>
 
             <div className="flex flex-col gap-3 lg:flex-row lg:items-stretch">
-              <div className="flex min-w-0 flex-1 flex-col border border-outline-variant bg-surface-container-lowest md:flex-row md:divide-x md:divide-outline-variant/50">
+              <div className="flex min-w-0 flex-1 flex-col border border-outline-variant bg-surface-container-lowest lg:flex-row lg:divide-x lg:divide-outline-variant/50">
                 <HeroSegment label={t("home.searchBar.location")}>
                   <div className="relative">
                     <Select
@@ -269,7 +269,7 @@ export default function HomePage() {
                     </button>
                   </HeroSegment>
                   {priceOpen ? (
-                    <div className="absolute left-0 right-0 top-full z-20 border border-outline-variant bg-surface-container-lowest p-4 md:min-w-[18rem]">
+                    <div className="absolute left-0 right-0 top-full z-20 border border-outline-variant bg-surface-container-lowest p-4 lg:min-w-[18rem]">
                       <PriceRangeSlider
                         variant="compact"
                         value={priceRange}
@@ -307,7 +307,7 @@ export default function HomePage() {
                     </button>
                   </HeroSegment>
                   {bedsOpen ? (
-                    <div className="absolute left-0 right-0 top-full z-20 grid grid-cols-2 gap-3 border border-outline-variant bg-surface-container-lowest p-4 md:min-w-[16rem]">
+                    <div className="absolute left-0 right-0 top-full z-20 grid grid-cols-2 gap-3 border border-outline-variant bg-surface-container-lowest p-4 lg:min-w-[16rem]">
                       <label className="min-w-0 text-left">
                         <span className="mb-1 block font-sans text-label-sm uppercase tracking-widest text-on-surface-variant">
                           {t("search.beds")}
@@ -349,7 +349,7 @@ export default function HomePage() {
                   type="button"
                   variant="primary"
                   onClick={goSearch}
-                  className="flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-none px-8 py-4 md:min-w-[9rem]"
+                  className="flex min-h-14 w-full shrink-0 items-center justify-center gap-2 rounded-none px-6 py-4 lg:w-auto lg:min-w-[9rem] lg:px-8"
                 >
                   <Icon name="search" className="text-lg" />
                   {t("nav.search")}
@@ -358,7 +358,7 @@ export default function HomePage() {
 
               <Link
                 href="/ai-finder"
-                className="inline-flex min-h-14 shrink-0 items-center justify-center gap-2 border border-outline-variant bg-surface-container-lowest px-5 font-sans text-label-sm font-bold uppercase tracking-widest text-primary transition-colors hover:bg-surface-container-high"
+                className="inline-flex min-h-14 w-full shrink-0 items-center justify-center gap-2 border border-outline-variant bg-surface-container-lowest px-5 font-sans text-label-sm font-bold uppercase tracking-widest text-primary transition-colors hover:bg-surface-container-high lg:w-auto"
               >
                 <Icon name="auto_awesome" className="text-lg leading-none" />
                 {t("home.findWithAi")}
@@ -369,32 +369,32 @@ export default function HomePage() {
       </section>
 
       {/* Agencies — GET /sellers */}
-      <section className="mx-auto max-w-7xl px-6 py-20 sm:px-10 lg:px-16">
-        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-          <div className="max-w-2xl">
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-16">
+        <div className="mb-10 flex flex-col justify-between gap-4 sm:mb-12 sm:gap-6 md:flex-row md:items-end">
+          <div className="max-w-2xl min-w-0">
             <p className="mb-3 font-sans text-label-sm font-bold uppercase tracking-widest text-secondary">
               {t("home.featuredEyebrow")}
             </p>
-            <h2 className="font-serif text-headline-md leading-tight text-primary md:text-display-lg-mobile">
+            <h2 className="font-serif text-headline-sm leading-tight text-primary sm:text-headline-md lg:text-display-lg-mobile">
               {t("home.featuredTitle")}
             </h2>
           </div>
           <Link
             href="/search"
-            className="border-b border-secondary/30 pb-1 font-sans text-label-sm font-bold uppercase tracking-widest text-secondary hover:text-primary"
+            className="shrink-0 border-b border-secondary/30 pb-1 font-sans text-label-sm font-bold uppercase tracking-widest text-secondary hover:text-primary"
           >
             {t("home.viewAll")}
           </Link>
         </div>
 
         {agenciesLoading && !agencies ? (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
             <Skeleton className="aspect-[4/3] w-full" />
             <Skeleton className="aspect-[4/3] w-full" />
             <Skeleton className="aspect-[4/3] w-full" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
             {agencyItems.map((agency) => (
               <AgencyCard
                 key={agency.id}
@@ -412,8 +412,8 @@ export default function HomePage() {
       </section>
 
       {/* About Bete — static platform teaser → /about */}
-      <section className="mx-auto max-w-7xl px-6 pb-20 sm:px-10 lg:px-16">
-        <div className="max-w-3xl border-t border-outline-variant/30 pt-16">
+      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-20 lg:px-16">
+        <div className="max-w-3xl border-t border-outline-variant/30 pt-12 sm:pt-16">
           <h2 className="font-serif text-headline-sm text-primary">
             {t("home.aboutTitle")}
           </h2>
@@ -432,21 +432,21 @@ export default function HomePage() {
       </section>
 
       {/* Top sellers — GET /sellers/top */}
-      <section className="border-y border-outline-variant/10 bg-surface-container-low py-20">
-        <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
-          <div className="mb-10 flex items-center justify-between">
-            <h2 className="font-serif text-headline-md text-primary">
+      <section className="border-y border-outline-variant/10 bg-surface-container-low py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-16">
+          <div className="mb-10 flex items-center justify-between gap-4">
+            <h2 className="min-w-0 font-serif text-headline-sm text-primary sm:text-headline-md">
               {t("home.topAgencies")}
             </h2>
           </div>
           {sellersLoading && !sellersResult ? (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton key={i} className="h-20 w-full" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {sellers.slice(0, 8).map((seller) => {
                 const href = seller.username
                   ? `/sellers/${seller.username}`
@@ -495,11 +495,11 @@ export default function HomePage() {
 
       {/* Asset classes → /search?property_type=… */}
       <section className="border-y border-outline-variant/20 bg-surface py-8">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 px-6 sm:px-10 md:flex-row lg:px-16">
-          <h3 className="whitespace-nowrap font-sans text-label-sm font-bold uppercase tracking-widest text-primary">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 sm:px-6 lg:flex-row lg:gap-8 lg:px-16">
+          <h3 className="text-center font-sans text-label-sm font-bold uppercase tracking-widest text-primary lg:text-left">
             {t("home.assetClasses")}
           </h3>
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             {(
               [
                 ["HOUSE", "home_work", "propertyTypes.HOUSE"],
@@ -511,7 +511,7 @@ export default function HomePage() {
               <Link
                 key={type}
                 href={`/search?property_type=${type}`}
-                className="inline-flex items-center gap-3 bg-surface-container-low px-6 py-3 font-sans text-label-sm text-on-surface-variant transition-colors hover:bg-primary hover:text-on-primary"
+                className="inline-flex items-center gap-2 bg-surface-container-low px-4 py-2.5 font-sans text-label-sm text-on-surface-variant transition-colors hover:bg-primary hover:text-on-primary sm:gap-3 sm:px-6 sm:py-3"
               >
                 <Icon name={icon} className="text-lg" />
                 {t(labelKey)}

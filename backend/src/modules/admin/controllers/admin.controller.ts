@@ -198,3 +198,22 @@ export async function createReport(
     next(err);
   }
 }
+
+export async function resolveFlag(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    if (!req.user) {
+      throw new UnauthorizedError('Authentication required');
+    }
+    const result = await moderationService.resolvePropertyFlag(
+      req.params.id,
+      req.user.id,
+    );
+    sendSuccess(res, result);
+  } catch (err) {
+    next(err);
+  }
+}

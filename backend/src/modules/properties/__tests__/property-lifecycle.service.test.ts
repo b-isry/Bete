@@ -74,6 +74,7 @@ describe('property-lifecycle.service', () => {
       runPreScreeningChecksMock.mockResolvedValue([
         {
           flag_type: 'SCAM_KEYWORD_DETECTED',
+          message: 'Possible scam language detected: “wire money”.',
           detail: { matchedPhrase: 'wire money' },
         },
       ]);
@@ -106,6 +107,7 @@ describe('property-lifecycle.service', () => {
       expect(createArgs.data.seller_id).toBe('seller-1');
       expect(createArgs.data.price).toEqual(new Decimal('1800000'));
       expect(createArgs.data.flags.create).toHaveLength(1);
+      expect(createArgs.data.flags.create[0].message).toContain('wire money');
       expect(createArgs.data.images.create).toHaveLength(1);
 
       const expiresAt: Date = createArgs.data.expires_at;

@@ -11,16 +11,16 @@ development) `console.warn` + pages may render `<MockDataNotice />`.
 | Hook | Endpoint(s) | Mock constant | Category |
 | --- | --- | --- | --- |
 | `useAuthMe` | `/auth/me` | `MOCK_AUTH_BUYER` / `MOCK_AUTH_SELLER` / `MOCK_AUTH_ADMIN` | auth |
-
-`useAuthMe` sets `isMockFallback` whenever `/auth/me` errors (so gated pages can
-banner mock identity). `console.warn` only fires when a JWT is present — anonymous
-401s on public chrome are expected and stay quiet.
-| `useMyListings` | `MY_LISTINGS_PATH` (`/properties?seller_id=me`) | `MOCK_SELLER_LISTINGS` | listings |
 | `useFavorites` | `FAVORITES_PATH` (`/favorites`) | `MOCK_FAVORITES` | favorites |
 | `useMessageThreads` | `/messages/threads` | `MOCK_THREADS` | messages |
 | `useThreadMessages` | `/messages/thread/:id` | `MOCK_THREAD_MESSAGES` | messages |
 | `usePendingListings` | `ADMIN_PENDING_LISTINGS_PATH` | `MOCK_PENDING_LISTINGS` | admin queues |
 | `usePendingVerifications` | `ADMIN_PENDING_VERIFICATIONS_PATH` | `MOCK_PENDING_VERIFICATIONS` | admin queues |
+
+`useAuthMe` sets `isMockFallback` whenever `/auth/me` errors **and** `withFallback`
+is enabled (default). `RequireRole` calls `useAuthMe(role, { withFallback: false })`
+so gating never authorizes from mock identity. `console.warn` only fires when a JWT
+is present — anonymous 401s on public chrome are expected and stay quiet.
 
 ## Fallback present — no mock-notice wiring
 
@@ -40,6 +40,7 @@ Treat successful-looking admin screens with caution until verified live.
 
 | Hook | Endpoint(s) |
 | --- | --- |
+| `useMyListings` | `MY_LISTINGS_PATH` (`/properties/mine`) |
 | `useTopSellers` | `/sellers/top` |
 | `useNotifications` | `/notifications` |
 | `useCities` | `/cities?locale=` |

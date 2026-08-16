@@ -126,9 +126,9 @@ export default function MessagesPage() {
           </div>
 
           <div className="flex min-h-[50vh] flex-col">
-            <header className="flex items-center justify-between border-b border-outline-variant px-4 py-4">
-              <div>
-                <h2 className="font-serif text-lg text-primary">
+            <header className="flex min-w-0 items-center justify-between gap-3 border-b border-outline-variant px-4 py-4">
+              <div className="min-w-0">
+                <h2 className="truncate font-serif text-lg text-primary">
                   {activeThread?.property?.title ??
                     counterpartName(
                       activeThread?.participants ?? [],
@@ -136,7 +136,7 @@ export default function MessagesPage() {
                       threadFallback,
                     )}
                 </h2>
-                <p className="font-sans text-label-sm uppercase tracking-widest text-on-surface-variant">
+                <p className="truncate font-sans text-label-sm uppercase tracking-widest text-on-surface-variant">
                   {counterpartName(
                     activeThread?.participants ?? [],
                     meId,
@@ -144,7 +144,7 @@ export default function MessagesPage() {
                   )}
                 </p>
               </div>
-              <Icon name="more_horiz" className="text-on-surface-variant" />
+              <Icon name="more_horiz" className="shrink-0 text-on-surface-variant" />
             </header>
 
             <div className="flex-1 space-y-4 overflow-y-auto p-4">

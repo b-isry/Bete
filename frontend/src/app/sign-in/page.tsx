@@ -159,6 +159,15 @@ export default function SignInPage() {
             required
           />
 
+          <p className="text-right">
+            <Link
+              href="/forgot-password"
+              className="font-sans text-label-sm text-primary underline"
+            >
+              {t("auth.forgot.link")}
+            </Link>
+          </p>
+
           <Button type="submit" variant="primary" className="w-full" disabled={busy}>
             {t("auth.signIn.submit")}
           </Button>

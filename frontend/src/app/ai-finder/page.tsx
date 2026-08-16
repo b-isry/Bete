@@ -12,12 +12,12 @@ export default function AiFinderPage() {
 
   return (
     <div className="min-h-screen">
-      <section className="mx-auto max-w-7xl px-6 py-16 sm:px-10 sm:py-20 lg:px-16">
-        <div className="mb-12 text-center">
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-16 lg:py-20">
+        <div className="mb-10 text-center sm:mb-12">
           <p className="mb-3 font-sans text-label-sm font-bold uppercase tracking-widest text-secondary">
             {t("aiFinder.engine")}
           </p>
-          <h1 className="font-serif text-headline-md italic text-primary md:text-display-lg-mobile">
+          <h1 className="font-serif text-headline-sm italic text-primary sm:text-headline-md lg:text-display-lg-mobile">
             {t("home.aiHeadline")}
           </h1>
         </div>

@@ -36,6 +36,7 @@ export async function createListing(userId: string, data: PropertyCreateInput) {
     price: data.price,
     city_id: data.city_id,
     property_type: data.property_type,
+    deal_type: data.deal_type,
     image_hashes: data.images.map((image) => image.image_hash),
   });
 
@@ -71,6 +72,7 @@ export async function createListing(userId: string, data: PropertyCreateInput) {
         flags: {
           create: flags.map((flag) => ({
             flag_type: flag.flag_type,
+            message: flag.message,
             detail: flag.detail as Prisma.InputJsonValue,
           })),
         },

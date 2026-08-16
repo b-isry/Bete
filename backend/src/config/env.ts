@@ -10,6 +10,8 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
   JWT_EXPIRES_IN: z.string().min(1).default('7d'),
   CORS_ORIGIN: z.string().min(1, 'CORS_ORIGIN is required'),
+  /** Public web app origin for email links (defaults to CORS_ORIGIN). */
+  FRONTEND_URL: z.string().url().optional(),
   /** Optional — AI routes return 502 when unset / blank. */
   OPENAI_API_KEY: z.string().optional().default(''),
 });
@@ -22,5 +24,8 @@ if (!parsed.success) {
   process.exit(1);
 }
 
-export const env = parsed.data;
-export type Env = z.infer<typeof envSchema>;
+export const env = {
+  ...parsed.data,
+  FRONTEND_URL: parsed.data.FRONTEND_URL ?? parsed.data.CORS_ORIGIN,
+};
+export type Env = typeof env;

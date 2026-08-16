@@ -18,6 +18,7 @@ const propertyFavoriteSelect = {
   bathrooms: true,
   location_text: true,
   property_type: true,
+  deal_type: true,
   is_featured: true,
   images: {
     orderBy: { sort_order: 'asc' as const },
@@ -47,6 +48,7 @@ function mapProperty(row: {
   bathrooms: number | null;
   location_text: string;
   property_type: string;
+  deal_type: string;
   is_featured: boolean;
   images: Array<{ id: string; image_url: string; sort_order: number }>;
   seller: {
@@ -76,6 +78,7 @@ function mapProperty(row: {
     bathrooms: row.bathrooms,
     location_text: row.location_text,
     property_type: row.property_type,
+    deal_type: row.deal_type,
     is_featured: row.is_featured,
     images: row.images,
     seller: row.seller,

@@ -99,3 +99,54 @@ export const VerifyOtpSchema = z.object({
 });
 
 export type VerifyOtpInput = z.infer<typeof VerifyOtpSchema>;
+
+/** Seller/agency profile fields editable after registration. Phone is OTP-gated — not here. */
+export const UpdateSellerProfileSchema = z.object({
+  name: z.string().trim().min(2).max(120).optional(),
+  bio: z.string().trim().max(2000).nullable().optional(),
+  logo_url: storedObjectRef.nullable().optional(),
+  cover_image_url: storedObjectRef.nullable().optional(),
+  email: z.string().trim().email().nullable().optional(),
+  whatsapp_number: z
+    .string()
+    .trim()
+    .regex(ETHIOPIAN_PHONE_REGEX, 'Invalid Ethiopian phone number')
+    .nullable()
+    .optional(),
+  telegram_username: z
+    .string()
+    .trim()
+    .max(64)
+    .nullable()
+    .optional()
+    .transform((v) => (v === '' ? null : v)),
+  facebook_url: z
+    .string()
+    .trim()
+    .nullable()
+    .optional()
+    .transform((v) => (v === '' ? null : v))
+    .refine((v) => v == null || z.string().url().safeParse(v).success, {
+      message: 'Invalid Facebook URL',
+    }),
+  primary_city_id: z.coerce.number().int().positive().nullable().optional(),
+});
+
+export type UpdateSellerProfileInput = z.infer<typeof UpdateSellerProfileSchema>;
+
+export const RequestPasswordResetSchema = z.object({
+  email: z.string().trim().email('Invalid email address'),
+});
+
+export type RequestPasswordResetInput = z.infer<
+  typeof RequestPasswordResetSchema
+>;
+
+export const ConfirmPasswordResetSchema = z.object({
+  token: z.string().trim().min(20, 'Invalid reset token'),
+  password: passwordSchema,
+});
+
+export type ConfirmPasswordResetInput = z.infer<
+  typeof ConfirmPasswordResetSchema
+>;

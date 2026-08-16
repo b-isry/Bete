@@ -71,3 +71,26 @@ export async function getThread(
     next(err);
   }
 }
+
+export async function resolveThread(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    if (!req.user) {
+      throw new UnauthorizedError('Authentication required');
+    }
+    const resolved = Boolean(
+      (req.body as { resolved?: boolean }).resolved ?? true,
+    );
+    const result = await messagingService.resolveSupportThread(
+      req.params.threadId,
+      req.user.id,
+      resolved,
+    );
+    sendSuccess(res, result);
+  } catch (err) {
+    next(err);
+  }
+}

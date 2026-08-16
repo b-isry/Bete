@@ -28,4 +28,4 @@ export function getSmsProvider(): SmsProvider {
 
 export type { SmsProvider } from './sms-provider.interface';
 export { ConsoleSmsProvider } from './console-sms.provider';
-export { GeezSmsProvider } from './geezsms.provider';
+export { GeezSmsProvider, toGeezPhone } from './geezsms.provider';

@@ -48,6 +48,8 @@ export type ListingCardProps = {
   imageUrl?: string;
   imageAlt?: string;
   verified?: boolean;
+  /** SALE / RENT badge on the card media. */
+  dealType?: "SALE" | "RENT" | null;
   location?: string;
   bedrooms?: number | null;
   bathrooms?: number | null;
@@ -93,6 +95,7 @@ export function ListingCard({
   imageUrl,
   imageAlt,
   verified = false,
+  dealType = null,
   location,
   bedrooms = null,
   bathrooms = null,
@@ -272,6 +275,17 @@ export function ListingCard({
             />
           ) : null}
 
+          {dealType === "SALE" || dealType === "RENT" ? (
+            <span
+              className={cn(
+                "absolute z-10 border border-outline-variant bg-surface-container-lowest/95 px-2.5 py-1 font-sans text-label-sm uppercase tracking-widest text-on-surface",
+                verified ? "left-3 top-12" : "left-3 top-3",
+              )}
+            >
+              {dealType === "SALE" ? t("search.buy") : t("search.rent")}
+            </span>
+          ) : null}
+
           <button
             type="button"
             aria-label={
@@ -310,13 +324,13 @@ export function ListingCard({
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-4 p-5">
-          <div className="flex items-start justify-between gap-4">
-            <h3 className="min-w-0 flex-1 font-serif text-headline-sm leading-snug text-on-surface">
+        <div className="flex flex-col gap-4 p-4 sm:p-5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+            <h3 className="min-w-0 flex-1 font-serif text-lg leading-snug text-on-surface line-clamp-2 sm:text-headline-sm">
               {title}
             </h3>
-            <div className="shrink-0 text-right">
-              <p className="font-sans text-label-md font-bold text-on-surface">
+            <div className="min-w-0 sm:shrink-0 sm:text-right">
+              <p className="break-words font-sans text-label-md font-bold text-on-surface">
                 {formatEtb(priceEtb, t("common.currencyEtb"))}
               </p>
               {showPerSqm ? (
@@ -329,13 +343,13 @@ export function ListingCard({
           </div>
 
           {location ? (
-            <p className="flex items-center gap-1.5 font-sans text-label-sm text-on-surface-variant">
-              <Icon name="location_on" className="text-base text-secondary" />
+            <p className="flex min-w-0 items-center gap-1.5 font-sans text-label-sm text-on-surface-variant">
+              <Icon name="location_on" className="shrink-0 text-base text-secondary" />
               <span className="truncate">{location}</span>
             </p>
           ) : null}
 
-          <div className="flex flex-wrap items-center gap-4 font-sans text-label-sm text-on-surface-variant">
+          <div className="flex flex-wrap items-center gap-3 font-sans text-label-sm text-on-surface-variant sm:gap-4">
             {bedrooms != null ? (
               <span className="inline-flex items-center gap-1.5">
                 <Icon name="bed" className="text-base" />
@@ -357,11 +371,11 @@ export function ListingCard({
             ) : null}
           </div>
 
-          <div className="flex items-stretch gap-2 pt-1">
+          <div className="flex min-w-0 items-stretch gap-2 pt-1">
             <Button
               href={`/properties/${id}`}
               variant="primary"
-              className="min-w-0 flex-1"
+              className="min-w-0 flex-1 px-3 text-center sm:px-5"
             >
               {t("listing.viewDetails")}
             </Button>

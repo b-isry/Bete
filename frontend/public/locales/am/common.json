@@ -163,6 +163,7 @@
     "locationPlaceholder": "አዲስ አበባ፣ ቦሌ…",
     "findProperty": "ንብረት ፈልግ",
     "transaction": "ግብይት",
+    "allDeals": "ሁሉም",
     "buy": "ግዛ",
     "rent": "ተከራይ",
     "beds": "መኝታ ክፍሎች",
@@ -172,6 +173,8 @@
   "property": {
     "backToSearch": "ወደ ፍለጋ ተመለስ",
     "verifiedSeller": "የተረጋገጠ ሻጭ",
+    "viewAgencyOne": "ከ{name} 1 ንብረት ይመልከቱ",
+    "viewAgencyMany": "ከ{name} ሁሉንም {count} ንብረቶች ይመልከቱ",
     "priceCompare": "ይህ ዋጋ እንዴት ይነጻጸራል",
     "priceCompareFallback": "ለዚህ አካባቢ በቂ የአቅራቢያ ሽያጮች ሲኖሩ የዋጋ ንጽጽር እዚህ ይታያል።",
     "description": "መግለጫ",
@@ -188,7 +191,29 @@
     "notFoundDescription": "ይህ ማስታወቂያ ከመስመር ውጪ ሊሆን ወይም መታወቂያው የተሳሳተ ሊሆን ይችላል።",
     "loading": "ንብረት እየጫነ ነው…",
     "mapLoading": "ካርታ እየጫነ ነው",
-    "galleryA11y": "የንብረት ፎቶ ማዕከል"
+    "galleryA11y": "የንብረት ፎቶ ማዕከል",
+    "report": {
+      "button": "ማስታወቂያ ሪፖርት አድርግ",
+      "title": "ይህን ማስታወቂያ ሪፖርት አድርግ",
+      "hint": "ምን እንደተሳሳተ ይንገሩን። ቡድናችን እያንዳንዱን ሪፖርት ይመረምራል።",
+      "reason": "ምክንያት",
+      "note": "ዝርዝር (አማራጭ)",
+      "notePlaceholder": "ለተቆጣጣሪዎች የሚረዳ ማንኛውንም አውድ ያጋሩ…",
+      "cancel": "ሰርዝ",
+      "submit": "ሪፖርት አስገባ",
+      "submitting": "እየገባ ነው…",
+      "success": "ሪፖርት ገብቷል። ቤቴን ደህንነቱ የተጠበቀ ለማድረግ ስለረዱ እናመሰግናለን።",
+      "error": "ሪፖርቱን ማስገባት አልተቻለም። እንደገና ይሞክሩ።",
+      "loginRequired": "ማስታወቂያ ለመሪፖርት ለመግባት ይግቡ።",
+      "reasons": {
+        "FAKE": "ውሸት ወይም አሳሳች ማስታወቂያ",
+        "ALREADY_SOLD": "ቀድሞ የተሸጠ ወይም የተከራየ",
+        "WRONG_PRICE": "ትክክል ያልሆነ ዋጋ",
+        "SCAM": "የማጭበርበር ጥርጣሬ",
+        "OFFENSIVE": "አጸያፊ ይዘት",
+        "OTHER": "ሌላ"
+      }
+    }
   },
   "cities": {
     "addisAbaba": "አዲስ አበባ",
@@ -224,6 +249,8 @@
       "active": "ንቁ ማስታወቂያዎች",
       "manageListings": "ማስታወቂያዎችን ያስተዳድሩ",
       "portfolio": "የእርስዎ ፖርትፎሊዮ",
+      "byDealType": "በግብይት አይነት",
+      "byPropertyType": "በንብረት አይነት",
       "defaultName": "ሻጭ"
     },
     "listings": {
@@ -232,8 +259,12 @@
       "searchPlaceholder": "ማስታወቂያዎችዎን ይፈልጉ…",
       "empty": "እስካሁን ምንም ማስታወቂያ የለም",
       "emptyHint": "በፍለጋ ውስጥ ለመታየት የመጀመሪያ ንብረትዎን ይለጥፉ።",
-      "renew": "እድስ",
-      "boost": "አጎልብት",
+      "filterEmpty": "ከፍለጋዎ ጋር የሚመሳሰል ማስታወቂያ የለም",
+      "filterEmptyHint": "ሌላ ርዕስ ወይም የአካባቢ ቁልፍ ቃል ይሞክሩ።",
+      "loadError": "ማስታወቂያዎችዎን መጫን አልተቻለም",
+      "loadErrorHint": "ግንኙነትዎን ያረጋግጡና እንደገና ይሞክሩ። ከወጡ እንደ ሻጭ ይግቡ።",
+      "featured": "ተለይቶ የቀረበ",
+      "renew": "እድስ",      "boost": "አጎልብት",
       "renewSuccess": "ማስታወቂያው ለ30 ቀናት ታድሷል።",
       "renewFallback": "እድሳት በአካባቢ ተመዝግቧል — API ሲገኝ ይግቡ።",
       "boostPending": "ማጎልበት ማስተዋወቂያ ክፍያ ሲጀመር ይገኛል።"
@@ -465,10 +496,18 @@
       "reported": "ሪፖርት የተደረገ",
       "empty": "ወረፋው ንጹህ ነው",
       "emptyHint": "ለዚህ ማጣሪያ የሚዛመድ በመጠባበቅ ላይ ማስታወቂያ የለም።",
+      "reportedEmpty": "የማህበረሰብ ሪፖርት የለም",
+      "reportedEmptyHint": "በገዢዎች የተደረጉ ሪፖርቶች እዚህ ይታያሉ።",
+      "pendingReports": "በመጠባበቅ ላይ ያሉ ሪፖርቶች",
       "cleanPass": "ንጹህ የAI ምርመራ",
       "cleanHint": "ምንም ያልተለመደ ነገር አልተገኘም። ምስሎች እና መረጃዎች ተስማምተው ይታያሉ።",
       "submitted": "ገብቷል",
-      "aiFlagLabel": "የAI ምልክት: "
+      "aiFlagLabel": "የAI ምልክት: ",
+      "flagNoMessage": "ተጨማሪ ዝርዝር አልተሰጠም።",
+      "viewListing": "ማስታወቂያ ይመልከቱ",
+      "resolveFlag": "ምልክትን አስወግድ",
+      "flagResolved": "ምልክቱ ተፈትቷል።",
+      "flagResolveFallback": "ምልክቱ በአካባቢ ተዘምኗል — API ሲገኝ እንደ ADMIN ይግቡ።"
     },
     "analytics": {
       "title": "ትንታኔ እና ገቢ",
@@ -523,7 +562,7 @@
       "title": "ሪፖርቶች",
       "subtitle": "በመጠባበቅ ላይ ያሉ የማህበረሰብ ሪፖርቶች ያሉባቸው ማስታወቂያዎች — እያንዳንዱን ምልክት ይፍቱ ወይም ያሰናብቱ።",
       "empty": "ምንም የሪፖርት ወረፋ ንጥል የለም",
-      "emptyHint": "ራስ-ሰር የተደበቁ ማስታወቂያዎች እና 3+ በመጠባበቅ ላይ ያሉ የሪፖርት ቡድኖች እዚህ ይታያሉ።",
+      "emptyHint": "ራስ-ሰር የተደበቁ ማስታወቂያዎች እና በመጠባበቅ ላይ ያሉ የገዢ ሪፖርቶች እዚህ ይታያሉ።",
       "pendingCount": "በመጠባበቅ ላይ ያሉ ሪፖርቶች",
       "resolve": "ፍታ",
       "dismiss": "አሰናብት",
@@ -588,6 +627,14 @@
       "nextStepsIntro": "ከተመዘገቡ በኋላ፣ እነዚህን ከዳሽቦርድዎ ያጠናቅቁ፦",
       "nextStepsOtp": "ስልክዎን በአንድ ጊዜ ኮድ (OTP) ያረጋግጡ።",
       "nextStepsDocs": "ለማረጋገጫ የመታወቂያ ሰነድ ወይም የንግድ ፈቃድ ይስቀሉ።"
+    },
+    "forbidden": "የ{role} መዳረሻ ያስፈልጋል",
+    "forbiddenHint": "ለመቀጠል በ{role} መለያ ይግቡ።",
+    "forbiddenBack": "ወደ መነሻ ተመለስ",
+    "roleNames": {
+      "ADMIN": "አስተዳዳሪ",
+      "SELLER": "ሻጭ",
+      "USER": "ገዢ"
     }
   },
   "location": {

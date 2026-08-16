@@ -51,7 +51,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "flex h-40 flex-col justify-between border p-6 transition-colors",
+        "flex h-36 flex-col justify-between border p-4 transition-colors sm:h-40 sm:p-6",
         colors.shell,
         className,
       )}
@@ -64,10 +64,10 @@ export function StatCard({
       >
         {label}
       </p>
-      <div className="flex items-baseline gap-2">
+      <div className="flex min-w-0 items-baseline gap-2">
         <h3
           className={cn(
-            "font-serif text-display-lg-mobile leading-none",
+            "min-w-0 truncate font-serif text-headline-sm leading-none sm:text-display-lg-mobile",
             colors.value,
           )}
         >

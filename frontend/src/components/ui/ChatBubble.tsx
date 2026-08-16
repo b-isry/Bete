@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "./cn";
+import { SafeMarkdown } from "./SafeMarkdown";
 
 export type ChatBubbleProps = HTMLAttributes<HTMLDivElement> & {
   /** Outgoing = current user (primary); incoming = peer */
@@ -16,6 +17,12 @@ export function ChatBubble({
   ...props
 }: ChatBubbleProps) {
   const outgoing = side === "outgoing";
+  const content =
+    typeof children === "string" ? (
+      <SafeMarkdown text={children} />
+    ) : (
+      children
+    );
 
   return (
     <div
@@ -34,7 +41,7 @@ export function ChatBubble({
             : "bg-surface-container text-on-surface",
         )}
       >
-        {children}
+        {content}
       </div>
       {meta ? (
         <span className="font-sans text-label-sm text-on-surface-variant">

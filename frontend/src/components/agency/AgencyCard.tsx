@@ -78,9 +78,9 @@ export function AgencyCard({
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-2 p-5">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-serif text-headline-sm leading-snug text-on-surface">
+        <div className="flex flex-col gap-2 p-4 sm:p-5">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h3 className="line-clamp-2 font-serif text-lg leading-snug text-on-surface sm:text-headline-sm">
               {name}
             </h3>
           </div>

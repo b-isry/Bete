@@ -1,4 +1,4 @@
-import { Locale, PropertyType } from '@prisma/client';
+import { DealType, Locale, PropertyType } from '@prisma/client';
 import Decimal from 'decimal.js';
 import { prisma } from '../../../config/prisma';
 import { formatPriceComparisonText } from '../../../utils/locale-format';
@@ -16,7 +16,7 @@ function toDecimal(value: Decimal.Value): Decimal {
 }
 
 /**
- * Compare a listing price against LIVE peers in the same city/type within a ±25% band.
+ * Compare a listing price against LIVE peers in the same city/type/deal within a ±25% band.
  * All arithmetic uses Decimal — never native JS number math on prices.
  */
 export async function getAreaPriceComparison(
@@ -26,6 +26,7 @@ export async function getAreaPriceComparison(
   areaSqm: Decimal | undefined,
   locale?: Locale | string | null,
   excludePropertyId?: string,
+  dealType?: DealType,
 ): Promise<AreaPriceComparison> {
   const resolvedLocale = resolveLocale(
     typeof locale === 'string' ? locale : locale ?? undefined,
@@ -41,6 +42,7 @@ export async function getAreaPriceComparison(
       deleted_at: null,
       city_id: cityId,
       property_type: propertyType,
+      ...(dealType !== undefined ? { deal_type: dealType } : {}),
       ...(excludePropertyId ? { id: { not: excludePropertyId } } : {}),
       price: {
         gte: bandMin,
@@ -105,13 +107,14 @@ export async function getAreaPriceComparison(
 }
 
 /**
- * Average price of all LIVE listings in a city + property type (no ±25% band).
+ * Average price of LIVE listings in a city + property type (+ optional deal type).
  * Used by AI pre-screening for outlier detection.
  */
 export async function getAreaAveragePrice(
   cityId: number,
   propertyType: PropertyType,
   excludePropertyId?: string,
+  dealType?: DealType,
 ): Promise<Decimal | null> {
   const peers = await prisma.property.findMany({
     where: {
@@ -119,6 +122,7 @@ export async function getAreaAveragePrice(
       deleted_at: null,
       city_id: cityId,
       property_type: propertyType,
+      ...(dealType !== undefined ? { deal_type: dealType } : {}),
       ...(excludePropertyId ? { id: { not: excludePropertyId } } : {}),
     },
     select: { price: true },

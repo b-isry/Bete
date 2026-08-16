@@ -6,6 +6,7 @@ export type PropertySearchItem = {
   area_sqm?: string | null;
   location_text: string;
   property_type: string;
+  deal_type?: "SALE" | "RENT";
   is_featured?: boolean;
   bedrooms?: number | null;
   bathrooms?: number | null;
@@ -112,6 +113,7 @@ export const MOCK_SEARCH_ITEMS: PropertySearchItem[] = [
     price: "18500000.00",
     price_per_sqm: "92500.00",
     location_text: "Bole, Addis Ababa",
+    deal_type: "SALE",
     property_type: "HOUSE",
     is_featured: true,
     bedrooms: 4,
@@ -151,6 +153,7 @@ export const MOCK_SEARCH_ITEMS: PropertySearchItem[] = [
     price: "4200000.00",
     price_per_sqm: "70000.00",
     location_text: "Kirkos, Addis Ababa",
+    deal_type: "RENT",
     property_type: "APARTMENT",
     is_featured: true,
     bedrooms: 2,
@@ -170,6 +173,7 @@ export const MOCK_SEARCH_ITEMS: PropertySearchItem[] = [
     price: "6800000.00",
     price_per_sqm: "48500.00",
     location_text: "Bahir Dar",
+    deal_type: "SALE",
     property_type: "HOUSE",
     is_featured: false,
     bedrooms: 3,
@@ -189,6 +193,7 @@ export const MOCK_SEARCH_ITEMS: PropertySearchItem[] = [
     price: "1850000.00",
     price_per_sqm: "92000.00",
     location_text: "Arada, Addis Ababa",
+    deal_type: "RENT",
     property_type: "APARTMENT",
     is_featured: false,
     bedrooms: 1,
@@ -208,6 +213,7 @@ export const MOCK_SEARCH_ITEMS: PropertySearchItem[] = [
     price: "3100000.00",
     price_per_sqm: "28000.00",
     location_text: "Harar",
+    deal_type: "SALE",
     property_type: "HOUSE",
     is_featured: true,
     bedrooms: 5,
@@ -227,6 +233,7 @@ export const MOCK_SEARCH_ITEMS: PropertySearchItem[] = [
     price: "12500000.00",
     price_per_sqm: null,
     location_text: "CMC, Addis Ababa",
+    deal_type: "RENT",
     property_type: "LAND",
     is_featured: false,
     bedrooms: null,
@@ -440,9 +447,16 @@ export function mockAiParse(query: string): AiParseResult {
 export type AuthUser = {
   id: string;
   name: string;
-  username: string;
+  username: string | null;
   phone: string | null;
   email: string | null;
+  whatsapp_number?: string | null;
+  telegram_username?: string | null;
+  facebook_url?: string | null;
+  bio?: string | null;
+  logo_url?: string | null;
+  cover_image_url?: string | null;
+  primary_city_id?: number | null;
   role: "USER" | "SELLER" | "ADMIN";
   verification_status: "UNVERIFIED" | "PENDING" | "VERIFIED" | "REJECTED" | string;
   /** ISO timestamp when OTP phone verification succeeded. Present on GET /auth/me. */
@@ -465,12 +479,13 @@ export type MessageThread = {
   id: string;
   thread_type: "LISTING" | "SUPPORT";
   property?: { id: string; title: string } | null;
-  participants: Array<{ id: string; name: string; username: string }>;
+  participants: Array<{ id: string; name: string; username: string | null }>;
   last_message?: {
     message_text: string | null;
     created_at: string;
   } | null;
   unread_count: number;
+  resolved_at?: string | null;
   updated_at: string;
 };
 
@@ -593,19 +608,17 @@ export const MOCK_THREAD_MESSAGES: ThreadMessage[] = [
 ];
 
 export type SellerListing = PropertySearchItem & {
-  status: "PENDING" | "LIVE" | "EXPIRED" | "REJECTED";
+  status:
+    | "PENDING"
+    | "LIVE"
+    | "EXPIRED"
+    | "REJECTED"
+    | "REMOVED"
+    | "AUTO_HIDDEN";
   view_count: number;
   contact_count: number;
+  rejection_reason?: string | null;
 };
-
-export const MOCK_SELLER_LISTINGS: SellerListing[] = MOCK_SEARCH_ITEMS.map(
-  (item, index) => ({
-    ...item,
-    status: index === 1 ? "PENDING" : index === 3 ? "EXPIRED" : "LIVE",
-    view_count: 200 + index * 80,
-    contact_count: 10 + index * 3,
-  }),
-);
 
 export const MOCK_AUTH_ADMIN: AuthUser = {
   id: "mock-user-admin",

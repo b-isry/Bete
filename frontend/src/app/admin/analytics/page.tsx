@@ -12,9 +12,17 @@ import {
   TableHead,
   TableHeaderCell,
   TableRow,
+  useToast,
 } from "@/components/ui";
 import { useLanguage } from "@/i18n/LanguageContext";
+import {
+  buildSimplePdf,
+  downloadBinaryFile,
+  downloadTextFile,
+  toCsvRow,
+} from "@/lib/export-file";
 import { useAdminAnalytics, useTopSellers } from "@/lib/hooks";
+import type { AdminAnalytics } from "@/lib/mocks";
 
 function formatEtb(amount: string, currency: string): string {
   const n = Number(amount);
@@ -22,8 +30,55 @@ function formatEtb(amount: string, currency: string): string {
   return `${n.toLocaleString("en-ET")} ${currency}`;
 }
 
+function buildAnalyticsCsv(
+  analytics: AdminAnalytics,
+  agencyRows: AdminAnalytics["agencies"],
+): string {
+  const rows = [
+    toCsvRow(["metric", "value"]),
+    toCsvRow(["revenue_total_etb", analytics.revenue_total_etb]),
+    toCsvRow(["boost_revenue_etb", analytics.boost_revenue_etb]),
+    toCsvRow(["revenue_growth_pct", analytics.revenue_growth_pct]),
+    toCsvRow(["conversion_efficiency", analytics.conversion_efficiency]),
+    toCsvRow(["new_listings_month", analytics.new_listings_month]),
+    toCsvRow(["closed_transactions", analytics.closed_transactions]),
+    "",
+    toCsvRow(["agency", "volume", "growth_pct", "revenue_etb"]),
+    ...agencyRows.map((row) =>
+      toCsvRow([row.name, row.volume, row.growth_pct, row.revenue_etb]),
+    ),
+  ];
+  return rows.join("\n");
+}
+
+function buildAnalyticsPdfLines(
+  analytics: AdminAnalytics,
+  agencyRows: AdminAnalytics["agencies"],
+  currency: string,
+): string[] {
+  const lines = [
+    "Bete — Quarterly analytics report",
+    new Date().toISOString().slice(0, 10),
+    "",
+    `Total revenue: ${formatEtb(analytics.revenue_total_etb, currency)}`,
+    `Boost revenue: ${formatEtb(analytics.boost_revenue_etb, currency)}`,
+    `Growth: ${analytics.revenue_growth_pct}%`,
+    `Conversion: ${analytics.conversion_efficiency}%`,
+    `New listings (month): ${analytics.new_listings_month}`,
+    `Closed transactions: ${analytics.closed_transactions}`,
+    "",
+    "Agencies:",
+    ...agencyRows.map(
+      (row) =>
+        `${row.name} — vol ${row.volume}, growth ${row.growth_pct}%, rev ${row.revenue_etb}`,
+    ),
+  ];
+  return lines.slice(0, 40);
+}
+
 export default function AdminAnalyticsPage() {
   const { t } = useLanguage();
+  const { push } = useToast();
   const { data } = useAdminAnalytics();
   const { data: top } = useTopSellers();
 
@@ -38,6 +93,34 @@ export default function AdminAnalyticsPage() {
     })) ??
       []);
 
+  function onExportCsv() {
+    if (!analytics) return;
+    const csv = buildAnalyticsCsv(analytics, agencyRows);
+    downloadTextFile(
+      `bete-analytics-${new Date().toISOString().slice(0, 10)}.csv`,
+      csv,
+      "text/csv;charset=utf-8",
+    );
+    push(t("admin.analytics.exported"), "success");
+  }
+
+  function onExportPdf() {
+    if (!analytics) return;
+    const pdf = buildSimplePdf(
+      buildAnalyticsPdfLines(
+        analytics,
+        agencyRows,
+        t("common.currencyEtb"),
+      ),
+    );
+    downloadBinaryFile(
+      `bete-quarterly-${new Date().toISOString().slice(0, 10)}.pdf`,
+      pdf,
+      "application/pdf",
+    );
+    push(t("admin.analytics.exported"), "success");
+  }
+
   return (
     <AdminShell title={t("admin.analytics.title")}>
       <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
@@ -45,8 +128,12 @@ export default function AdminAnalyticsPage() {
           {t("admin.analytics.subtitle")}
         </p>
         <div className="flex gap-3">
-          <Button variant="outline">{t("admin.analytics.export")}</Button>
-          <Button variant="primary">{t("admin.analytics.report")}</Button>
+          <Button variant="outline" onClick={onExportCsv}>
+            {t("admin.analytics.export")}
+          </Button>
+          <Button variant="primary" onClick={onExportPdf}>
+            {t("admin.analytics.report")}
+          </Button>
         </div>
       </div>
 

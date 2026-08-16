@@ -67,7 +67,8 @@
   },
   "common": {
     "currencyEtb": "ETB",
-    "loadingEllipsis": "…"
+    "loadingEllipsis": "…",
+    "loading": "Loading…"
   },
   "status": {
     "property": {
@@ -161,15 +162,25 @@
     "locationPlaceholder": "Addis Ababa, Bole…",
     "findProperty": "Find Property",
     "transaction": "Transaction",
+    "allDeals": "All",
     "buy": "Buy",
     "rent": "Rent",
     "beds": "Beds",
     "baths": "Baths",
-    "resultsSummary": "{count} properties found"
+    "resultsSummary": "{count} properties found",
+    "saveSearch": "Save search",
+    "saveNamePlaceholder": "Name this search…",
+    "saveDefaultName": "My saved search",
+    "saving": "Saving…",
+    "saveSuccess": "Search saved to your dashboard.",
+    "saveError": "Could not save search. Sign in and try again.",
+    "saveLoginRequired": "Sign in to save this search."
   },
   "property": {
     "backToSearch": "Back to search",
     "verifiedSeller": "Verified Seller",
+    "viewAgencyOne": "View 1 property from {name}",
+    "viewAgencyMany": "View all {count} properties from {name}",
     "priceCompare": "How this price compares",
     "priceCompareFallback": "Price comparison for this area will appear here once enough nearby sales are available.",
     "description": "Description",
@@ -186,7 +197,29 @@
     "notFoundDescription": "This listing may be offline or the id is invalid.",
     "loading": "Loading property…",
     "mapLoading": "Loading map",
-    "galleryA11y": "Property gallery"
+    "galleryA11y": "Property gallery",
+    "report": {
+      "button": "Report listing",
+      "title": "Report this listing",
+      "hint": "Tell us what’s wrong. Our team reviews every report.",
+      "reason": "Reason",
+      "note": "Details (optional)",
+      "notePlaceholder": "Share any context that helps moderators…",
+      "cancel": "Cancel",
+      "submit": "Submit report",
+      "submitting": "Submitting…",
+      "success": "Report submitted. Thank you for helping keep Bete safe.",
+      "error": "Could not submit the report. Try again.",
+      "loginRequired": "Sign in to report a listing.",
+      "reasons": {
+        "FAKE": "Fake or misleading listing",
+        "ALREADY_SOLD": "Already sold or rented",
+        "WRONG_PRICE": "Incorrect price",
+        "SCAM": "Suspected scam",
+        "OFFENSIVE": "Offensive content",
+        "OTHER": "Other"
+      }
+    }
   },
   "cities": {
     "addisAbaba": "Addis Ababa",
@@ -207,12 +240,14 @@
       "favorites": "Favorites",
       "messages": "Messages",
       "support": "Support",
-      "verification": "Verification"
+      "verification": "Verification",
+      "profile": "Agency profile"
     },
     "seller": {
       "welcome": "Welcome back, {name}",
       "eyebrow": "Seller performance",
       "export": "Export",
+      "exported": "Listings CSV downloaded.",
       "newListing": "New listing",
       "performance": "Performance score",
       "excellent": "Excellent",
@@ -222,6 +257,8 @@
       "active": "Active listings",
       "manageListings": "Manage listings",
       "portfolio": "Your portfolio",
+      "byDealType": "By deal type",
+      "byPropertyType": "By property type",
       "defaultName": "Seller"
     },
     "listings": {
@@ -230,17 +267,39 @@
       "searchPlaceholder": "Search your listings…",
       "empty": "No listings yet",
       "emptyHint": "Post your first property to appear in search.",
+      "filterEmpty": "No listings match your search",
+      "filterEmptyHint": "Try a different title or location keyword.",
+      "loadError": "Could not load your listings",
+      "loadErrorHint": "Check your connection and try again. Sign in as a seller if you are signed out.",
+      "featured": "Featured",
       "renew": "Renew",
       "boost": "Boost",
       "renewSuccess": "Listing renewed for 30 days.",
       "renewFallback": "Renew queued locally — sign in when the API is available.",
-      "boostPending": "Boost will be available once promotion billing ships."
+      "boostPending": "Boost will be available once promotion billing ships.",
+      "rejectionReason": "Rejection reason"
+    },
+    "profile": {
+      "title": "Agency profile",
+      "subtitle": "Update how buyers see your agency on Bete. Changes appear on your public profile immediately.",
+      "logo": "Logo",
+      "whatsapp": "WhatsApp number",
+      "telegram": "Telegram username",
+      "facebook": "Facebook URL",
+      "cityPlaceholder": "Select primary city",
+      "phoneLocked": "Phone {phone} can only change through verification OTP.",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "saved": "Profile updated.",
+      "error": "Could not save profile.",
+      "viewPublic": "View public profile"
     },
     "buyer": {
       "member": "Member",
       "memberSince": "Member since",
       "bio": "Exploring homes across Addis Ababa and secondary cities.",
       "editProfile": "Edit profile",
+      "becomeSeller": "Become a seller",
       "shareProfile": "Share profile",
       "saved": "Saved",
       "viewed": "Viewed",
@@ -250,7 +309,15 @@
       "savedSearches": "Saved searches",
       "savedSearch1": "3-bed villa in Bole under 20M",
       "savedSearch2": "Apartment near Meskel Square",
-      "alertsOn": "Alerts on"
+      "alertsOn": "Alerts on",
+      "runSearch": "Run",
+      "deleteSearch": "Delete",
+      "savedSearchDeleted": "Saved search removed.",
+      "savedSearchDeleteError": "Could not delete saved search.",
+      "savedSearchEmpty": "No saved searches yet",
+      "savedSearchEmptyHint": "Save filters from the search page to re-run them here.",
+      "savedSearchLoadError": "Could not load saved searches",
+      "savedSearchLoadHint": "Sign in to see searches you have saved."
     },
     "favorites": {
       "title": "Saved collections",
@@ -396,6 +463,7 @@
       "users": "Users",
       "categories": "Categories",
       "reports": "Reports",
+      "support": "Support",
       "analytics": "Analytics"
     },
     "actions": {
@@ -463,16 +531,25 @@
       "reported": "Reported",
       "empty": "Queue is clear",
       "emptyHint": "No PENDING listings match this filter.",
+      "reportedEmpty": "No community reports",
+      "reportedEmptyHint": "Buyer reports on listings will appear here.",
+      "pendingReports": "pending reports",
       "cleanPass": "Clean AI Pass",
       "cleanHint": "No anomalies detected. Images and metadata look consistent.",
       "submitted": "Submitted",
-      "aiFlagLabel": "AI Flag: "
+      "aiFlagLabel": "AI Flag: ",
+      "flagNoMessage": "No additional detail provided.",
+      "viewListing": "View listing",
+      "resolveFlag": "Dismiss flag",
+      "flagResolved": "Flag marked resolved.",
+      "flagResolveFallback": "Flag updated locally — sign in as ADMIN when the API is available."
     },
     "analytics": {
       "title": "Analytics & Revenue",
       "subtitle": "Marketplace vitality, boost revenue, and agency performance for the current quarter.",
-      "export": "Export PDF",
-      "report": "Quarterly Report",
+      "export": "Export CSV",
+      "report": "Quarterly PDF",
+      "exported": "Export downloaded.",
       "totalRevenue": "Total revenue",
       "boostRevenue": "Boost revenue",
       "conversion": "Conversion efficiency",
@@ -491,6 +568,26 @@
       "growth": "Growth",
       "revenueCol": "Revenue",
       "units": "units"
+    },
+    "support": {
+      "title": "Support inbox",
+      "open": "Open",
+      "resolvedTab": "Resolved",
+      "all": "All",
+      "empty": "No support threads",
+      "emptyHint": "Contact form submissions appear here as SUPPORT threads.",
+      "visitor": "Visitor",
+      "select": "Select a thread",
+      "selectHint": "Choose a conversation from the list to reply.",
+      "replyPlaceholder": "Write a reply…",
+      "send": "Send",
+      "sendError": "Could not send reply.",
+      "markResolved": "Mark resolved",
+      "reopen": "Reopen",
+      "resolved": "Thread marked resolved.",
+      "reopened": "Thread reopened.",
+      "resolveError": "Could not update thread status.",
+      "resolvedBadge": "Resolved"
     },
     "users": {
       "title": "Users",
@@ -521,7 +618,7 @@
       "title": "Reports",
       "subtitle": "Listings with pending community reports — resolve or dismiss each flag.",
       "empty": "No report queue items",
-      "emptyHint": "AUTO_HIDDEN listings and 3+ pending report groups show here.",
+      "emptyHint": "AUTO_HIDDEN listings and listings with pending buyer reports show here.",
       "pendingCount": "pending reports",
       "resolve": "Resolve",
       "dismiss": "Dismiss",
@@ -574,6 +671,28 @@
       "noAccount": "New to Bete?",
       "link": "Sign in"
     },
+    "forgot": {
+      "link": "Forgot password?",
+      "title": "Reset password",
+      "subtitle": "Enter the email on your account. We’ll send a reset link if it matches.",
+      "submit": "Send reset link",
+      "sending": "Sending…",
+      "sent": "Check your email for a reset link.",
+      "sentBody": "If an account exists for that email, a password reset link has been sent. The link expires in one hour.",
+      "error": "Could not start password reset.",
+      "backToSignIn": "Back to sign in"
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "subtitle": "Use the link from your email to set a new password.",
+      "confirmPassword": "Confirm password",
+      "submit": "Update password",
+      "saving": "Updating…",
+      "success": "Password updated. Sign in with your new password.",
+      "error": "Could not reset password.",
+      "mismatch": "Passwords do not match.",
+      "missingToken": "Reset link is missing or invalid."
+    },
     "register": {
       "title": "Create account",
       "subtitle": "Register as a buyer or seller. Admin accounts are provisioned separately.",
@@ -586,6 +705,14 @@
       "nextStepsIntro": "After registering, finish these from your dashboard:",
       "nextStepsOtp": "Confirm your phone with a one-time code (OTP).",
       "nextStepsDocs": "Upload an ID document or business license for verification."
+    },
+    "forbidden": "{role} access required",
+    "forbiddenHint": "Sign in with a {role} account to continue.",
+    "forbiddenBack": "Back to home",
+    "roleNames": {
+      "ADMIN": "Admin",
+      "SELLER": "Seller",
+      "USER": "Buyer"
     }
   },
   "location": {

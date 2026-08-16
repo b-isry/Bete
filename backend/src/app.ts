@@ -25,6 +25,7 @@ import { favoritesRouter } from './modules/favorites/routes/favorites.routes';
 import { notificationsRouter } from './modules/notifications/routes/notifications.routes';
 import { propertyRouter } from './modules/properties/routes/property.routes';
 import { propertySearchRouter } from './modules/properties/routes/property-search.routes';
+import { savedSearchesRouter } from './modules/saved-searches/routes/saved-search.routes';
 import { sellerDirectoryRouter } from './modules/sellers/routes/seller-directory.routes';
 import { storageRouter } from './modules/storage/routes/storage.routes';
 import { sendSuccess } from './utils/response';
@@ -63,6 +64,7 @@ export function createApp(): Application {
   app.use('/api/v1/messages', messagingRouter);
   app.use('/api/v1/contact', contactRouter);
   app.use('/api/v1/favorites', favoritesRouter);
+  app.use('/api/v1/saved-searches', savedSearchesRouter);
   app.use('/api/v1/notifications', notificationsRouter);
   // Search + event + report routes before generic `/:id`
   app.use('/api/v1/properties', propertySearchRouter);
